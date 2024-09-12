@@ -18,6 +18,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(quori_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(Eigen3 3.3 REQUIRED)
 
 find_package(QuoriLib REQUIRED)
 
@@ -26,11 +27,11 @@ target_include_directories(quori_node PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
-target_link_libraries(${PROJECT_NAME} quorilib)
+target_link_libraries(${PROJECT_NAME} quorilib Eigen3::Eigen)
 
 target_compile_features(quori_node PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 
-ament_target_dependencies(quori_node rclcpp tf2 tf2_ros std_msgs nav_msgs sensor_msgs geometry_msgs quori_msgs QuoriLib)
+ament_target_dependencies(quori_node rclcpp  tf2 tf2_ros std_msgs nav_msgs sensor_msgs geometry_msgs quori_msgs QuoriLib)
 
 #install package
 install(

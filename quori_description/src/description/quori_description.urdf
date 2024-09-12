@@ -61,35 +61,63 @@
 
   </link>
 
-  <joint name="body_joint" type="fixed">
+  <joint name="body_joint" type="continious">
     <parent link="base_link"/>
     <child link="body_link"/>
+    <axis xyz="0 0 1"/>
+    <dynamics friction="0.5" damping="0.1" />
     <origin xyz="0.0 0.0 ${(body_height/2+base_height/2)}" rpy="0 0 0"/>
   </joint>
- 
-  <link name="imu_link">
+
+  <!-- Robot Head -->
+  <link name="head_link">
+
+    <origin xyz="0 0 0" rpy="0 0 0"/>
     <visual>
       <geometry>
-        <box size="0.02 0.0150 0.005"/>   
+        <box size="${head_depth} ${head_width} ${head_height}"/> 
       </geometry>
-      <material name="PaperYellow">
-        <color rgba="1.0 1.0 0.9 1.0"/>
+      <material name="headBlack">
+        <color rgba="0.2 0.2 0.2 1.0"/>
       </material>
     </visual>
+
+    <collision>
+      <geometry>
+        <box size="${head_depth} ${head_width} ${head_height}"/>  
+      </geometry>
+    </collision>
+    <xacro:box_inertia m="1.0" w="${head_width}" h="${head_height}" d="${head_depth}"/> 
+
   </link>
 
-  
-  <joint name="imu_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="imu_link"/>
-    <origin xyz="-0.03 0.0 ${base_height/2}" rpy="0 0 0"/>
+  <joint name="head_joint" type="fixed">
+    <parent link="body_link"/>
+    <child link="head_link"/>
+    <origin xyz="${body_depth} 0.0 ${body_height/2}" rpy="0 0 0"/>
   </joint>
+ 
+  <!-- IMUs -->
+  <xacro:imu name="base_mtr" parent="base_link">
+      <origin xyz="${imu_base_mtr_x} ${imu_base_mtr_y} ${imu_base_mtr_z}" rpy="${imu_base_mtr_roll} ${imu_base_mtr_pitch} ${imu_base_mtr_yaw}"/>
+  </xacro:imu>
 
-  <xacro:wheel prefix="left_wheel" x_reflect="-1" y_reflect="1" />
-  <xacro:wheel prefix="right_wheel" x_reflect="-1" y_reflect="-1" />
+  <xacro:imu name="main" parent="body_link">
+        <origin xyz="${imu_base_mtr_x} ${imu_main_y} ${imu_main_z}"  rpy="${imu_main_roll} ${imu_main_pitch} ${imu_main_yaw}"/>
+  </xacro:imu>
+
+  <xacro:imu name="head" parent="head_link">
+        <origin xyz="${imu_head_x} ${imu_head_y} ${imu_head_z}" rpy="${imu_head_roll} ${imu_head_pitch} ${imu_head_yaw}"/>
+  </xacro:imu>
+
+  <!-- Wheels-->
+
+  <xacro:wheel prefix="left_wheel" x_reflect="1" y_reflect="1" />
+
+  <xacro:wheel prefix="right_wheel" x_reflect="1" y_reflect="-1" />
 
     <!-- Caster Wheel -->
-  <link name="front_caster">
+  <link name="left_caster">
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <visual>
       <geometry>
@@ -110,7 +138,7 @@
   </link>
 
       <!-- Caster Wheel -->
-  <link name="rear_caster">
+  <link name="right_caster">
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <visual>
       <geometry>
@@ -130,16 +158,16 @@
     <xacro:sphere_inertia m="0.001" r="${caster_radius}"/>
   </link>
 
-  <joint name="front_caster_joint" type="fixed">
+  <joint name="left_caster_joint" type="fixed">
     <parent link="base_link"/>
-    <child link="front_caster"/>
-    <origin xyz="${caster_xoff} 0.0 ${-(wheel_radius-caster_radius)+0.001}" rpy="0 0 0"/>
+    <child link="left_caster"/>
+    <origin xyz="${caster_xoff} ${caster_yoff} ${-(wheel_radius-caster_radius)+0.001}" rpy="0 0 0"/>
   </joint>
   
-  <joint name="rear_caster_joint" type="fixed">
+  <joint name="right_caster_joint" type="fixed">
     <parent link="base_link"/>
-    <child link="rear_caster"/>
-    <origin xyz="${-caster_xoff} 0.0 ${-(wheel_radius-caster_radius)+0.001}" rpy="0 0 0"/>
+    <child link="right_caster"/>
+    <origin xyz="${caster_xoff} ${-caster_yoff}  ${-(wheel_radius-caster_radius)+0.001}" rpy="0 0 0"/>
   </joint>
 
 
@@ -221,7 +249,7 @@
   <link name="camera_mount_link" />
 
   <joint name="cam_mount_joint" type="fixed">
-    <parent link="base_link"/>
+    <parent link="head_link"/>
     <child link="camera_mount_link"/>
     <origin xyz="${cam_top_xoff} 0 ${cam_top_zoff}" rpy="0 ${-cam_top_tilt} 0"/>
   </joint>
