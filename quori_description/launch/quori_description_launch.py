@@ -34,7 +34,7 @@ def generate_launch_description():
         name='joint_state_publisher',
         condition=launch.conditions.UnlessCondition(use_gui),
         parameters=[{
-            'source_list': ['base_wheel_joints'],
+            'source_list': ['base_wheel_joints',"body_joint"],
             'use_sim_time': use_sim_time
         }]
     )

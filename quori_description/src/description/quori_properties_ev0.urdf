@@ -14,29 +14,53 @@
   <xacro:property name="body_depth" value="0.050"/>
   <xacro:property name="body_height" value="0.5"/>
 
+  <xacro:property name="head_width" value="0.200"/>
+  <xacro:property name="head_depth" value="0.025"/>
+  <xacro:property name="head_height" value="0.150"/>
+
   <xacro:property name="wheel_radius" value="0.065"/>
   <xacro:property name="wheel_width" value="0.03"/>
 
   <xacro:property name="wheel_ygap" value="0.0"/>
-
-  <xacro:property name="wheel_yoff" value="0.16"/>
-
-  <xacro:property name="wheel_xoff" value="0.0"/>
+  <xacro:property name="wheel_yoff" value="0.14"/>
+  <xacro:property name="wheel_xoff" value="-0.150"/>
 
   <xacro:property name="caster_radius" value="0.04"/>
   <xacro:property name="caster_xoff"   value="0.13"/>
+  <xacro:property name="caster_yoff"   value="0.13"/>
 
   <xacro:property name="lidar_xoff" value="0.09"/>
   <xacro:property name="lidar_zoff" value="0.065"/> <!-- base link to bottom of lidar -->
 
  
-  <xacro:property name="cam_top_xoff" value="0.05"/>
-  <xacro:property name="cam_top_zoff" value="0.5"/>
+  <xacro:property name="cam_top_xoff" value="0.00"/>
+  <xacro:property name="cam_top_zoff" value="${head_height/2+0.04}"/>
   <xacro:property name="cam_top_tilt" value="0.0"/>
 
   <xacro:property name="cam_rgb_xoff" value="0.03"/>
   <xacro:property name="cam_rgb_zoff" value="1.02"/>
   <xacro:property name="cam_rgb_tilt" value="0.0"/>
+
+  <xacro:property name="imu_base_mtr_x" value="-0.06"/>
+  <xacro:property name="imu_base_mtr_y" value="0.06"/>
+  <xacro:property name="imu_base_mtr_z" value="0.0"/>
+  <xacro:property name="imu_base_mtr_roll" value="0.0"/>
+  <xacro:property name="imu_base_mtr_pitch" value="0.0"/>
+  <xacro:property name="imu_base_mtr_yaw" value="0.0"/>
+
+  <xacro:property name="imu_head_x" value="0.0"/>
+  <xacro:property name="imu_head_y" value="0.0"/>
+  <xacro:property name="imu_head_z" value="0.0"/>
+  <xacro:property name="imu_head_roll" value="0.0"/>
+  <xacro:property name="imu_head_pitch" value="0.0"/>
+  <xacro:property name="imu_head_yaw" value="0.0"/>
+
+  <xacro:property name="imu_main_x" value="-0.06"/>
+  <xacro:property name="imu_main_y" value="-0.06"/>
+  <xacro:property name="imu_main_z" value="0.0"/>
+  <xacro:property name="imu_main_roll" value="0.0"/>
+  <xacro:property name="imu_main_pitch" value="0.0"/>
+  <xacro:property name="imu_main_yaw" value="0.0"/>
 
 
 </robot>

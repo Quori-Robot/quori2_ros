@@ -41,7 +41,7 @@ def generate_launch_description():
 
     # get  ROS_DISTRO
     ros_distro = os.environ["ROS_DISTRO"]
-
+   
     vs_node = LifecycleNode(
         namespace="velocity_smoother",
         package='nav2_velocity_smoother',

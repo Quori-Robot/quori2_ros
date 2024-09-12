@@ -25,6 +25,27 @@
     </inertial>
   </xacro:macro>
 
+  <!-- IMU -->
+   <xacro:macro name="imu" params="name parent *imu_origin">
+    <link name="imu_${name}_link">
+      <visual>
+        <geometry>
+          <box size="0.02 0.0150 0.005"/>   
+        </geometry>
+        <material name="PaperYellow">
+          <color rgba="1.0 1.0 0.9 1.0"/>
+        </material>
+      </visual>
+    </link>
+
+    <joint name="${name}_imu_joint" type="fixed" >
+      <parent link="${parent}"/>
+      <child link="imu_${name}_link"/>
+      <xacro:insert_block name="imu_origin"/>
+    </joint>
+
+  </xacro:macro>
+
   <!-- Wheels -->
   <xacro:macro name="wheel" params="prefix x_reflect y_reflect">
     <link name="${prefix}_link">

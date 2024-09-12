@@ -1,3 +1,6 @@
+#ifndef _QUORI_NODE_HPP_
+#define _QUARI_NODE_HPP_
+
 #include <chrono>
 #include <functional>
 #include <memory>
@@ -14,6 +17,11 @@
 #include "quori_odom.hpp"
 #include "tf2_ros/transform_broadcaster.h"
 #include "quori_msgs/msg/motor_status.hpp"
+#include <eigen3/Eigen/Dense>
+#include "quori_node_types.hpp"
+
+#define HOLONOMIC_DRIVE
+//#define DIFFERENTIAL_DRIVE
 
 using std::placeholders::_1;
 
@@ -24,19 +32,7 @@ class QuoriNode : public rclcpp::Node
     private:
         QuoriContext context;
 
-        std::string robot_ip_address="10.2.99.111";
-        std::string ethernet_interface="eth0";
-
-        float wheelbase=0.310;
-        float wheelradius=0.065;
-
-        bool publish_odom_tf=true;
-        bool publish_wheel_joints=true;
-        bool swap_left_right=false;
-
-        float bot_x=0.0;
-        float bot_y=0.0;
-        float bot_w=0.0;
+        PARAMS params;
 
         rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_sub;
         rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub;
@@ -44,21 +40,67 @@ class QuoriNode : public rclcpp::Node
         rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_head_pub;
         rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_base_mtr_pub;
         rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr wheel_joint_pub;
+        rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr body_joint_pub;
         rclcpp::Publisher<quori_msgs::msg::MotorStatus>::SharedPtr mtr_status_pub;
         
         std::shared_ptr<Odom> odom_helper;
         std::shared_ptr<tf2_ros::TransformBroadcaster> tf_bc;
+
+        POSE pose;
+        rclcpp::Time last_timestamp;
+
+        Eigen::Matrix3d holonomic_invk;
        
         void cmd_vel_cb(const geometry_msgs::msg::Twist::SharedPtr msg) {
             //RCLCPP_INFO(get_logger(),"Got cmd_vel message");
 
-            float v1;
-            float v2;
+            float vx=msg->linear.x;
+            float vy=msg->linear.y;
+            float w=msg->angular.z;
 
-            v1 =  (msg->linear.x - msg->angular.z * wheelbase/2.0)/wheelradius;
-            v2 =  (msg->linear.x + msg->angular.z * wheelbase/2.0)/wheelradius;
+    #ifdef DIFFERENTIAL_DRIVE
+            float vl = vx;
+            float vw = w;
+            float v1 = mtr1_dir * (vl - vw * wheelbase/2.0)/wheelradius;
+            float v2 = mtr2_dir * (vl + vw * wheelbase/2.0)/wheelradius;
+    #endif
 
-            if(swap_left_right) {
+    #ifdef HOLONOMIC_DRIVE
+
+            double st =sin(pose.th_body);
+            double ct = cos(pose.th_body);
+            double rs2 = 2.0*params.xy_offset*params.wheelradius;
+
+            rclcpp::Time timestamp = get_clock()->now();
+            if(last_timestamp.seconds() == 0.0) {
+                last_timestamp = timestamp;
+                return;
+            }
+
+            double dt = timestamp.seconds() - last_timestamp.seconds();
+            last_timestamp = timestamp;
+
+            holonomic_invk <<
+                ct/params.wheelradius - params.wheelbase*st/rs2,    st/params.wheelradius + params.wheelbase*ct/rs2,    0.0,
+                ct/params.wheelradius + params.wheelbase*st/rs2,    st/params.wheelradius - params.wheelbase*ct/rs2,    0.0,
+                st/params.xy_offset,                               -ct/params.xy_offset,                                1.0;
+
+            Eigen::Vector3d x3;
+            x3 << vx,vy,w;
+
+            Eigen::Vector3d w3 = holonomic_invk * x3;
+
+            double v1 = params.mtr1_dir * w3[1];
+            double v2 = params.mtr2_dir * w3[0];
+
+            pose.w_body=w3[2];
+            pose.th_body -= dt * w3[2];
+
+            publish_body_joint_state(timestamp);
+            
+    #endif
+
+            if(params.swap_left_right) {
                 quori_send_mtr_cmd_packet(context,v2,v1,MTR_CMD_FLAGS::MTR_CMD_SET_VEL);
             }
             else {
@@ -71,32 +113,40 @@ class QuoriNode : public rclcpp::Node
 
         QuoriNode() : Node("quori_node") {
 
-            declare_parameter("robot_ip_address",robot_ip_address);
-            declare_parameter("ethernet_interface",ethernet_interface);
-            declare_parameter("wheelbase",wheelbase);
-            declare_parameter("wheelradius",wheelradius);
-            declare_parameter("publish_odom_tf",publish_odom_tf);
-            declare_parameter("publish_wheel_joint_states",publish_wheel_joints);
-            declare_parameter("swap_left_right",swap_left_right);
+            last_timestamp = {0,0};
 
-            robot_ip_address = get_parameter("robot_ip_address").as_string();
-            ethernet_interface = get_parameter("ethernet_interface").as_string();
-            wheelbase = get_parameter("wheelbase").as_double();
-            wheelradius = get_parameter("wheelradius").as_double();
-            publish_odom_tf = get_parameter("publish_odom_tf").as_bool();
-            publish_wheel_joints = get_parameter("publish_wheel_joint_states").as_bool();
-            swap_left_right = get_parameter("swap_left_right").as_bool();
+            declare_parameter("robot_ip_address",params.robot_ip_address);
+            declare_parameter("ethernet_interface",params.ethernet_interface);
+            declare_parameter("wheelbase",params.wheelbase);
+            declare_parameter("wheelradius",params.wheelradius);
+            declare_parameter("publish_odom_tf",params.publish_odom_tf);
+            declare_parameter("publish_wheel_joint_states",params.publish_wheel_joints);
+            declare_parameter("swap_left_right",params.swap_left_right);
+            declare_parameter("mtr1_dir",params.mtr1_dir);
+            declare_parameter("mtr2_dir",params.mtr2_dir);
+
+            params.robot_ip_address = get_parameter("robot_ip_address").as_string();
+            params.ethernet_interface = get_parameter("ethernet_interface").as_string();
+            params.wheelbase = get_parameter("wheelbase").as_double();
+            params.wheelradius = get_parameter("wheelradius").as_double();
+            params.publish_odom_tf = get_parameter("publish_odom_tf").as_bool();
+            params.publish_wheel_joints = get_parameter("publish_wheel_joint_states").as_bool();
+            params.swap_left_right = get_parameter("swap_left_right").as_bool();
+            params.mtr1_dir = get_parameter("mtr1_dir").as_int();
+            params.mtr2_dir = get_parameter("mtr2_dir").as_int();
 
 
-            RCLCPP_INFO(get_logger(),"Param: robot_ip_address=%s",robot_ip_address.c_str());
-            RCLCPP_INFO(get_logger(),"Param: ethernet_interface=%s",ethernet_interface.c_str());
-            RCLCPP_INFO(get_logger(),"Param: wheelbase=%5.2f",wheelbase);
-            RCLCPP_INFO(get_logger(),"Param: wheelradius=%5.2f",wheelradius);
-            RCLCPP_INFO(get_logger(),"Param: publish_odom_tf=%s",publish_odom_tf?"True":"False");
-            RCLCPP_INFO(get_logger(),"Param: publish_wheel_joint_states=%s",publish_wheel_joints?"True":"False");
-            RCLCPP_INFO(get_logger(),"Param: swap_left_right=%s",swap_left_right?"True":"False");
+            RCLCPP_INFO(get_logger(),"Param: robot_ip_address=%s",params.robot_ip_address.c_str());
+            RCLCPP_INFO(get_logger(),"Param: ethernet_interface=%s",params.ethernet_interface.c_str());
+            RCLCPP_INFO(get_logger(),"Param: wheelbase=%5.2f",params.wheelbase);
+            RCLCPP_INFO(get_logger(),"Param: wheelradius=%5.2f",params.wheelradius);
+            RCLCPP_INFO(get_logger(),"Param: publish_odom_tf=%s",params.publish_odom_tf?"True":"False");
+            RCLCPP_INFO(get_logger(),"Param: publish_wheel_joint_states=%s",params.publish_wheel_joints?"True":"False");
+            RCLCPP_INFO(get_logger(),"Param: swap_left_right=%s",params.swap_left_right?"True":"False");
+            RCLCPP_INFO(get_logger(),"Param: mtr1_dir=%d",params.mtr1_dir);
+            RCLCPP_INFO(get_logger(),"Param: mtr2_dir=%d",params.mtr2_dir);
 
-            QUORI_API_STS sts = quori_open(context,robot_ip_address.c_str(),ethernet_interface.c_str());
+            QUORI_API_STS sts = quori_open(context,params.robot_ip_address.c_str(),params.ethernet_interface.c_str());
        
             RCLCPP_INFO(get_logger(),"Quori Node opened quoriLib: sts=%d",(uint32_t)sts);  
             if (sts != QUORI_API_STS::STS_OK) {
@@ -116,15 +166,16 @@ class QuoriNode : public rclcpp::Node
             imu_head_pub = create_publisher<sensor_msgs::msg::Imu>("imu_head_raw",10);
             imu_base_mtr_pub = create_publisher<sensor_msgs::msg::Imu>("imu_base_mtr_raw",10);
             mtr_status_pub = create_publisher<quori_msgs::msg::MotorStatus>("motor_status",10);
+            body_joint_pub = create_publisher<sensor_msgs::msg::JointState>("body_joint",10);
 
-            if(publish_wheel_joints) {
+            if(params.publish_wheel_joints) {
                 wheel_joint_pub = create_publisher<sensor_msgs::msg::JointState>("base_wheel_joints",10);
             }
             
 
             tf_bc = std::make_shared<tf2_ros::TransformBroadcaster>(this);
 
-            odom_helper = std::make_shared<Odom>(this,odom_pub,tf_bc,wheelbase,wheelradius,publish_odom_tf,swap_left_right);
+            odom_helper = std::make_shared<Odom>(this,odom_pub,tf_bc,params,pose);
 
 
             sts = quori_start_streaming(context);
@@ -156,7 +207,7 @@ class QuoriNode : public rclcpp::Node
 
                 RCLCPP_DEBUG(get_logger(),"Got motor sts packet");
                 odom_helper->publish(packet);
-                if(publish_wheel_joints) {
+                if(params.publish_wheel_joints) {
                     odom_helper->publish_wheel_joint_state(wheel_joint_pub);
                 }
 
@@ -209,9 +260,12 @@ class QuoriNode : public rclcpp::Node
 
             std::array<double,9> cv= { 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0 };
 
-            imu.header.stamp.sec = imu_data.timestamp.sec;
-            imu.header.stamp.nanosec = imu_data.timestamp.nanosec;
+            rclcpp::Time timestamp = get_clock()->now();
 
+            //timestamp = rclcpp::Time( imu_data.timestamp.sec, imu_data.timestamp.nanosec); 
+ 
+            imu.header.stamp = timestamp;
+     
             imu.orientation.x = imu_data.orientation[0]; 
             imu.orientation.y = imu_data.orientation[1];
             imu.orientation.z = imu_data.orientation[2];
@@ -234,17 +288,17 @@ class QuoriNode : public rclcpp::Node
             switch(imu_data.imu_id) {
 
                 case IMU_ID::MAIN_BOARD_IMU:
-                    imu.header.frame_id = "imu_main";
+                    imu.header.frame_id = "imu_main_link";
                     imu_main_pub->publish(imu);
                     break;
 
                 case IMU_ID::HEAD_BOARD_IMU:
-                    imu.header.frame_id = "imu_head";
+                    imu.header.frame_id = "imu_head_link";
                     imu_head_pub->publish(imu);
                     break;
 
                 case IMU_ID::BASE_MOTOR_BOARD_IMU:
-                    imu.header.frame_id = "imu_base_mtr";
+                    imu.header.frame_id = "imu_base_mtr_link";
                     imu_base_mtr_pub->publish(imu);
                     break;
 
@@ -264,7 +318,21 @@ class QuoriNode : public rclcpp::Node
             //odom_pub->publish(odom);
         }
 
-};
+        void publish_body_joint_state(rclcpp::Time & stamp) {
+   
+                sensor_msgs::msg::JointState joint_state;
 
+                joint_state.name = {"body_joint"};
+                joint_state.position = {pose.th_body};
+                joint_state.velocity = {pose.w_body};
+
+                joint_state.header.stamp = stamp;
+                joint_state.header.frame_id = "base_link";
+
+                body_joint_pub->publish(joint_state);
+        };
+
+};
+#endif // _QUARI_NODE_HPP_
 
 

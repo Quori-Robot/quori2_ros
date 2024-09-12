@@ -6,7 +6,7 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "tf2_ros/transform_broadcaster.h"
-
+#include "quori_node_types.hpp"
 class Odom {
 
     private:
@@ -15,11 +15,7 @@ class Odom {
         rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub;
         std::shared_ptr<tf2_ros::TransformBroadcaster> tf_bc;
 
-        float wheelbase;
-        float wheelradius;
-
-        bool publish_tf=false;
-        bool swap_left_right=false;
+        PARAMS & params;
 
         rclcpp::Time last_stamp = node->get_clock()->now();
 
@@ -32,16 +28,13 @@ class Odom {
         double dt=0.0;
         double last_time=0.0;
 
-        float bot_x=0.0;
-        float bot_y=0.0;
-        float bot_w=0.0;
+        POSE & pose;
 
     public:
         Odom( rclcpp::Node* node, rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub,
-         std::shared_ptr<tf2_ros::TransformBroadcaster> tf_bc, float wheelbase , float wheelradius, bool publish_tf, bool swap_left_right) : 
+         std::shared_ptr<tf2_ros::TransformBroadcaster> tf_bc, PARAMS &params, POSE & pose) : 
 
-                    node(node), odom_pub(odom_pub), tf_bc(tf_bc), wheelbase(wheelbase), wheelradius(wheelradius), publish_tf(publish_tf),
-                    swap_left_right(swap_left_right) {
+                    node(node), odom_pub(odom_pub), tf_bc(tf_bc), params(params), pose(pose) {
            
         }
 
@@ -89,13 +82,13 @@ class Odom {
             odom.header.frame_id = "odom";
             odom.child_frame_id = "base_footprint";
 
-            if(swap_left_right) {
-                w1=mtr_sts.vel[1];
-                w2=mtr_sts.vel[0];
+            if(params.swap_left_right) {
+                w1= params.mtr1_dir * mtr_sts.vel[1];
+                w2= params.mtr2_dir * mtr_sts.vel[0];
             }
             else {
-                w1=mtr_sts.vel[0];
-                w2=mtr_sts.vel[1];
+                w1= params.mtr1_dir * mtr_sts.vel[0];
+                w2= params.mtr2_dir * mtr_sts.vel[1];
             }
 
             ja1 += w1 * dt;
@@ -115,27 +108,26 @@ class Odom {
             }
 
 
-            w1 = wheelradius * w1;
-            w2 = wheelradius * w2;
+            w1 = params.wheelradius * w1;
+            w2 = params.wheelradius * w2;
 
             //RCLCPP_INFO(node->get_logger(),"Vel: %f,%f",w1,w2);
 
             float vel = (w1 + w2)/2.0;
-            float w   = (w2 - w1)/wheelbase;
+            float w   = (w2 - w1)/params.wheelbase;
 
-            bot_w += w * dt;
-
-            bot_x += vel * cos(bot_w) * dt;
-            bot_y += vel * sin(bot_w) * dt;
+            pose.th += w * dt;
+            pose.x += vel * cos(pose.th) * dt;
+            pose.y += vel * sin(pose.th) * dt;
 
             
 
-            odom.pose.pose.position.x = bot_x;
-            odom.pose.pose.position.y = bot_y;
+            odom.pose.pose.position.x = pose.x;
+            odom.pose.pose.position.y = pose.y;
             odom.pose.pose.position.z = 0;
 
             tf2::Quaternion q;
-            q.setRPY(0.0,0.0,bot_w);
+            q.setRPY(0.0,0.0,pose.th);
 
             //RCLCPP_DEBUG(node->get_logger(),"Got Quaternion");
 
@@ -175,14 +167,14 @@ class Odom {
 
             //RCLCPP_DEBUG(node->get_logger(),"Publish odom ok");
             
-            if(publish_tf) {
+            if(params.publish_odom_tf) {
                 geometry_msgs::msg::TransformStamped tf;
 
                 tf.header.frame_id = "odom";
                 tf.child_frame_id = "base_footprint";
 
-                tf.transform.translation.x = bot_x;
-                tf.transform.translation.y = bot_y;
+                tf.transform.translation.x = pose.x;
+                tf.transform.translation.y = pose.y;
                 tf.transform.translation.z = 0.0;
 
                 tf.transform.rotation.x = q.getX();
