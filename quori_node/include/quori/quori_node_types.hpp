@@ -2,12 +2,30 @@
 #define _QUORI_NODE_TYPES_HPP_
 #include <string>
 
+#define HOLONOMIC_DRIVE
+//#define DIFFERENTIAL_DRIVE
+
 typedef struct {
     float x=0.0;  // world X
     float y=0.0;  // world Y
-    float th=0.0; // world theta
+    float th=0.0; // world theta of base
+
+    float w1=0.0;  // wheel 1 rotation rate
+    float w2=0.0;  // wheel 2 rotation rate 
+    float w=0.0;   // world rotation rate of base
+
     float th_body=0.0; // rotation angle of body relative to base
     float w_body=0.0;  // body rotation speed relative to base
+
+    float pos_neck=0.0; // linear position of neck relative to body
+    float vel_neck=0.0; // velocity of neck relative body
+
+    float th_pan=0.0; // rotation angle of pan joint relative to neck
+    float w_pan=0.0;  // pan rotation speed relative to neck
+
+    float th_tilt=0.0; // rotation angle of tilt joint relative to neck
+    float w_tilt=0.0;  // tilt rotation speed relative to neck
+
 } POSE;
 
 typedef struct {
@@ -23,6 +41,7 @@ typedef struct {
     bool swap_left_right=false;
     int mtr1_dir =1;
     int mtr2_dir =1;
+    int mtr3_dir =1;
 } PARAMS;
 
 #endif // _QUORI_NODE_TYPES_HPP_

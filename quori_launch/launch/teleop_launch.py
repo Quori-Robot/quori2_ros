@@ -19,7 +19,7 @@ def generate_launch_description():
     args = [
         DeclareLaunchArgument('controller_type', default_value='xbox360'), 
         DeclareLaunchArgument('dev_name', default_value='Xbox 360 Wireless Receiver'), 
-        DeclareLaunchArgument('deadzone', default_value='0.05'), 
+        DeclareLaunchArgument('deadzone', default_value='0.2'), 
         DeclareLaunchArgument('autorepeaterate', default_value='10'), 
         DeclareLaunchArgument('coalesce_interval', default_value='0.001'), 
         DeclareLaunchArgument('dev_ff', default_value='/dev/input/event9'),

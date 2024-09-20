@@ -22,8 +22,8 @@
   <xacro:property name="wheel_width" value="0.03"/>
 
   <xacro:property name="wheel_ygap" value="0.0"/>
-  <xacro:property name="wheel_yoff" value="0.14"/>
-  <xacro:property name="wheel_xoff" value="-0.150"/>
+  <xacro:property name="wheel_yoff" value="0.1615"/>
+  <xacro:property name="wheel_xoff" value="-0.100"/>
 
   <xacro:property name="caster_radius" value="0.04"/>
   <xacro:property name="caster_xoff"   value="0.13"/>

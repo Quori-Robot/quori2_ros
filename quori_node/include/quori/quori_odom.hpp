@@ -7,6 +7,9 @@
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "tf2_ros/transform_broadcaster.h"
 #include "quori_node_types.hpp"
+
+#include <eigen3/Eigen/Dense>
+
 class Odom {
 
     private:
@@ -42,7 +45,7 @@ class Odom {
    
                 sensor_msgs::msg::JointState wheel_joint_states;
 
-                wheel_joint_states.name = {"left_wheel_joint", "right_wheel_joint"};
+                wheel_joint_states.name = {"right_wheel_joint", "left_wheel_joint"};
                 wheel_joint_states.position = {ja1,ja2};
                 wheel_joint_states.velocity = {w1,w2};
 
@@ -83,12 +86,12 @@ class Odom {
             odom.child_frame_id = "base_footprint";
 
             if(params.swap_left_right) {
-                w1= params.mtr1_dir * mtr_sts.vel[1];
-                w2= params.mtr2_dir * mtr_sts.vel[0];
+                w1= params.mtr2_dir * mtr_sts.vel_pos[1];
+                w2= params.mtr1_dir * mtr_sts.vel_pos[0];
             }
             else {
-                w1= params.mtr1_dir * mtr_sts.vel[0];
-                w2= params.mtr2_dir * mtr_sts.vel[1];
+                w1= params.mtr1_dir * mtr_sts.vel_pos[0];
+                w2= params.mtr2_dir * mtr_sts.vel_pos[1];
             }
 
             ja1 += w1 * dt;
@@ -108,26 +111,68 @@ class Odom {
             }
 
 
+#ifdef DIFFERENTIAL_DRIVE
             w1 = params.wheelradius * w1;
             w2 = params.wheelradius * w2;
 
             //RCLCPP_INFO(node->get_logger(),"Vel: %f,%f",w1,w2);
 
-            float vel = (w1 + w2)/2.0;
+            float vel_x = (w1 + w2)/2.0;
+            float vel_y =0.0;
+
             float w   = (w2 - w1)/params.wheelbase;
 
             pose.th += w * dt;
             pose.x += vel * cos(pose.th) * dt;
             pose.y += vel * sin(pose.th) * dt;
 
-            
+#endif
+#ifdef HOLONOMIC_DRIVE     
+            Eigen::Matrix<double,3,2> holonomic_k;
+
+           
+            double rs_on_w = (params.xy_offset*params.wheelradius)/params.wheelbase;
+            double r_on_2 = (params.wheelradius/2.0);
+
+            holonomic_k <<
+                r_on_2 ,  r_on_2, 
+                rs_on_w, -rs_on_w ,
+                params.wheelradius/params.wheelbase, - params.wheelradius/params.wheelbase;
+
+            //   r_on_2 * ct + rs_on_w * st,  r_on_2 * ct - rs_on_w * st, 
+            //  -r_on_2 * st + rs_on_w * ct, -r_on_2 * st - rs_on_w * ct, 
+            //   params.wheelradius/params.wheelbase, - params.wheelradius/params.wheelbase;
+
+            Eigen::Vector2d wrl;
+            wrl << w1, w2;
+
+            Eigen::Vector3d x3 = holonomic_k * wrl;
+
+            float vel_x = x3[0];
+            float vel_y = x3[1];
+            float w =     x3[2];
+
+            pose.th += w * dt;
+
+            double st = sin(pose.th);
+            double ct = cos(pose.th);
+
+            float vx = vel_x * ct  + vel_y * -st;
+            float vy = vel_x * st  + vel_y *  ct ;
+ 
+            pose.x += vx * dt;
+            pose.y += vy * dt ;
+
+
+
+#endif
 
             odom.pose.pose.position.x = pose.x;
             odom.pose.pose.position.y = pose.y;
             odom.pose.pose.position.z = 0;
 
             tf2::Quaternion q;
-            q.setRPY(0.0,0.0,pose.th);
+            q.setRPY(0.0,0.0,pose.th+pose.th_body);
 
             //RCLCPP_DEBUG(node->get_logger(),"Got Quaternion");
 
@@ -136,13 +181,13 @@ class Odom {
             odom.pose.pose.orientation.z = q.getZ();
             odom.pose.pose.orientation.w = q.getW();
 
-            odom.twist.twist.linear.x = vel;
-            odom.twist.twist.linear.y = 0.0;
+            odom.twist.twist.linear.x = vx;
+            odom.twist.twist.linear.y = vy;
             odom.twist.twist.linear.z = 0.0;
 
             odom.twist.twist.angular.x = 0.0;
             odom.twist.twist.angular.y = 0.0;
-            odom.twist.twist.angular.z = w;
+            odom.twist.twist.angular.z = w+pose.w_body;
 
             //RCLCPP_DEBUG(node->get_logger(),"Done Pose");
 

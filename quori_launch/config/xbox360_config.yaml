@@ -4,17 +4,18 @@ teleop_joy:
     enable_button: 4
 
     axis_linear.x: 1
-    axis_linear.y: 0
+    axis_linear.y: 3
     axis_linear.z: 4
 
     scale_linear.x: 1.0
-    scale_linear.y: -1.0
+    scale_linear.y: 0.5
     scale_linear.z: 1.0
 
-    axis_angular.yaw: 3
+    axis_angular.yaw: 0
     axis_angular.pitch: 5
     axis_angular.roll: 2
 
-    scale_angular.yaw: 1.0
+    scale_angular.yaw: 6.2
     scale_angular.pitch: 1.0
     scale_angular.roll: 1.0
+    

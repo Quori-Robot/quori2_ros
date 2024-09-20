@@ -12,8 +12,16 @@
   <!-- Robot Footprint -->
   <link name="base_footprint"/>
 
-  <!-- Robot Base -->
-  <link name="base_link">
+  <link name="base_link"/>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0.0 0.0 ${(wheel_radius)}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Robot Diff Base -->
+  <link name="diff_base_link">
     <visual>
       <geometry>
         <cylinder radius="${base_radius}" length="${base_height}"/> 
@@ -33,11 +41,7 @@
     <xacro:cylinder_inertia m="15" r="${base_radius}" h="${base_height}"/>
   </link>
 
-  <joint name="base_joint" type="fixed">
-    <parent link="base_footprint"/>
-    <child link="base_link"/>
-    <origin xyz="0.0 0.0 ${(wheel_radius)}" rpy="0 0 0"/>
-  </joint>
+
 
   <!-- Robot Body -->
   <link name="body_link">
@@ -61,11 +65,17 @@
 
   </link>
 
-  <joint name="body_joint" type="continious">
+  <joint name="diff_base_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="diff_base_link"/>
+    <axis xyz="0 0 -1"/>
+    <dynamics friction="0.5" damping="0.1" />
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="body_joint" type="fixed">
     <parent link="base_link"/>
     <child link="body_link"/>
-    <axis xyz="0 0 1"/>
-    <dynamics friction="0.5" damping="0.1" />
     <origin xyz="0.0 0.0 ${(body_height/2+base_height/2)}" rpy="0 0 0"/>
   </joint>
 
@@ -98,7 +108,7 @@
   </joint>
  
   <!-- IMUs -->
-  <xacro:imu name="base_mtr" parent="base_link">
+  <xacro:imu name="base_mtr" parent="diff_base_link">
       <origin xyz="${imu_base_mtr_x} ${imu_base_mtr_y} ${imu_base_mtr_z}" rpy="${imu_base_mtr_roll} ${imu_base_mtr_pitch} ${imu_base_mtr_yaw}"/>
   </xacro:imu>
 
@@ -159,13 +169,13 @@
   </link>
 
   <joint name="left_caster_joint" type="fixed">
-    <parent link="base_link"/>
+    <parent link="diff_base_link"/>
     <child link="left_caster"/>
     <origin xyz="${caster_xoff} ${caster_yoff} ${-(wheel_radius-caster_radius)+0.001}" rpy="0 0 0"/>
   </joint>
   
   <joint name="right_caster_joint" type="fixed">
-    <parent link="base_link"/>
+    <parent link="diff_base_link"/>
     <child link="right_caster"/>
     <origin xyz="${caster_xoff} ${-caster_yoff}  ${-(wheel_radius-caster_radius)+0.001}" rpy="0 0 0"/>
   </joint>
