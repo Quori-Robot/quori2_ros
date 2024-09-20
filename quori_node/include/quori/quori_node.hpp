@@ -17,6 +17,7 @@
 #include "quori_odom.hpp"
 #include "tf2_ros/transform_broadcaster.h"
 #include "quori_msgs/msg/motor_status.hpp"
+#include "quori_msgs/msg/base_vel_cmd.hpp"
 #include <eigen3/Eigen/Dense>
 #include "quori_node_types.hpp"
 
@@ -46,7 +47,8 @@ class QuoriNode : public rclcpp::Node
         rclcpp::Publisher<quori_msgs::msg::MotorStatus>::SharedPtr neck_mtr_status_pub;
         rclcpp::Publisher<quori_msgs::msg::MotorStatus>::SharedPtr pan_mtr_status_pub;
         rclcpp::Publisher<quori_msgs::msg::MotorStatus>::SharedPtr tilt_mtr_status_pub;
-        
+        rclcpp::Publisher<quori_msgs::msg::BaseVelCmd>::SharedPtr base_vel_cmd_pub;
+
         std::shared_ptr<Odom> odom_helper;
         std::shared_ptr<tf2_ros::TransformBroadcaster> tf_bc;
 
@@ -56,7 +58,7 @@ class QuoriNode : public rclcpp::Node
         Eigen::Matrix3d holonomic_invk;
        
         void cmd_vel_cb(const geometry_msgs::msg::Twist::SharedPtr msg) {
-            RCLCPP_INFO(get_logger(),"Got cmd_vel message");
+            RCLCPP_DEBUG(get_logger(),"Got cmd_vel message");
 
             float vx=msg->linear.x;
             float vy=msg->linear.y;
@@ -75,15 +77,6 @@ class QuoriNode : public rclcpp::Node
             double ct = cos(-pose.th_body);
             double rs2 = 2.0*params.xy_offset*params.wheelradius;
 
-            rclcpp::Time timestamp = get_clock()->now();
-            if(last_timestamp.seconds() == 0.0) {
-                last_timestamp = timestamp;
-                return;
-            }
-
-            double dt = timestamp.seconds() - last_timestamp.seconds();
-            last_timestamp = timestamp;
-
             holonomic_invk <<
                 ct/params.wheelradius - params.wheelbase*st/rs2,    st/params.wheelradius + params.wheelbase*ct/rs2,    0.0,
                 ct/params.wheelradius + params.wheelbase*st/rs2,    st/params.wheelradius - params.wheelbase*ct/rs2,    0.0,
@@ -98,9 +91,6 @@ class QuoriNode : public rclcpp::Node
             double v2 = w3[1];
             double v3 = w3[2];
 
-            pose.w_body = w3[2];
-            pose.th_body += dt * pose.w_body;
-
     #endif
             QUORI_API_STS sts;
 
@@ -114,6 +104,16 @@ class QuoriNode : public rclcpp::Node
             if(sts != QUORI_API_STS::STS_OK) {
                 RCLCPP_DEBUG(get_logger(),"Got send base mtr cmd Error: sts =%d",(int)sts);
             }
+
+            quori_msgs::msg::BaseVelCmd base_vel_cmd_msg;
+            base_vel_cmd_msg.header.stamp = get_clock()->now();
+            base_vel_cmd_msg.header.frame_id="diff_base_link";
+
+            base_vel_cmd_msg.velocity[0] = w3[0];
+            base_vel_cmd_msg.velocity[1] = w3[1];
+            base_vel_cmd_msg.velocity[2] = w3[2];
+
+            base_vel_cmd_pub->publish(base_vel_cmd_msg);
         }
 
 
@@ -183,7 +183,9 @@ class QuoriNode : public rclcpp::Node
             pan_mtr_status_pub = create_publisher<quori_msgs::msg::MotorStatus>("motor_status_pan",10);
             tilt_mtr_status_pub = create_publisher<quori_msgs::msg::MotorStatus>("motor_status_tilt",10);
 
-            joint_state_pub = create_publisher<sensor_msgs::msg::JointState>("quori_joint_status",10);
+            joint_state_pub = create_publisher<sensor_msgs::msg::JointState>("quori_joint_states",10);
+            
+            base_vel_cmd_pub = create_publisher<quori_msgs::msg::BaseVelCmd>("base_vel_cmd",10);
 
             tf_bc = std::make_shared<tf2_ros::TransformBroadcaster>(this);
 
@@ -244,8 +246,8 @@ class QuoriNode : public rclcpp::Node
                     msg.encoder_count[0] = mtr_sts.encoder_count[0];
                     msg.encoder_count[1] = mtr_sts.encoder_count[1];
 
-                    msg.vel[0] = mtr_sts.vel_pos[0];
-                    msg.vel[1] = mtr_sts.vel_pos[1];
+                    msg.vel[0] = params.mtr1_dir * mtr_sts.vel_pos[0];
+                    msg.vel[1] = params.mtr2_dir *mtr_sts.vel_pos[1];
 
                     msg.din = mtr_sts.din;
 
@@ -292,6 +294,9 @@ class QuoriNode : public rclcpp::Node
                     switch(mtr_sts.mtr_id) {
                         case MOTOR_ID::TWIST_MOTOR:
 
+                            msg.vel[0] *= params.mtr3_dir;
+                            msg.pos    *= params.mtr3_dir;
+
                             pose.th_body = msg.pos;
                             pose.w_body = msg.vel[0];
 
@@ -322,7 +327,7 @@ class QuoriNode : public rclcpp::Node
                             pose.w_tilt = msg.vel[0];
 
                             tilt_mtr_status_pub->publish(msg);
-                            publish_twist_joint_state(timestamp);
+                            publish_tilt_joint_state(timestamp);
                             break;
 
                         default:

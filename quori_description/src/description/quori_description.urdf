@@ -42,8 +42,16 @@
   </link>
 
 
+  <joint name="twist_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="diff_base_link"/>
+    <axis xyz="0 0 -1"/>
+    <dynamics friction="0.5" damping="0.1" />
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+  </joint>
 
-  <!-- Robot Body -->
+  <!-- Robot body
+
   <link name="body_link">
 
     <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -62,22 +70,87 @@
       </geometry>
     </collision>
     <xacro:box_inertia m="1.0" w="${body_width}" h="${body_height}" d="${body_depth}"/> 
+  </link>
+
+  
+  <joint name="body_joint" type="fixed">
+    <parent link="spine_link"/>
+    <child link="body_link"/>
+    <origin xyz="0.0 0.0 ${(spine_height/2+base_height/2)}" rpy="0 0 0"/>
+  </joint>
+
+  -->
+
+  <!-- Robot spine -->
+  <link name="spine_link">
+
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <visual>
+      <geometry>
+        <box size="${spine_depth} ${spine_width} ${spine_height}"/> 
+      </geometry>
+      <material name="BodyWhite">
+        <color rgba="0.8 0.8 0.8 1.0"/>
+      </material>
+    </visual>
+
+    <collision>
+      <geometry>
+        <box size="${spine_depth} ${spine_width} ${spine_height}"/>   
+      </geometry>
+    </collision>
+    <xacro:box_inertia m="1.0" w="${spine_width}" h="${spine_height}" d="${spine_depth}"/> 
 
   </link>
 
-  <joint name="diff_base_joint" type="continuous">
+
+  <joint name="spine_joint" type="fixed">
     <parent link="base_link"/>
-    <child link="diff_base_link"/>
-    <axis xyz="0 0 -1"/>
-    <dynamics friction="0.5" damping="0.1" />
-    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    <child link="spine_link"/>
+    <origin xyz="0.0 0.0 ${(spine_height/2+base_height/2)}" rpy="0 0 0"/>
   </joint>
 
-  <joint name="body_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="body_link"/>
-    <origin xyz="0.0 0.0 ${(body_height/2+base_height/2)}" rpy="0 0 0"/>
+  <link name="collar_link" />
+
+  <joint name="neck_joint" type="prismatic">
+    <parent link="spine_link"/>
+    <child link="collar_link"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="0" upper="${spine_height/2}" effort="100" velocity="1" />
+    <dynamics friction="0.5" damping="0.1" />
+    <origin xyz="0.0 0.0 ${(spine_height/2)}" rpy="0 0 0"/>
   </joint>
+
+  <link name="neck_link"> 
+
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <visual>
+      <geometry>
+        <box size="${neck_depth} ${neck_width} ${neck_height}"/> 
+      </geometry>
+      <material name="BodyWhite">
+        <color rgba="0.8 0.8 0.8 1.0"/>
+      </material>
+    </visual>
+
+    <collision>
+      <geometry>
+        <box size="${neck_depth} ${neck_width} ${neck_height}"/>  
+      </geometry>
+    </collision>
+    <xacro:box_inertia m="1.0" w="${neck_width}" h="${neck_height}" d="${neck_depth}"/> 
+
+  </link>
+
+  <joint name="pan_joint" type="revolute">
+    <parent link="collar_link"/>
+    <child link="neck_link"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="${-pi}" upper="${pi}"  effort="100" velocity="1" />
+    <dynamics friction="0.5" damping="0.1" />
+    <origin xyz="0.0 0.0 ${(spine_height/2)}" rpy="0 0 0"/>
+  </joint>
+
 
   <!-- Robot Head -->
   <link name="head_link">
@@ -101,10 +174,13 @@
 
   </link>
 
-  <joint name="head_joint" type="fixed">
-    <parent link="body_link"/>
+  <joint name="tilt_joint" type="revolute">
+    <parent link="neck_link"/>
     <child link="head_link"/>
-    <origin xyz="${body_depth} 0.0 ${body_height/2}" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="${-pi/4}" upper="${pi/4}"  effort="100" velocity="1"/>
+    <dynamics friction="0.5" damping="0.1" />
+    <origin xyz="${neck_depth} 0.0 0.0" rpy="0 0 0"/>
   </joint>
  
   <!-- IMUs -->
@@ -112,7 +188,7 @@
       <origin xyz="${imu_base_mtr_x} ${imu_base_mtr_y} ${imu_base_mtr_z}" rpy="${imu_base_mtr_roll} ${imu_base_mtr_pitch} ${imu_base_mtr_yaw}"/>
   </xacro:imu>
 
-  <xacro:imu name="main" parent="body_link">
+  <xacro:imu name="main" parent="spine_link">
         <origin xyz="${imu_base_mtr_x} ${imu_main_y} ${imu_main_z}"  rpy="${imu_main_roll} ${imu_main_pitch} ${imu_main_yaw}"/>
   </xacro:imu>
 

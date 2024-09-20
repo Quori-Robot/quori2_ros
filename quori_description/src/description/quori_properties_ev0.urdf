@@ -14,6 +14,14 @@
   <xacro:property name="body_depth" value="0.050"/>
   <xacro:property name="body_height" value="0.5"/>
 
+  <xacro:property name="spine_width" value="0.050"/>
+  <xacro:property name="spine_depth" value="0.050"/>
+  <xacro:property name="spine_height" value="0.5"/>
+
+  <xacro:property name="neck_width" value="0.075"/>
+  <xacro:property name="neck_depth"  value="0.2"/>
+  <xacro:property name="neck_height" value="0.1"/>
+
   <xacro:property name="head_width" value="0.200"/>
   <xacro:property name="head_depth" value="0.025"/>
   <xacro:property name="head_height" value="0.150"/>
