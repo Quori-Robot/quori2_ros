@@ -25,7 +25,7 @@
 
 using std::placeholders::_1;
 
-#define MK_PACKET_CB(func) [] (NET_PACKET & packet, short unsigned int stream_id, void * arg) { ((QuoriNode*)arg)->func(packet,stream_id,arg); }
+#define MK_PACKET_CB(func) [] (NET_PACKET & packet, short unsigned int stream_id, void * arg) { ((QuoriNode*)arg)->func(packet,stream_id,arg); },this
 class QuoriNode : public rclcpp::Node 
 { 
 
@@ -165,9 +165,10 @@ class QuoriNode : public rclcpp::Node
                RCLCPP_INFO(get_logger(),"QuoriLib open error: %d",qerr); 
             }
 
-            open_stream(QUORI_MTR_STS_STREAM, MK_PACKET_CB(mtr_sts_packet_cb));
-            open_stream(QUORI_IMU_STREAM, MK_PACKET_CB(imu_packet_cb));
-            open_stream(QUORI_IVT_STREAM, MK_PACKET_CB(ivt_packet_cb));
+            quori_open_stream(context,QUORI_BASE_MTR_STS_STREAM, MK_PACKET_CB(mtr_sts_packet_cb));
+            //open_stream(QUORI_HEAD_MTR_STS_STREAM, MK_PACKET_CB(mtr_sts_packet_cb));
+            quori_open_stream(context,QUORI_IMU_STREAM, MK_PACKET_CB(imu_packet_cb));
+            quori_open_stream(context,QUORI_IVT_STREAM, MK_PACKET_CB(ivt_packet_cb));
 
      
 

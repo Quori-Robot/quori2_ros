@@ -1,0 +1,7 @@
+<library path="quori_hardware">
+  <class name="quori_hardware/QuoriHeadSystemHardware" type="quori_hardware::QuoriHeadSystemHardware" base_class_type="hardware_interface::SystemInterface">
+  <description>
+     Hardware controller plugin for quori neck and head joints.
+  </description>
+  </class>
+</library>

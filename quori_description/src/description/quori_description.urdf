@@ -6,6 +6,7 @@
 
   <xacro:include filename="$(find quori_description)/src/description/quori_properties.urdf"/>
   <xacro:include filename="$(find quori_description)/src/description/quori_util.urdf"/>
+  <xacro:include filename="$(find quori_description)/src/description/quori_hardware.urdf"/>
   <!-- xacro:include filename="$(find quori_description)/src/description/quori.gazebo"/ -->
 
 
