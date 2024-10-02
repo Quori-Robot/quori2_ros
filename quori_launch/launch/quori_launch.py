@@ -61,7 +61,6 @@ def generate_launch_description():
                 FindPackageShare("quori_hardware"),"/launch/","quori_hardware_launch.py"
             ]), 
             launch_arguments=parameters.items(),
-    
         ),
         ]
         

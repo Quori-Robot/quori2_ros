@@ -36,7 +36,7 @@ def generate_launch_description():
 
     robot_description = {"robot_description": robot_description_content}
 
-    robot_controllers = PathJoinSubstitution(
+    robot_controllers_config = PathJoinSubstitution(
         [
             FindPackageShare("quori_hardware"),
             "config",
@@ -50,7 +50,7 @@ def generate_launch_description():
     control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        parameters=[robot_controllers],
+        parameters=[robot_controllers_config],
         remappings=[("/controller_manager/robot_description","/robot_description")],
         output="both",
     )
@@ -58,17 +58,37 @@ def generate_launch_description():
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["joint_state_broadcaster"],
+        arguments=["joint_state_broadcaster", "--param-file", robot_controllers_config],
+        output="both",
+    )
+
+   
+    robot_controller_spawner_x = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["joint_trajectory_controller", "--param-file", robot_controllers_config],
+        output="both",
+    )
+
+    robot_controller_spawner_x = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["joint_group_position_controller", "--param-file", robot_controllers_config],
         output="both",
     )
 
     robot_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["joint_trajectory_controller", "--param-file", robot_controllers],
+        arguments=["pid_controller", "--param-file", robot_controllers_config],
         output="both",
     )
 
+    head_teleop = Node(
+        package="quori_hardware",
+        executable="head_teleop.py",
+        output="both",
+    )
         # Delay start of joint_state_broadcaster after `robot_controller`
     # TODO(anyone): This is a workaround for flaky tests. Remove when fixed.
     delay_joint_state_broadcaster_after_robot_controller_spawner = RegisterEventHandler(
@@ -84,6 +104,7 @@ def generate_launch_description():
         args + [
             control_node,
             robot_controller_spawner,
-            delay_joint_state_broadcaster_after_robot_controller_spawner
+            delay_joint_state_broadcaster_after_robot_controller_spawner,
+            head_teleop,
         ]
     )

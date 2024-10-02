@@ -1,0 +1,10 @@
+uint8 major
+uint8 minor
+uint8 revision
+uint8 dirty
+uint8 debug
+uint8 untagged_commit
+uint8 commit_number
+uint8 pcb_rev
+uint32[2] stm_dev_id
+uint32[3] stm_uuid

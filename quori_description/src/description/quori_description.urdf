@@ -117,7 +117,7 @@
     <parent link="spine_link"/>
     <child link="collar_link"/>
     <axis xyz="0 0 1"/>
-    <limit lower="0" upper="${spine_height/2}" effort="100" velocity="1" />
+    <limit lower="0" upper="${20*spine_height/2}" effort="100" velocity="400" />
     <dynamics friction="0.5" damping="0.1" />
     <origin xyz="0.0 0.0 ${(spine_height/2)}" rpy="0 0 0"/>
   </joint>
@@ -147,7 +147,7 @@
     <parent link="collar_link"/>
     <child link="neck_link"/>
     <axis xyz="0 0 1"/>
-    <limit lower="${-pi}" upper="${pi}"  effort="100" velocity="1" />
+    <limit lower="${-pi/2}" upper="${pi/2}"  effort="100" velocity="400" />
     <dynamics friction="0.5" damping="0.1" />
     <origin xyz="0.0 0.0 ${(spine_height/2)}" rpy="0 0 0"/>
   </joint>
@@ -179,7 +179,7 @@
     <parent link="neck_link"/>
     <child link="head_link"/>
     <axis xyz="0 1 0"/>
-    <limit lower="${-pi/4}" upper="${pi/4}"  effort="100" velocity="1"/>
+    <limit lower="${-100*pi/4}" upper="${100*pi/4}"  effort="100" velocity="400"/>
     <dynamics friction="0.5" damping="0.1" />
     <origin xyz="${neck_depth} 0.0 0.0" rpy="0 0 0"/>
   </joint>
@@ -190,7 +190,7 @@
   </xacro:imu>
 
   <xacro:imu name="main" parent="spine_link">
-        <origin xyz="${imu_base_mtr_x} ${imu_main_y} ${imu_main_z}"  rpy="${imu_main_roll} ${imu_main_pitch} ${imu_main_yaw}"/>
+        <origin xyz="${imu_main_x} ${imu_main_y} ${imu_main_z}"  rpy="${imu_main_roll} ${imu_main_pitch} ${imu_main_yaw}"/>
   </xacro:imu>
 
   <xacro:imu name="head" parent="head_link">

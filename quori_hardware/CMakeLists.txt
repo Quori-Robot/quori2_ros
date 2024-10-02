@@ -9,10 +9,13 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_python REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclpy REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
+find_package(quori_msgs REQUIRED)
 find_package(QuoriLib REQUIRED)
 
 add_library(quori_hardware SHARED src/quori_head_hw_interface.cpp)
@@ -26,7 +29,7 @@ target_include_directories(quori_hardware PUBLIC
 
 target_link_libraries(quori_hardware quorilib)
 
-ament_target_dependencies(quori_hardware  rclcpp rclcpp_lifecycle hardware_interface pluginlib QuoriLib)
+ament_target_dependencies(quori_hardware  rclcpp rclcpp_lifecycle hardware_interface pluginlib quori_msgs QuoriLib)
 
 pluginlib_export_plugin_description_file(hardware_interface quori_hardware.xml)
 
@@ -48,12 +51,21 @@ install(DIRECTORY
     DESTINATION share/${PROJECT_NAME}
     )
 
+
 install(TARGETS quori_hardware
   EXPORT export_quori_hardware
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
   INCLUDES DESTINATION include
+)
+
+# Install Python modules
+ament_python_install_package(${PROJECT_NAME})
+# Install Python executables
+install(PROGRAMS
+  scripts/head_teleop.py
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 

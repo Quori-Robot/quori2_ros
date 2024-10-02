@@ -16,16 +16,14 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include "quori_odom.hpp"
 #include "tf2_ros/transform_broadcaster.h"
-#include "quori_msgs/msg/motor_status.hpp"
+#include "quori_msgs/msg/motor_controller_status.hpp"
 #include "quori_msgs/msg/base_vel_cmd.hpp"
 #include <eigen3/Eigen/Dense>
 #include "quori_node_types.hpp"
 
-
-
 using std::placeholders::_1;
 
-#define MK_PACKET_CB(func) [] (NET_PACKET & packet, short unsigned int stream_id, void * arg) { ((QuoriNode*)arg)->func(packet,stream_id,arg); },this
+#define MK_PACKET_CB(func) [] (NET_PACKET & packet, short unsigned int stream_id, void * arg) { ((QuoriNode*)arg)->func(packet,stream_id,arg); }
 class QuoriNode : public rclcpp::Node 
 { 
 
@@ -42,11 +40,8 @@ class QuoriNode : public rclcpp::Node
 
         rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_state_pub;
 
-        rclcpp::Publisher<quori_msgs::msg::MotorStatus>::SharedPtr base_mtr_status_pub;
-        rclcpp::Publisher<quori_msgs::msg::MotorStatus>::SharedPtr twist_mtr_status_pub;
-        rclcpp::Publisher<quori_msgs::msg::MotorStatus>::SharedPtr neck_mtr_status_pub;
-        rclcpp::Publisher<quori_msgs::msg::MotorStatus>::SharedPtr pan_mtr_status_pub;
-        rclcpp::Publisher<quori_msgs::msg::MotorStatus>::SharedPtr tilt_mtr_status_pub;
+        rclcpp::Publisher<quori_msgs::msg::MotorControllerStatus>::SharedPtr mtr_ctrl_status_pub;
+
         rclcpp::Publisher<quori_msgs::msg::BaseVelCmd>::SharedPtr base_vel_cmd_pub;
 
         std::shared_ptr<Odom> odom_helper;
@@ -123,8 +118,8 @@ class QuoriNode : public rclcpp::Node
 
             last_timestamp = {0,0};
 
-            declare_parameter("robot_ip_address",params.robot_ip_address);
-            declare_parameter("ethernet_interface",params.ethernet_interface);
+            declare_parameter("robot_ip_address",params.lib_params.robot_ip_address);
+            declare_parameter("ethernet_interface",params.lib_params.ethernet_interface);
             declare_parameter("wheelbase",params.wheelbase);
             declare_parameter("wheelradius",params.wheelradius);
             declare_parameter("publish_odom_tf",params.publish_odom_tf);
@@ -134,8 +129,8 @@ class QuoriNode : public rclcpp::Node
             declare_parameter("mtr2_dir",params.mtr2_dir);
             declare_parameter("mtr3_dir",params.mtr3_dir);
 
-            params.robot_ip_address = get_parameter("robot_ip_address").as_string();
-            params.ethernet_interface = get_parameter("ethernet_interface").as_string();
+            params.lib_params.robot_ip_address = get_parameter("robot_ip_address").as_string();
+            params.lib_params.ethernet_interface = get_parameter("ethernet_interface").as_string();
             params.wheelbase = get_parameter("wheelbase").as_double();
             params.wheelradius = get_parameter("wheelradius").as_double();
             params.publish_odom_tf = get_parameter("publish_odom_tf").as_bool();
@@ -146,8 +141,8 @@ class QuoriNode : public rclcpp::Node
             params.mtr3_dir = get_parameter("mtr3_dir").as_int();
 
 
-            RCLCPP_INFO(get_logger(),"Param: robot_ip_address=%s",params.robot_ip_address.c_str());
-            RCLCPP_INFO(get_logger(),"Param: ethernet_interface=%s",params.ethernet_interface.c_str());
+            RCLCPP_INFO(get_logger(),"Param: robot_ip_address=%s",params.lib_params.robot_ip_address.c_str());
+            RCLCPP_INFO(get_logger(),"Param: ethernet_interface=%s",params.lib_params.ethernet_interface.c_str());
             RCLCPP_INFO(get_logger(),"Param: wheelbase=%5.2f",params.wheelbase);
             RCLCPP_INFO(get_logger(),"Param: wheelradius=%5.2f",params.wheelradius);
             RCLCPP_INFO(get_logger(),"Param: publish_odom_tf=%s",params.publish_odom_tf?"True":"False");
@@ -157,7 +152,7 @@ class QuoriNode : public rclcpp::Node
             RCLCPP_INFO(get_logger(),"Param: mtr2_dir=%d",params.mtr2_dir);
             RCLCPP_INFO(get_logger(),"Param: mtr3_dir=%d",params.mtr3_dir);
 
-            QUORI_API_STS sts = quori_open(context,params.robot_ip_address.c_str(),params.ethernet_interface.c_str());
+            QUORI_API_STS sts = quori_open(context,params.lib_params.robot_ip_address.c_str(),params.lib_params.ethernet_interface.c_str());
        
             RCLCPP_INFO(get_logger(),"Quori Node opened quoriLib: sts=%d",(uint32_t)sts);  
             if (sts != QUORI_API_STS::STS_OK) {
@@ -165,10 +160,10 @@ class QuoriNode : public rclcpp::Node
                RCLCPP_INFO(get_logger(),"QuoriLib open error: %d",qerr); 
             }
 
-            quori_open_stream(context,QUORI_BASE_MTR_STS_STREAM, MK_PACKET_CB(mtr_sts_packet_cb));
-            //open_stream(QUORI_HEAD_MTR_STS_STREAM, MK_PACKET_CB(mtr_sts_packet_cb));
-            quori_open_stream(context,QUORI_IMU_STREAM, MK_PACKET_CB(imu_packet_cb));
-            quori_open_stream(context,QUORI_IVT_STREAM, MK_PACKET_CB(ivt_packet_cb));
+            open_quori_stream(QUORI_BASE_MTR_STS_STREAM, MK_PACKET_CB(mtr_sts_packet_cb));
+            open_quori_stream(QUORI_MTR_CTRL_STS_STREAM, MK_PACKET_CB(mtr_ctrl_sts_packet_cb));
+            open_quori_stream(QUORI_IMU_STREAM, MK_PACKET_CB(imu_packet_cb));
+            open_quori_stream(QUORI_IVT_STREAM, MK_PACKET_CB(ivt_packet_cb));
 
      
 
@@ -178,13 +173,9 @@ class QuoriNode : public rclcpp::Node
             imu_head_pub = create_publisher<sensor_msgs::msg::Imu>("imu_head_raw",10);
             imu_base_mtr_pub = create_publisher<sensor_msgs::msg::Imu>("imu_base_mtr_raw",10);
 
-            base_mtr_status_pub = create_publisher<quori_msgs::msg::MotorStatus>("motor_status_base_12",10);
-            twist_mtr_status_pub = create_publisher<quori_msgs::msg::MotorStatus>("motor_status_twist",10);
-            neck_mtr_status_pub = create_publisher<quori_msgs::msg::MotorStatus>("motor_status_neck",10);
-            pan_mtr_status_pub = create_publisher<quori_msgs::msg::MotorStatus>("motor_status_pan",10);
-            tilt_mtr_status_pub = create_publisher<quori_msgs::msg::MotorStatus>("motor_status_tilt",10);
+            mtr_ctrl_status_pub = create_publisher<quori_msgs::msg::MotorControllerStatus>("quori_motor_ctrl_status",10);
 
-            joint_state_pub = create_publisher<sensor_msgs::msg::JointState>("quori_joint_states",10);
+            joint_state_pub = create_publisher<sensor_msgs::msg::JointState>("joint_states",10);
             
             base_vel_cmd_pub = create_publisher<quori_msgs::msg::BaseVelCmd>("base_vel_cmd",10);
 
@@ -204,7 +195,7 @@ class QuoriNode : public rclcpp::Node
 
         };
 
-        void open_stream(QuoriStreamID stream_id, QuoriStreamCallback cb) {
+        void open_quori_stream(QuoriStreamID stream_id, QuoriStreamCallback cb) {
             QUORI_API_STS sts = quori_open_stream(context,stream_id,cb,(void*)this);
             RCLCPP_INFO(get_logger(),"Quori Node opened stream %u: sts=%d",stream_id,(uint32_t)sts); 
             if(sts != QUORI_API_STS::STS_OK) {
@@ -220,16 +211,72 @@ class QuoriNode : public rclcpp::Node
 
             if(packet.header.type == NET_PACKET_TYPE::PT_MTR_STS) {
 
-                RCLCPP_DEBUG(get_logger(),"Got motor sts packet");
+                RCLCPP_DEBUG(get_logger(),"Got motor sts packet: mtr_id=%d",(int)packet.data.mtr_sts.mtr_id);
 
                 if(packet.data.mtr_sts.mtr_id == MOTOR_ID::BASE_MOTOR_12) {
                     odom_helper->publish(packet);
                     if(params.publish_wheel_joints) {
                         odom_helper->publish_wheel_joint_state(joint_state_pub);
                     }
+                } else {
 
-                    quori_msgs::msg::MotorStatus msg;
-                    MTR_STS_PACKET & mtr_sts = packet.data.mtr_sts;
+                    double vel = packet.data.mtr_sts.vel_pos[0];
+                    double pos = packet.data.mtr_sts.vel_pos[1];
+                    rclcpp::Time timestamp = get_clock()->now();
+
+                    switch(packet.data.mtr_sts.mtr_id) {
+                        case MOTOR_ID::TWIST_MOTOR:
+
+                            vel *= params.mtr3_dir;
+                            pos *= params.mtr3_dir;
+
+                            pose.th_body = pos;
+                            pose.w_body = vel;
+
+                     
+                            publish_twist_joint_state(timestamp);
+                            break;
+
+                        case MOTOR_ID::NECK_MOTOR:
+                            pose.pos_neck = pos;
+                            pose.vel_neck = vel;
+
+                            break;
+
+                        case MOTOR_ID::PAN_MOTOR:
+                            pose.th_pan = pos;
+                            pose.w_pan = vel;
+
+                            break;
+
+                        case MOTOR_ID::TILT_MOTOR:
+                            pose.th_tilt = pos;
+                            pose.w_tilt = vel;
+
+                            break;
+
+                        default:
+                            break;
+
+                    }
+                }
+
+            }
+
+        }
+
+        void mtr_ctrl_sts_packet_cb(NET_PACKET & packet, QuoriStreamID stream_id, void* arg) {
+            (void)arg;
+            (void)stream_id;
+            quori_msgs::msg::MotorControllerStatus msg;
+            MTR_CTRL_STS_PACKET & mtr_sts = packet.data.mtr_ctrl_sts;
+
+            if(packet.header.type == NET_PACKET_TYPE::PT_MTR_CTRL_STS) {
+
+                RCLCPP_DEBUG(get_logger(),"Got motor ctrl sts packet: mtr_id=%d",(int)packet.data.mtr_ctrl_sts.mtr_id);
+
+                if(mtr_sts.mtr_id == MOTOR_ID::BASE_MOTOR_12) {
+
 
                     msg.temp[0] = mtr_sts.temp[0];
                     msg.temp[1] = mtr_sts.temp[1];
@@ -244,12 +291,6 @@ class QuoriNode : public rclcpp::Node
                     msg.amps[0] = mtr_sts.amps[0];
                     msg.amps[1] = mtr_sts.amps[1];
 
-                    msg.encoder_count[0] = mtr_sts.encoder_count[0];
-                    msg.encoder_count[1] = mtr_sts.encoder_count[1];
-
-                    msg.vel[0] = params.mtr1_dir * mtr_sts.vel_pos[0];
-                    msg.vel[1] = params.mtr2_dir *mtr_sts.vel_pos[1];
-
                     msg.din = mtr_sts.din;
 
                     msg.fm_faults[0] = mtr_sts.fm_faults[0];
@@ -260,12 +301,11 @@ class QuoriNode : public rclcpp::Node
 
                     msg.coms_error_count = mtr_sts.coms_error_count;
 
-                    base_mtr_status_pub->publish(msg);
+                    msg.controller_name = "Base_controller";
+
+                    mtr_ctrl_status_pub->publish(msg);
                 }
                 else {
-
-                    quori_msgs::msg::MotorStatus msg;
-                    MTR_STS_PACKET & mtr_sts = packet.data.mtr_sts;
 
                     msg.temp[0] = mtr_sts.temp[0];
                  
@@ -276,11 +316,6 @@ class QuoriNode : public rclcpp::Node
                     msg.amps[0] = mtr_sts.amps[0];
                     msg.amps[1] = mtr_sts.amps[1];
 
-                    msg.vel[0] = mtr_sts.vel_pos[0];
-                    msg.pos    = mtr_sts.vel_pos[1];
-
-                    //msg.torque = mtr_sts.
-
                     msg.fm_faults[0] = mtr_sts.fm_faults[0];
                     msg.fm_faults[1] = mtr_sts.fm_faults[1];
 
@@ -290,45 +325,25 @@ class QuoriNode : public rclcpp::Node
 
                     msg.coms_error_count = mtr_sts.coms_error_count;
 
-                    rclcpp::Time timestamp = get_clock()->now();
-     
                     switch(mtr_sts.mtr_id) {
                         case MOTOR_ID::TWIST_MOTOR:
-
-                            msg.vel[0] *= params.mtr3_dir;
-                            msg.pos    *= params.mtr3_dir;
-
-                            pose.th_body = msg.pos;
-                            pose.w_body = msg.vel[0];
-
-                            twist_mtr_status_pub->publish(msg);
-                            publish_twist_joint_state(timestamp);
+                            msg.controller_name = "Twist_controller";
+                            mtr_ctrl_status_pub->publish(msg);;
                             break;
 
                         case MOTOR_ID::NECK_MOTOR:
-                            pose.pos_neck = msg.pos;
-                            pose.vel_neck = msg.vel[0];
-
-                            neck_mtr_status_pub->publish(msg);
-                            publish_neck_joint_state(timestamp);
+                            msg.controller_name = "Neck_controller";
+                            mtr_ctrl_status_pub->publish(msg);
                             break;
 
                         case MOTOR_ID::PAN_MOTOR:
-
-                            pose.th_pan = msg.pos;
-                            pose.w_pan = msg.vel[0];
-
-                            pan_mtr_status_pub->publish(msg);
-                            publish_pan_joint_state(timestamp);
+                            msg.controller_name = "Pan_controller";
+                            mtr_ctrl_status_pub->publish(msg);
                             break;
 
                         case MOTOR_ID::TILT_MOTOR:
-
-                            pose.th_tilt = msg.pos;
-                            pose.w_tilt = msg.vel[0];
-
-                            tilt_mtr_status_pub->publish(msg);
-                            publish_tilt_joint_state(timestamp);
+                            msg.controller_name = "Tilt_controller";
+                            mtr_ctrl_status_pub->publish(msg);
                             break;
 
                         default:
@@ -423,48 +438,7 @@ class QuoriNode : public rclcpp::Node
                 joint_state_pub->publish(joint_state);
         };
 
-        void publish_neck_joint_state(rclcpp::Time & stamp) {
-   
-                sensor_msgs::msg::JointState joint_state;
 
-                joint_state.name = {"neck_joint"};
-                joint_state.position = {pose.pos_neck};
-                joint_state.velocity = {pose.vel_neck};
-
-                joint_state.header.stamp = stamp;
-                joint_state.header.frame_id = "base_link";
-
-                joint_state_pub->publish(joint_state);
-        };
-
-        void publish_pan_joint_state(rclcpp::Time & stamp) {
-   
-                sensor_msgs::msg::JointState joint_state;
-
-                joint_state.name = {"pan_joint"};
-                joint_state.position = {pose.th_pan};
-                joint_state.velocity = {pose.w_pan};
-
-                joint_state.header.stamp = stamp;
-                joint_state.header.frame_id = "neck_link";
-
-                joint_state_pub->publish(joint_state);
-        };
-
-        
-        void publish_tilt_joint_state(rclcpp::Time & stamp) {
-   
-                sensor_msgs::msg::JointState joint_state;
-
-                joint_state.name = {"tilt_joint"};
-                joint_state.position = {pose.th_tilt};
-                joint_state.velocity = {pose.w_tilt};
-
-                joint_state.header.stamp = stamp;
-                joint_state.header.frame_id = "tilt_link";
-
-                joint_state_pub->publish(joint_state);
-        };
 
 };
 #endif // _QUARI_NODE_HPP_

@@ -1,10 +1,26 @@
 controller_manager:
   ros__parameters:
-    joint_trajectory_controller:
-      type: "joint_trajectory_controller/JointTrajectoryController"
 
+    update_rate: 100
+    
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
+
+    #joint_trajectory_controller:
+    #  type: "joint_trajectory_controller/JointTrajectoryController"
+
+    #joint_group_position_controller:
+    #  type: position_controllers/JointGroupPositionController
+
+    pid_controller:
+      type: pid_controller/PidController
+
+joint_group_position_controller:
+  ros__parameters:
+    joints:
+      - neck_joint
+      - pan_joint
+      - tilt_joint
 
 joint_trajectory_controller:
   ros__parameters:
@@ -16,24 +32,48 @@ joint_trajectory_controller:
 
     command_interfaces:
       - position
+      - velocity
+      - acceleration
 
     state_interfaces:
       - position
       - velocity
 
-    action_monitor_rate: 20.0
+    action_monitor_rate: 100.0
 
-    allow_partial_joints_goal: false
-    open_loop_control: true
+    allow_partial_joints_goal: true
+    open_loop_control: false
+
     constraints:
       stopped_velocity_tolerance: 0.01
       goal_time: 0.0
+
       neck_joint:
-        trajectory: 0.05
-        goal: 0.03
+        trajectory: 0.5
+        goal: 0.12
+
       pan_joint:
-        trajectory: 0.05
-        goal: 0.03
+        trajectory: 0.5
+        goal: 0.12
+
       tilt_joint:
-        trajectory: 0.05
-        goal: 0.03
+        trajectory: 1.5
+        goal: 0.3
+     
+pid_controller:
+  ros__parameters:
+    dof_names:
+      - neck_joint
+      - pan_joint
+      - tilt_joint
+
+    in_chained_mode: False
+
+    command_interface: velocity
+
+    reference_and_state_interfaces: ["position","velocity"]
+
+    gains:
+      neck_joint: {p: 8.0, i: 3.0, d: 0.0, i_clamp_max: 5.0, i_clamp_min: -5.0}
+      pan_joint:  {p: 8.0, i: 3.0, d: 0.0, i_clamp_max: 5.0, i_clamp_min: -5.0}
+      tilt_joint: {p: 1.0, i: 1.0, d: 0.0, i_clamp_max: 5.0, i_clamp_min: -5.0}

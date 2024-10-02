@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "rclcpp/rclcpp.hpp"
 #include "hardware_interface/handle.hpp"
 #include "hardware_interface/hardware_info.hpp"
 #include "hardware_interface/system_interface.hpp"
@@ -17,6 +18,7 @@
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 #include "quorilib/quori_lib.h"
+#include "quori_msgs/msg/motor_status.hpp"
 
 namespace quori_hardware {
 
@@ -59,10 +61,16 @@ private:
   double st_pos[3]={0.0,0.0,0.0};
   double st_vel[3]={0.0,0.0,0.0};
 
+  double st_pos_latest[3]={0.0,0.0,0.0};
+  double st_vel_latest[3]={0.0,0.0,0.0};
+
   // Commands
   double cmd_pos[3]={0.0,0.0,0.0};
+  double cmd_vel[3]={0.0,0.0,0.0};
+  double cmd_accel[3]={0.0,0.0,0.0};
 
   // Joint Parameters
+  float initial_position[3] = { 0.0,0.0,0.0};
   float max_vel[3]={1.0,1.0,1.0};
   float max_trq[3]={0.5,0.5,0.5};
   float max_accel[3] = {NAN,NAN,NAN};

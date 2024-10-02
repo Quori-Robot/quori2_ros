@@ -61,7 +61,7 @@ def generate_launch_description():
         DeclareLaunchArgument(name='camera_type', default_value='zed2',
                                              description='Type of depth camera'),
 
-        joint_state_publisher_node,
+       # joint_state_publisher_node,
         joint_state_publisher_gui_node,
         robot_state_publisher_node
 

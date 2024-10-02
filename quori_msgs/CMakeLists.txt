@@ -13,8 +13,12 @@ find_package(rosidl_default_generators REQUIRED)
 find_package(std_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/MotorStatus.msg"
+  "msg/MotorControllerStatus.msg"
   "msg/BaseVelCmd.msg"
+  "msg/QuoriCmd.msg"
+  "msg/PcbVersionInfo.msg"
+  "msg/MoteusVersionInfo.msg"
+  "msg/QuoriVersionInfo.msg"
   DEPENDENCIES std_msgs
 )
 

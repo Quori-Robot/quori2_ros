@@ -33,9 +33,22 @@ target_compile_features(quori_node PUBLIC c_std_99 cxx_std_17)  # Require C99 an
 
 ament_target_dependencies(quori_node rclcpp  tf2 tf2_ros std_msgs nav_msgs sensor_msgs geometry_msgs quori_msgs QuoriLib)
 
+add_executable(quori_cmd src/quori_cmd.cpp include/quori/quori_cmd.hpp)
+target_include_directories(quori_cmd PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
+
+target_link_libraries(quori_cmd quorilib)
+
+target_compile_features(quori_cmd PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+
+ament_target_dependencies(quori_cmd rclcpp quori_msgs QuoriLib)
+
+
 #install package
 install(
-    TARGETS quori_node
+    TARGETS quori_node quori_cmd
     DESTINATION lib/${PROJECT_NAME}
 )
 

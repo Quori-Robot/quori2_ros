@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+if [ "$1" == "" ]; then
+   echo "Please provide a command value"
+   echo "usage: quori_cmd <cmd> [arg1 [arg2]]"
+   exit -1
+fi
+
+cmd=$1
+
+arg1="0"
+
+if [ "$2" != "" ]; then
+    arg1=$2
+fi
+
+arg2="0"
+
+if [ "$3" != "" ]; then
+    arg2=$3
+fi
+
+echo "sending command: quori_cmd $cmd $arg1 $arg2"
+
+ros2 topic pub --once /quori_cmd quori_msgs/msg/QuoriCmd "{ 'cmd': '${cmd}', 'arg1': '${arg1}', 'arg2': '${arg2}' }"
