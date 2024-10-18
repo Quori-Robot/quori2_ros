@@ -47,7 +47,16 @@ def generate_launch_description():
             output='screen',
             remappings=[("quori_joint_states","joint_states")]
 
-        )]
+        ),
+        
+        Node(
+            package='quori_node',
+            name='quori_cmd',
+            executable='quori_cmd',
+            parameters=[parameters],
+            output='screen',
+        )
+        ]
  
     )
 

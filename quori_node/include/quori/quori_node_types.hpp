@@ -29,7 +29,7 @@ typedef struct {
 } POSE;
 
 typedef struct {
-    std::string robot_ip_address="10.2.99.111";
+    std::string robot_ip_address="10.2.99.124";
     std::string ethernet_interface="eth0";
 } QUORI_LIB_PARAMS;
 
