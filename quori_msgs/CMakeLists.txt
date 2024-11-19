@@ -20,6 +20,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/MoteusVersionInfo.msg"
   "msg/QuoriVersionInfo.msg"
   "msg/QuoriIVT.msg"
+  "msg/SwitchStatus.msg"
   DEPENDENCIES std_msgs
 )
 

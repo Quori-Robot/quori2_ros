@@ -13,6 +13,7 @@
 
 #include "quori_msgs/msg/quori_cmd.hpp"
 #include "quori_msgs/msg/quori_version_info.hpp"
+#include "quori_msgs/msg/switch_status.hpp"
 
 #include "quori/quori_node_types.hpp"
 #include "quorilib/quori_lib.h"
@@ -30,6 +31,7 @@ class QuoriCmd : public rclcpp::Node
 
         rclcpp::Subscription<quori_msgs::msg::QuoriCmd>::SharedPtr cmd_sub;
         rclcpp::Publisher<quori_msgs::msg::QuoriVersionInfo>::SharedPtr version_info_pub;
+        rclcpp::Publisher<quori_msgs::msg::SwitchStatus>::SharedPtr switch_sts_pub;
 
 
     public:
@@ -56,6 +58,7 @@ class QuoriCmd : public rclcpp::Node
 
             cmd_sub = create_subscription<quori_msgs::msg::QuoriCmd>("quori_cmd",10, std::bind(&QuoriCmd::cmd_cb,this,_1));
             version_info_pub = create_publisher<quori_msgs::msg::QuoriVersionInfo>("quori_version_info",10);
+            switch_sts_pub = create_publisher<quori_msgs::msg::SwitchStatus>("quori_switch_status",10);
 
             sts = quori_start_streaming(context);
             RCLCPP_INFO(get_logger(),"Quori Node streaming started: sts=%d",(uint32_t)sts); 
@@ -127,6 +130,18 @@ class QuoriCmd : public rclcpp::Node
 
                 msg.version_valid_flags = pkt.version_valid_flags;
                 version_info_pub->publish(msg);
+            }
+
+            if(packet.header.type == NET_PACKET_TYPE::PT_SWITCH_STATUS) {
+
+                SWITCH_STS_PACKET & pkt = packet.data.sw_sts;
+                quori_msgs::msg::SwitchStatus msg;
+
+                msg.state = pkt.state;
+                msg.changed = pkt.changed;
+
+                switch_sts_pub->publish(msg);
+
             }
 
             
