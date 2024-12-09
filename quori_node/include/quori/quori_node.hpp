@@ -7,7 +7,7 @@
 #include <string>
 
 #include "rclcpp/rclcpp.hpp"
-#include "quorilib/quori_lib.h"
+#include "quori2_interface/quori2_interface.h"
 
 #include "geometry_msgs/msg/twist.hpp"
 #include "nav_msgs/msg/odometry.hpp"
@@ -59,14 +59,14 @@ class QuoriNode : public rclcpp::Node
             float vy=msg->linear.y;
             float w=msg->angular.z;
 
-    #ifdef DIFFERENTIAL_DRIVE
-            float vl = vx;
-            float vw = w;
-            float v1 = mtr1_dir * (vl - vw * wheelbase/2.0)/wheelradius;
-            float v2 = mtr2_dir * (vl + vw * wheelbase/2.0)/wheelradius;
-    #endif
+ //   #ifdef DIFFERENTIAL_DRIVE
+//            float vl = vx;
+  //          float vw = w;
+   //         float v1 = mtr1_dir * (vl - vw * wheelbase/2.0)/wheelradius;
+    //        float v2 = mtr2_dir * (vl + vw * wheelbase/2.0)/wheelradius;
+//    #endif
 
-    #ifdef HOLONOMIC_DRIVE
+ //   #ifdef HOLONOMIC_DRIVE
 
             double st = sin(-pose.th_body);
             double ct = cos(-pose.th_body);
@@ -86,8 +86,8 @@ class QuoriNode : public rclcpp::Node
             double v2 = w3[1];
             double v3 = w3[2];
 
-    #endif
-            QUORI_API_STS sts;
+  //  #endif
+            QUORI2_INTERFACE_STS sts;
 
             if(params.swap_left_right) {
                 sts=quori_send_base_mtr_cmd_packet(context, params.mtr1_dir*v2,params.mtr2_dir*v1, params.mtr3_dir*v3,MTR_CMD_FLAGS::MTR_CMD_SET_VEL);
@@ -96,7 +96,7 @@ class QuoriNode : public rclcpp::Node
                 sts=quori_send_base_mtr_cmd_packet(context, params.mtr1_dir*v1,params.mtr2_dir*v2, params.mtr3_dir*v3,MTR_CMD_FLAGS::MTR_CMD_SET_VEL);
             }
 
-            if(sts != QUORI_API_STS::STS_OK) {
+            if(sts != QUORI2_INTERFACE_STS::STS_OK) {
                 RCLCPP_DEBUG(get_logger(),"Got send base mtr cmd Error: sts =%d",(int)sts);
             }
 
@@ -152,10 +152,10 @@ class QuoriNode : public rclcpp::Node
             RCLCPP_INFO(get_logger(),"Param: mtr2_dir=%d",params.mtr2_dir);
             RCLCPP_INFO(get_logger(),"Param: mtr3_dir=%d",params.mtr3_dir);
 
-            QUORI_API_STS sts = quori_open(context,params.lib_params.robot_ip_address.c_str(),params.lib_params.ethernet_interface.c_str());
+            QUORI2_INTERFACE_STS sts = quori_open(context,params.lib_params.robot_ip_address.c_str(),params.lib_params.ethernet_interface.c_str());
        
             RCLCPP_INFO(get_logger(),"Quori Node opened quoriLib: sts=%d",(uint32_t)sts);  
-            if (sts != QUORI_API_STS::STS_OK) {
+            if (sts != QUORI2_INTERFACE_STS::STS_OK) {
                int qerr = quori_get_errno();
                RCLCPP_INFO(get_logger(),"QuoriLib open error: %d",qerr); 
             }
@@ -186,7 +186,7 @@ class QuoriNode : public rclcpp::Node
 
             sts = quori_start_streaming(context);
             RCLCPP_INFO(get_logger(),"Quori Node streaming started: sts=%d",(uint32_t)sts); 
-            if(sts != QUORI_API_STS::STS_OK) {
+            if(sts != QUORI2_INTERFACE_STS::STS_OK) {
                 int qerr = quori_get_errno();
                 RCLCPP_INFO(get_logger(),"QuoriLib start stream error: %d",qerr); 
             }
@@ -196,9 +196,9 @@ class QuoriNode : public rclcpp::Node
         };
 
         void open_quori_stream(QuoriStreamID stream_id, QuoriStreamCallback cb) {
-            QUORI_API_STS sts = quori_open_stream(context,stream_id,cb,(void*)this);
+            QUORI2_INTERFACE_STS sts = quori_open_stream(context,stream_id,cb,(void*)this);
             RCLCPP_INFO(get_logger(),"Quori Node opened stream %u: sts=%d",stream_id,(uint32_t)sts); 
-            if(sts != QUORI_API_STS::STS_OK) {
+            if(sts != QUORI2_INTERFACE_STS::STS_OK) {
                 int qerr = quori_get_errno();
                 RCLCPP_INFO(get_logger(),"QuoriLib open stream error: %d",qerr); 
             }

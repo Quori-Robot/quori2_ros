@@ -18,15 +18,15 @@ def generate_launch_description():
     args = [
         DeclareLaunchArgument('ethernet_interface', default_value='eth0'),   
         DeclareLaunchArgument('robot_ip_address', default_value='10.2.99.111'),   
-        DeclareLaunchArgument('wheelbase', default_value='0.323'), 
+        DeclareLaunchArgument('wheelbase', default_value='0.324'), 
         DeclareLaunchArgument('wheelradius', default_value='0.065'), 
-        DeclareLaunchArgument('xy_offset', default_value='0.100'), 
+        DeclareLaunchArgument('xy_offset', default_value='0.153'), 
         DeclareLaunchArgument('publish_odom_tf', default_value='True'),
         DeclareLaunchArgument('publish_wheel_joint_states', default_value='True'),
-        DeclareLaunchArgument('swap_left_right', default_value='True'),
+        DeclareLaunchArgument('swap_left_right', default_value='False'),
         DeclareLaunchArgument('mtr1_dir', default_value='-1'),
         DeclareLaunchArgument('mtr2_dir', default_value='-1'),
-        DeclareLaunchArgument('mtr3_dir', default_value='-1')
+        DeclareLaunchArgument('mtr3_dir', default_value='1')
     ]
 
     # Node configuration

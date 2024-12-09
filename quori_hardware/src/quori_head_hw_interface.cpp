@@ -142,17 +142,17 @@ hardware_interface::CallbackReturn QuoriHeadSystemHardware::on_init(const hardwa
 
 hardware_interface::CallbackReturn QuoriHeadSystemHardware::on_configure(const rclcpp_lifecycle::State &  /*previous_state*/) {
 
-    QUORI_API_STS sts = quori_open(context,robot_ip_address.c_str(),ethernet_interface.c_str());
+    QUORI2_INTERFACE_STS sts = quori_open(context,robot_ip_address.c_str(),ethernet_interface.c_str());
        
     RCLCPP_INFO( rclcpp::get_logger("QuoriHeadSystemHardware"),"Quori Hardware opened quoriLib: sts=%d",(uint32_t)sts);  
-    if (sts != QUORI_API_STS::STS_OK) {
+    if (sts != QUORI2_INTERFACE_STS::STS_OK) {
         int qerr = quori_get_errno();
         RCLCPP_INFO( rclcpp::get_logger("QuoriHeadSystemHardware"),"QuoriLib open error: %d",qerr); 
         return hardware_interface::CallbackReturn::ERROR;
     }
 
     sts = quori_open_stream(context,QUORI_HEAD_MTR_STS_STREAM, quori_hardware::mtr_sts_packet_cb,(void*)this);
-    if (sts != QUORI_API_STS::STS_OK) {
+    if (sts != QUORI2_INTERFACE_STS::STS_OK) {
         quori_close(context);
         int qerr = quori_get_errno();
         RCLCPP_INFO( rclcpp::get_logger("QuoriHeadSystemHardware"),"QuoriLib error in open base_mtr_stream: %d",qerr); 
@@ -161,7 +161,7 @@ hardware_interface::CallbackReturn QuoriHeadSystemHardware::on_configure(const r
 
     sts = quori_start_streaming(context);
     RCLCPP_INFO(rclcpp::get_logger("QuoriHeadSystemHardware"),"Quori Node streaming started: sts=%d",(uint32_t)sts); 
-    if(sts != QUORI_API_STS::STS_OK) {
+    if(sts != QUORI2_INTERFACE_STS::STS_OK) {
         quori_close(context);
         int qerr = quori_get_errno();
         RCLCPP_INFO(rclcpp::get_logger("QuoriHeadSystemHardware"),"QuoriLib start stream error: %d",qerr); 

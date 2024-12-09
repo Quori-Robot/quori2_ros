@@ -1,7 +1,7 @@
 #ifndef __QUARI_ODOM_H__
 #define __QUARI_ODOM_H__
 
-#include "quorilib/quori_lib.h"
+#include "quori2_interface/quori2_interface.h"
 #include "nav_msgs/msg/odometry.hpp"
 #include <tf2/LinearMath/Quaternion.h>
 #include "geometry_msgs/msg/transform_stamped.hpp"
@@ -111,23 +111,23 @@ class Odom {
             }
 
 
-#ifdef DIFFERENTIAL_DRIVE
-            w1 = params.wheelradius * w1;
-            w2 = params.wheelradius * w2;
-
+//#ifdef DIFFERENTIAL_DRIVE
+ //           w1 = params.wheelradius * w1;
+  //          w2 = params.wheelradius * w2;
+//
             //RCLCPP_INFO(node->get_logger(),"Vel: %f,%f",w1,w2);
 
-            float vel_x = (w1 + w2)/2.0;
-            float vel_y =0.0;
+ //           float vel_x = (w1 + w2)/2.0;
+  //          float vel_y =0.0;
+//
+ //           float w   = (w2 - w1)/params.wheelbase;
+//
+ //           pose.th += w * dt;
+  //          pose.x += vel * cos(pose.th) * dt;
+   //         pose.y += vel * sin(pose.th) * dt;
 
-            float w   = (w2 - w1)/params.wheelbase;
-
-            pose.th += w * dt;
-            pose.x += vel * cos(pose.th) * dt;
-            pose.y += vel * sin(pose.th) * dt;
-
-#endif
-#ifdef HOLONOMIC_DRIVE     
+//#endif
+//#ifdef HOLONOMIC_DRIVE     
             Eigen::Matrix<double,3,2> holonomic_k;
 
            
@@ -165,7 +165,7 @@ class Odom {
 
 
 
-#endif
+////#endif
 
             odom.pose.pose.position.x = pose.x;
             odom.pose.pose.position.y = pose.y;

@@ -16,7 +16,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclpy REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(quori_msgs REQUIRED)
-find_package(QuoriLib REQUIRED)
+find_package(Quori2_Interface REQUIRED)
 
 add_library(quori_hardware SHARED src/quori_head_hw_interface.cpp)
 
@@ -27,9 +27,9 @@ target_include_directories(quori_hardware PUBLIC
   $<INSTALL_INTERFACE:include/quori_hardware>
 )
 
-target_link_libraries(quori_hardware quorilib)
+target_link_libraries(quori_hardware quori2_interface)
 
-ament_target_dependencies(quori_hardware  rclcpp rclcpp_lifecycle hardware_interface pluginlib quori_msgs QuoriLib)
+ament_target_dependencies(quori_hardware  rclcpp rclcpp_lifecycle hardware_interface pluginlib quori_msgs Quori2_Interface)
 
 pluginlib_export_plugin_description_file(hardware_interface quori_hardware.xml)
 
@@ -100,6 +100,6 @@ endif()
 
 ament_export_libraries($(PROJECT_NAME))
 ament_export_targets(export_quori_hardware HAS_LIBRARY_TARGET)
-ament_export_dependencies(rclcpp rclcpp_lifecycle hardware_interface pluginlib QuoriLib)
+ament_export_dependencies(rclcpp rclcpp_lifecycle hardware_interface pluginlib Quori2_Interface)
 
 ament_package()

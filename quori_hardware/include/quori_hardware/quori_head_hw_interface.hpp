@@ -17,8 +17,8 @@
 #include "rclcpp/time.hpp"
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
-#include "quorilib/quori_lib.h"
-#include "quori_msgs/msg/motor_status.hpp"
+#include "quori2_interface/quori2_interface.h"
+//#include "quori_msgs/msg/motor_status.hpp"
 
 namespace quori_hardware {
 

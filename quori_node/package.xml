@@ -3,7 +3,7 @@
 <package format="3">
   <name>quori_node</name>
   <version>0.0.0</version>
-  <description>Main Node package for quori robot</description>
+  <description>Main Node package for quori2 robot</description>
   <maintainer email="quori@todo.todo">quori</maintainer>
   <license>TODO: License declaration</license>
 
@@ -17,7 +17,7 @@
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
   <depend>quori_msgs</depend>
-  <depend>quorilib</depend>
+  <depend>Quori2_Interface</depend>
   <depend>Eigen3</depend>
 
   <test_depend>ament_lint_auto</test_depend>

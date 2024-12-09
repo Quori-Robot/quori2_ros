@@ -20,18 +20,18 @@ find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(Eigen3 3.3 REQUIRED)
 
-find_package(QuoriLib REQUIRED)
+find_package(Quori2_Interface REQUIRED)
 
 add_executable(quori_node src/quori_node.cpp include/quori/quori_node.hpp include/quori/quori_odom.hpp)
 target_include_directories(quori_node PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
-target_link_libraries(${PROJECT_NAME} quorilib Eigen3::Eigen)
+target_link_libraries(${PROJECT_NAME} quori2_interface Eigen3::Eigen)
 
 target_compile_features(quori_node PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 
-ament_target_dependencies(quori_node rclcpp  tf2 tf2_ros std_msgs nav_msgs sensor_msgs geometry_msgs quori_msgs QuoriLib)
+ament_target_dependencies(quori_node rclcpp  tf2 tf2_ros std_msgs nav_msgs sensor_msgs geometry_msgs quori_msgs Quori2_Interface)
 
 
 
@@ -41,11 +41,11 @@ target_include_directories(quori_cmd PUBLIC
   $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(quori_cmd quorilib)
+target_link_libraries(quori_cmd quori2_interface)
 
 target_compile_features(quori_cmd PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 
-ament_target_dependencies(quori_cmd rclcpp quori_msgs QuoriLib)
+ament_target_dependencies(quori_cmd rclcpp quori_msgs Quori2_Interface)
 
 add_executable(quori_ivt src/quori_ivt.cpp include/quori/quori_ivt.hpp)
 target_include_directories(quori_ivt PUBLIC
@@ -53,11 +53,11 @@ target_include_directories(quori_ivt PUBLIC
   $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(quori_ivt quorilib)
+target_link_libraries(quori_ivt quori2_interface)
 
 target_compile_features(quori_ivt PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 
-ament_target_dependencies(quori_ivt rclcpp quori_msgs QuoriLib)
+ament_target_dependencies(quori_ivt rclcpp quori_msgs Quori2_Interface)
 
 
 #install package

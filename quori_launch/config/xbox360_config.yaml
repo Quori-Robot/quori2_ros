@@ -7,7 +7,7 @@ teleop_joy:
     axis_linear.y: 3
     axis_linear.z: 4
 
-    scale_linear.x: 1.0
+    scale_linear.x: 0.5 
     scale_linear.y: 0.5
     scale_linear.z: 1.0
 
@@ -15,7 +15,7 @@ teleop_joy:
     axis_angular.pitch: 5
     axis_angular.roll: 2
 
-    scale_angular.yaw: 6.2
+    scale_angular.yaw: 2.2
     scale_angular.pitch: 1.0
     scale_angular.roll: 1.0
     

@@ -16,7 +16,7 @@
 #include "quori_msgs/msg/switch_status.hpp"
 
 #include "quori/quori_node_types.hpp"
-#include "quorilib/quori_lib.h"
+#include "quori2_interface/quori2_interface.h"
 using std::placeholders::_1;
 
 #define MK_PACKET_CB(func) [] (NET_PACKET & packet, short unsigned int stream_id, void * arg) { ((QuoriCmd*)arg)->func(packet,stream_id,arg); }
@@ -46,10 +46,10 @@ class QuoriCmd : public rclcpp::Node
             RCLCPP_INFO(get_logger(),"Param: robot_ip_address=%s",params.robot_ip_address.c_str());
             RCLCPP_INFO(get_logger(),"Param: ethernet_interface=%s",params.ethernet_interface.c_str());
        
-            QUORI_API_STS sts = quori_open(context,params.robot_ip_address.c_str(),params.ethernet_interface.c_str());
+            QUORI2_INTERFACE_STS sts = quori_open(context,params.robot_ip_address.c_str(),params.ethernet_interface.c_str());
         
             RCLCPP_INFO(get_logger(),"Quori Node opened quoriLib: sts=%d",(uint32_t)sts);  
-            if (sts != QUORI_API_STS::STS_OK) {
+            if (sts != QUORI2_INTERFACE_STS::STS_OK) {
                 int qerr = quori_get_errno();
                 RCLCPP_INFO(get_logger(),"QuoriLib open error: %d",qerr); 
             }
@@ -62,7 +62,7 @@ class QuoriCmd : public rclcpp::Node
 
             sts = quori_start_streaming(context);
             RCLCPP_INFO(get_logger(),"Quori Node streaming started: sts=%d",(uint32_t)sts); 
-            if(sts != QUORI_API_STS::STS_OK) {
+            if(sts != QUORI2_INTERFACE_STS::STS_OK) {
                 int qerr = quori_get_errno();
                 RCLCPP_INFO(get_logger(),"QuoriLib start stream error: %d",qerr); 
             }
@@ -76,9 +76,9 @@ class QuoriCmd : public rclcpp::Node
     private:
 
         void open_quori_stream(QuoriStreamID stream_id, QuoriStreamCallback cb) {
-            QUORI_API_STS sts = quori_open_stream(context,stream_id,cb,(void*)this);
+            QUORI2_INTERFACE_STS sts = quori_open_stream(context,stream_id,cb,(void*)this);
             RCLCPP_INFO(get_logger(),"Quori Node opened stream %u: sts=%d",stream_id,(uint32_t)sts); 
-            if(sts != QUORI_API_STS::STS_OK) {
+            if(sts != QUORI2_INTERFACE_STS::STS_OK) {
                 int qerr = quori_get_errno();
                 RCLCPP_INFO(get_logger(),"QuoriLib open stream error: %d",qerr); 
              }
