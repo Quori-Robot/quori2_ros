@@ -3,7 +3,7 @@
 This repo provides the ROS2 Humble packages for the Quori2 Robot.
 
 
-## Building and using teh packages
+## Building and using the packages
 To use the packages git clone the repo to the ROS2 workspace/src folder.
 
 Note: on the embedded Nvidia Orin AGX this should be done within the quori docker image that is run on the machine.
