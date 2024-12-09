@@ -19,7 +19,7 @@ colcon build --symlink-install
 source .install/setup.bash
 ```
 
-The Quori2 ROS application can be launched with teh following command:
+The Quori2 ROS application can be launched with the following command:
 ```
 ros2 launch quori_launch quori_launch.py
 ```
