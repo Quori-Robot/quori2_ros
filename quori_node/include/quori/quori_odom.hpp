@@ -22,15 +22,19 @@ class Odom {
 
         rclcpp::Time last_stamp = node->get_clock()->now();
 
+        // wheel joint angles
         double ja1 = 0.0;
         double ja2 = 0.0;
 
+        // wheel velocities
         double w1=0.0;
         double w2=0.0;
 
+        // time info
         double dt=0.0;
         double last_time=0.0;
 
+        // body pose in odom frame
         POSE & pose;
 
     public:
@@ -130,18 +134,23 @@ class Odom {
 //#ifdef HOLONOMIC_DRIVE     
             Eigen::Matrix<double,3,2> holonomic_k;
 
-           
+            // r = wheel radius
+            // s = body rotation axis offset from diff drive center
+            // w = wheel base (left to right)
             double rs_on_w = (params.xy_offset*params.wheelradius)/params.wheelbase;
             double r_on_2 = (params.wheelradius/2.0);
 
-            holonomic_k <<
-                r_on_2 ,  r_on_2, 
-                rs_on_w, -rs_on_w ,
-                params.wheelradius/params.wheelbase, - params.wheelradius/params.wheelbase;
+            // differential_k ??? <<
+            //    r_on_2 ,  r_on_2, 
+            //    rs_on_w, -rs_on_w ,
+             //   params.wheelradius/params.wheelbase, - params.wheelradius/params.wheelbase;
+            double sts = sin(-pose.th_body);
+            double cts = cos(-pose.th_body);
 
-            //   r_on_2 * ct + rs_on_w * st,  r_on_2 * ct - rs_on_w * st, 
-            //  -r_on_2 * st + rs_on_w * ct, -r_on_2 * st - rs_on_w * ct, 
-            //   params.wheelradius/params.wheelbase, - params.wheelradius/params.wheelbase;
+            holonomic_k <<
+               r_on_2 * cts + rs_on_w * sts,  r_on_2 * cts - rs_on_w * sts, 
+              -r_on_2 * sts + rs_on_w * cts, -r_on_2 * sts - rs_on_w * cts, 
+               params.wheelradius/params.wheelbase, - params.wheelradius/params.wheelbase;
 
             Eigen::Vector2d wrl;
             wrl << w1, w2;
@@ -152,7 +161,7 @@ class Odom {
             float vel_y = x3[1];
             float w =     x3[2];
 
-            pose.th += w * dt;
+            pose.th += w * dt - pose.w_body;
 
             double st = sin(pose.th);
             double ct = cos(pose.th);

@@ -23,7 +23,7 @@ def generate_launch_description():
         DeclareLaunchArgument('xy_offset', default_value='0.153'), 
         DeclareLaunchArgument('publish_odom_tf', default_value='True'),
         DeclareLaunchArgument('publish_wheel_joint_states', default_value='True'),
-        DeclareLaunchArgument('swap_left_right', default_value='False'),
+        DeclareLaunchArgument('swap_left_right', default_value='True'),
         DeclareLaunchArgument('mtr1_dir', default_value='-1'),
         DeclareLaunchArgument('mtr2_dir', default_value='-1'),
         DeclareLaunchArgument('mtr3_dir', default_value='1')
@@ -38,15 +38,15 @@ def generate_launch_description():
   
     # Launch description
     ld = LaunchDescription(
-        args +
-        [Node(
+        args + [
+
+        Node(
             package='quori_node',
             name='quori_node',
             executable='quori_node',
             parameters=[parameters],
             output='screen',
             remappings=[("quori_joint_states","joint_states")]
-
         ),
         
         Node(
@@ -55,7 +55,16 @@ def generate_launch_description():
             executable='quori_cmd',
             parameters=[parameters],
             output='screen',
-        )
+        ),
+
+        Node(
+            package='quori_node',
+            name='quori_ivt',
+            executable='quori_ivt',
+            parameters=[parameters],
+            output='screen',
+        ),
+
         ]
  
     )

@@ -57,7 +57,7 @@ target_link_libraries(quori_ivt quori2_interface)
 
 target_compile_features(quori_ivt PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
 
-ament_target_dependencies(quori_ivt rclcpp quori_msgs Quori2_Interface)
+ament_target_dependencies(quori_ivt rclcpp quori_msgs Quori2_Interface sensor_msgs)
 
 
 #install package

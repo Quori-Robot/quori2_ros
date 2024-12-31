@@ -424,7 +424,7 @@ class QuoriNode : public rclcpp::Node
             //odom_pub->publish(odom);
         }
 
-        void publish_twist_joint_state(rclcpp::Time & stamp) {
+        void  publish_twist_joint_state(rclcpp::Time & stamp) {
    
                 sensor_msgs::msg::JointState joint_state;
 

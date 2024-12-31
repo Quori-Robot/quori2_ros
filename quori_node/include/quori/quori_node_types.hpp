@@ -26,7 +26,7 @@ typedef struct {
     float th_tilt=0.0; // rotation angle of tilt joint relative to neck
     float w_tilt=0.0;  // tilt rotation speed relative to neck
 
-} POSE;
+}  POSE;
 
 typedef struct {
     std::string robot_ip_address="10.2.99.124";
