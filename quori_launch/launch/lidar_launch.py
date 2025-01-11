@@ -29,7 +29,7 @@ def generate_launch_description():
             PushRosNamespace('lidar1'),
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([
-                    FindPackageShare("sllidar_ros2"),"/launch/","sllidar_a2m12_launch.py"
+                    FindPackageShare("rplidar_ros"),"/launch/","rplidar_a2m12_launch.py"
                 ]),
                 launch_arguments={"frame_id":"lidar1_link","serial_port":"/dev/rplidar1"}.items(), 
                 #launch_arguments=[{"frame_id":"lidar1_base_link","serial_port":"rplidar1"},parameters.items()],
@@ -42,7 +42,7 @@ def generate_launch_description():
             PushRosNamespace('lidar2'),
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([
-                    FindPackageShare("sllidar_ros2"),"/launch/","sllidar_a2m12_launch.py"
+                    FindPackageShare("rplidar_ros"),"/launch/","rplidar_a2m12_launch.py"
                 ]), 
                 launch_arguments={"frame_id":"lidar2_link","serial_port":"/dev/rplidar2"}.items(),
                 #launch_arguments=[{,"serial_port":"rplidar2"},parameters.items()],
