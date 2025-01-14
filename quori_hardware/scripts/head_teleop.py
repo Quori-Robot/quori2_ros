@@ -19,12 +19,12 @@ class HeadTeleop(Node):
         self.pan =0.0
         self.tilt=0.0
 
-        self.neck_rate = 6.0
+        self.neck_rate = 0.25
         self.pan_rate = 6.0
         self.tilt_rate = 6.0
 
-        #self.publisher_ = self.create_publisher(Float64MultiArray, 'joint_group_position_controller/commands', 10)
-        self.publisher_ = self.create_publisher(MultiDOFCommand, 'pid_controller/reference', 10)
+        self.publisher_ = self.create_publisher(Float64MultiArray, 'vel_ctrl/commands', 10)
+        #self.publisher_ = self.create_publisher(MultiDOFCommand, 'pid_controller/reference', 10)
       
         self.subscription = self.create_subscription(
             Joy,
@@ -50,16 +50,16 @@ class HeadTeleop(Node):
         pan = msg.axes[6]
         tilt = msg.axes[7]
 
-        self.neck += self.neck_rate*dt  * neck
-        self.pan  += self.pan_rate*dt   * pan
-        self.tilt += self.tilt_rate*dt   * tilt
+        
+        self.neck = self.neck_rate  * neck
+        self.pan  = self.pan_rate   * pan
+        self.tilt = self.tilt_rate  * tilt
 
-        if self.neck  < -math.pi: #0.0:
-            self.neck = -math.pi #0.0
+        if self.neck  < -0.25: #0.0:
+            self.neck = -0.25 #0.0
 
-        if self.neck  >  math.pi: # 0.5:
-            self.neck = math.pi #0.5
-
+        if self.neck  > 0.25: # 0.5:
+            self.neck = 0.25  #0.5
 
         if self.pan  < -math.pi/2:
             self.pan = -math.pi/2
@@ -74,11 +74,12 @@ class HeadTeleop(Node):
             self.tilt = math.pi/4
 
 
-        cmd_msg = MultiDOFCommand()
+        #cmd_msg = MultiDOFCommand()
+        cmd_msg = Float64MultiArray()
 
-        cmd_msg.dof_names = [ 'neck_joint', 'pan_joint', 'tilt_joint' ]
-        cmd_msg.values = [ -self.neck, self.pan, -self.tilt ]
-        cmd_msg.values_dot = [ self.neck_rate, self.pan_rate, self.tilt_rate ]
+        #cmd_msg.dof_names = [ 'neck_joint', 'pan_joint', 'tilt_joint' ]
+        cmd_msg.data = [ -self.neck, self.pan, -self.tilt ]
+        #cmd_msg.values_dot = [ self.neck_rate, self.pan_rate, self.tilt_rate ]
 
         self.publisher_.publish(cmd_msg)
         

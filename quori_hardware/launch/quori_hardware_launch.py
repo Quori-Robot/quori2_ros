@@ -58,7 +58,7 @@ def generate_launch_description():
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["joint_state_broadcaster", "--param-file", robot_controllers_config],
+        arguments=["neck_joint_state_broadcaster", "--param-file", robot_controllers_config],
         output="both",
     )
 
@@ -77,10 +77,17 @@ def generate_launch_description():
         output="both",
     )
 
-    robot_controller_spawner = Node(
+    robot_controller_spawner_x = Node(
         package="controller_manager",
         executable="spawner",
         arguments=["pid_controller", "--param-file", robot_controllers_config],
+        output="both",
+    )
+
+    robot_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["vel_ctrl", "--param-file", robot_controllers_config],
         output="both",
     )
 

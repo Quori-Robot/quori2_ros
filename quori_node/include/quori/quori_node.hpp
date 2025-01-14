@@ -163,9 +163,6 @@ class QuoriNode : public rclcpp::Node
             open_quori_stream(QUORI_BASE_MTR_STS_STREAM, MK_PACKET_CB(mtr_sts_packet_cb));
             open_quori_stream(QUORI_MTR_CTRL_STS_STREAM, MK_PACKET_CB(mtr_ctrl_sts_packet_cb));
             open_quori_stream(QUORI_IMU_STREAM, MK_PACKET_CB(imu_packet_cb));
-            open_quori_stream(QUORI_IVT_STREAM, MK_PACKET_CB(ivt_packet_cb));
-
-     
 
             cmd_vel_sub = create_subscription<geometry_msgs::msg::Twist>("cmd_vel",10, std::bind(&QuoriNode::cmd_vel_cb,this,_1));
             odom_pub = create_publisher<nav_msgs::msg::Odometry>("odom_raw",10);
@@ -175,7 +172,7 @@ class QuoriNode : public rclcpp::Node
 
             mtr_ctrl_status_pub = create_publisher<quori_msgs::msg::MotorControllerStatus>("quori_motor_ctrl_status",10);
 
-            joint_state_pub = create_publisher<sensor_msgs::msg::JointState>("joint_states",10);
+            joint_state_pub = create_publisher<sensor_msgs::msg::JointState>("quori_joint_states",10);
             
             base_vel_cmd_pub = create_publisher<quori_msgs::msg::BaseVelCmd>("base_vel_cmd",10);
 
@@ -414,15 +411,7 @@ class QuoriNode : public rclcpp::Node
            
         }
 
-        void ivt_packet_cb(NET_PACKET & packet, QuoriStreamID stream_id, void* arg) {
-            (void)arg;
-            (void)packet;
 
-            RCLCPP_DEBUG(get_logger(),"Got ivt sts packet on stream %d",stream_id);
-           // nav_msgs::msg::Odometry odom;
-
-            //odom_pub->publish(odom);
-        }
 
         void  publish_twist_joint_state(rclcpp::Time & stamp) {
    

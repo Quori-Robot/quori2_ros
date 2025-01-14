@@ -34,7 +34,7 @@ def generate_launch_description():
         name='joint_state_publisher',
         condition=launch.conditions.UnlessCondition(use_gui),
         parameters=[{
-            'source_list': ['quori_joint_states'],
+            'source_list': ['quori_joint_states', 'neck_joint_state_broadcaster/joint_states'],
             'use_sim_time': use_sim_time
         }]
     )
@@ -61,7 +61,7 @@ def generate_launch_description():
         DeclareLaunchArgument(name='camera_type', default_value='zed2',
                                              description='Type of depth camera'),
 
-       # joint_state_publisher_node,
+        joint_state_publisher_node,
         joint_state_publisher_gui_node,
         robot_state_publisher_node
 

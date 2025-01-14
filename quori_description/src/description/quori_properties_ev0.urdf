@@ -16,7 +16,7 @@
 
   <xacro:property name="spine_width" value="0.050"/>
   <xacro:property name="spine_depth" value="0.050"/>
-  <xacro:property name="spine_height" value="0.5"/>
+  <xacro:property name="spine_height" value="0.25"/>
 
   <xacro:property name="neck_width" value="0.075"/>
   <xacro:property name="neck_depth"  value="0.2"/>

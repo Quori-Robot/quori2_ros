@@ -117,7 +117,7 @@
     <parent link="spine_link"/>
     <child link="collar_link"/>
     <axis xyz="0 0 1"/>
-    <limit lower="0" upper="${20*spine_height/2}" effort="100" velocity="400" />
+    <limit lower="${-spine_height/2}" upper="${spine_height/2}" effort="100" velocity="400" />
     <dynamics friction="0.5" damping="0.1" />
     <origin xyz="0.0 0.0 ${(spine_height/2)}" rpy="0 0 0"/>
   </joint>

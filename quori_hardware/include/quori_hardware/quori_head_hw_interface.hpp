@@ -74,6 +74,7 @@ private:
   float max_vel[3]={1.0,1.0,1.0};
   float max_trq[3]={0.5,0.5,0.5};
   float max_accel[3] = {NAN,NAN,NAN};
+  float transmission_ratio[3] = { 1.0,1.0,1.0};
 };
 
 }; // namspace quari_hardware

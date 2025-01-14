@@ -105,15 +105,17 @@ hardware_interface::CallbackReturn QuoriHeadSystemHardware::on_init(const hardwa
     std::string mv=joint.parameters["max_velocity"];
     std::string mt=joint.parameters["max_torque"];
     std::string ma=joint.parameters["max_accel"];
+    std::string transmission_ratio=joint.parameters["transmission_ratio"];
 
     RCLCPP_INFO(
-        rclcpp::get_logger("QuoriHeadSystemHardware"), "Joint '%s' params-> init pos=%s, max vel=%s, max_trq=%s, max_accel=%s",joint.name.c_str(),
-        ip.c_str(),mv.c_str(),mt.c_str(),ma.c_str());
+        rclcpp::get_logger("QuoriHeadSystemHardware"), "Joint '%s' params-> init pos=%s, max vel=%s, max_trq=%s, max_accel=%s, ratio=%s",joint.name.c_str(),
+        ip.c_str(),mv.c_str(),mt.c_str(),ma.c_str(),transmission_ratio.c_str());
     
     double initial_position= ip=="NAN"?NAN:hardware_interface::stod(ip);
     double max_vel  = mv=="NAN"?NAN:hardware_interface::stod(mv);
     double max_trq  = mt=="NAN"?NAN:hardware_interface::stod(mt);
     double max_accel= ma=="NAN"?NAN:hardware_interface::stod(ma);
+    double transmission= transmission_ratio=="NAN"?NAN:hardware_interface::stod(transmission_ratio);
 
     int idx=0;
     if(joint.name == "neck_joint") {
@@ -132,6 +134,7 @@ hardware_interface::CallbackReturn QuoriHeadSystemHardware::on_init(const hardwa
     this->max_vel[idx]=max_vel;
     this->max_trq[idx]=max_trq;
     this->max_accel[idx]=max_accel;
+    this->transmission_ratio[idx]=transmission;
 
   }
 
@@ -279,8 +282,12 @@ hardware_interface::return_type QuoriHeadSystemHardware::write(
   }
 
   RCLCPP_DEBUG(rclcpp::get_logger("QuoriHeadSystemHardware"), "Writing...");
+  //RCLCPP_INFO(rclcpp::get_logger("QuoriHeadSystemHardware"), "Writing Vel=%f", (float)cmd_vel[0]);
   float pos[3] = { NAN, NAN,NAN}; //(float)cmd_pos[0], (float)cmd_pos[1], (float)cmd_pos[2]};
-  float vel[3] = { (float)cmd_vel[0], (float)cmd_vel[1], (float)cmd_vel[2]};
+  float vel[3] = { (float)cmd_vel[0] * transmission_ratio[0], 
+                   (float)cmd_vel[1] * transmission_ratio[1],
+                   (float)cmd_vel[2] * transmission_ratio[2]
+                  };
   float accel[3] = { (float)max_accel[0], (float)max_accel[1], (float)max_accel[2]};
   
   quori_send_head_mtr_cmd_packet(context,pos,vel,max_trq,accel,MTR_CMD_FLAGS::MTR_CMD_SET_VEL);
@@ -296,20 +303,20 @@ void QuoriHeadSystemHardware::mtr_sts_packet_cb(NET_PACKET & packet, QuoriStream
   switch(mtr_sts.mtr_id) {
 
       case MOTOR_ID::NECK_MOTOR:
-          st_vel_latest[0] = mtr_sts.vel_pos[0]; 
-          st_pos_latest[0] = mtr_sts.vel_pos[1];
-
+          st_vel_latest[0] = mtr_sts.vel_pos[0] / transmission_ratio[0]; 
+          st_pos_latest[0] = mtr_sts.vel_pos[1] / transmission_ratio[0];
+          //RCLCPP_INFO(rclcpp::get_logger("QuoriHeadSystemHardware"), "Got Vel=%f", (float)st_vel_latest[0]);
           break;
 
       case MOTOR_ID::PAN_MOTOR:
-          st_vel_latest[1] = mtr_sts.vel_pos[0]; 
-          st_pos_latest[1] = mtr_sts.vel_pos[1];
+          st_vel_latest[1] = mtr_sts.vel_pos[0] / transmission_ratio[1]; 
+          st_pos_latest[1] = mtr_sts.vel_pos[1] / transmission_ratio[1];
 
           break;
 
       case MOTOR_ID::TILT_MOTOR:
-          st_vel_latest[2] = mtr_sts.vel_pos[0]; 
-          st_pos_latest[2] = mtr_sts.vel_pos[1];
+          st_vel_latest[2] = mtr_sts.vel_pos[0] / transmission_ratio[2]; 
+          st_pos_latest[2] = mtr_sts.vel_pos[1] / transmission_ratio[2];
 
           break;
 

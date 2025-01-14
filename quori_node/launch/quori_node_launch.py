@@ -45,8 +45,7 @@ def generate_launch_description():
             name='quori_node',
             executable='quori_node',
             parameters=[parameters],
-            output='screen',
-            remappings=[("quori_joint_states","joint_states")]
+            output='screen'
         ),
         
         Node(
