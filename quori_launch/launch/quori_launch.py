@@ -11,6 +11,7 @@ def generate_launch_description():
     # Declare arguments
     args = [
         DeclareLaunchArgument('camera_type', default_value='gemini335'), 
+        DeclareLaunchArgument('use_sim_time', default_value='false'), 
         DeclareLaunchArgument('mode', default_value='navigation'),   
     ]
 
@@ -60,6 +61,12 @@ def generate_launch_description():
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
                 FindPackageShare("quori_hardware"),"/launch/","quori_hardware_launch.py"
+            ]), 
+            launch_arguments=parameters.items(),
+        ),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                FindPackageShare("quori_nav"),"/launch/","quori_nav.launch.py"
             ]), 
             launch_arguments=parameters.items(),
         ),
