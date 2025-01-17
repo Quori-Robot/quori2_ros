@@ -17,8 +17,8 @@ import lifecycle_msgs.msg
 def generate_launch_description():
     # Declare arguments
     args = [
-        DeclareLaunchArgument('controller_type', default_value='xbox360'), 
-        DeclareLaunchArgument('dev_name', default_value='Xbox 360 Wireless Receiver'), 
+        DeclareLaunchArgument('controller_type', default_value='xbox_one'), 
+        DeclareLaunchArgument('dev_name', default_value='Xbox one Wireless Receiver'), 
         DeclareLaunchArgument('deadzone', default_value='0.2'), 
         DeclareLaunchArgument('autorepeaterate', default_value='20'), 
         DeclareLaunchArgument('coalesce_interval', default_value='0.001'), 

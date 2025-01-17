@@ -10,7 +10,8 @@ import os
 def generate_launch_description():
     # Declare arguments
     args = [
-        DeclareLaunchArgument('camera_type', default_value='gemini335'),   
+        DeclareLaunchArgument('camera_type', default_value='gemini335'), 
+        DeclareLaunchArgument('mode', default_value='navigation'),   
     ]
 
     # Node configuration

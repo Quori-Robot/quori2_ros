@@ -263,7 +263,7 @@
   <link name="lidar1_base_link">
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <visual>
-      <origin xyz="0 0 0.0" rpy="${pi/2} 0 0"/>
+      <origin xyz="0 0 0.0" rpy="${pi/2} 0 ${pi}"/>
       <geometry>
           <mesh filename="package://quori_description/meshes/rplidar.dae" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -284,7 +284,7 @@
   <joint name="lidar1_base_joint" type="fixed">
     <parent link="base_link"/>
     <child link="lidar1_base_link"/>
-    <origin xyz="${lidar_xoff} 0.0 ${lidar_zoff}" rpy="0 0 ${pi}"/>
+    <origin xyz="${lidar_xoff} 0.0 ${lidar_zoff}" rpy="0 0 0"/>
     
   </joint>
 
@@ -292,14 +292,14 @@
   <joint name="lidar1_joint" type="fixed">
     <parent link="lidar1_base_link"/>
     <child link="lidar1_link"/>
-    <origin xyz="0.0 0.0 0.031" rpy="0 0 0"/>
+    <origin xyz="0.0 0.0 0.031" rpy="0 0 ${lidar1_ang_offset}"/>
   </joint>
 
     <!-- Lidar 2 -->
   <link name="lidar2_base_link">
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <visual>
-      <origin xyz="0 0 0.0" rpy="${pi/2} 0 0"/>
+      <origin xyz="0 0 0.0" rpy="${pi/2} 0 ${pi}"/>
       <geometry>
           <mesh filename="package://quori_description/meshes/rplidar.dae" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -327,7 +327,7 @@
   <joint name="lidar2_joint" type="fixed">
     <parent link="lidar2_base_link"/>
     <child link="lidar2_link"/>
-    <origin xyz="0.0 0.0 0.031" rpy="0 0 0"/>
+    <origin xyz="0.0 0.0 0.031" rpy="0 0 ${lidar2_ang_offset}"/>
   </joint>
 
   <!-- Depth Camera-->

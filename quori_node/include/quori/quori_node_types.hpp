@@ -36,9 +36,9 @@ typedef struct {
 typedef struct {
 
     QUORI_LIB_PARAMS lib_params;
-    float wheelbase=0.310;
+    float wheelbase=0.3225;
     float wheelradius=0.065;
-    float xy_offset=0.100;
+    float xy_offset=0.117935;
 
     bool publish_odom_tf=true;
     bool publish_wheel_joints=true;

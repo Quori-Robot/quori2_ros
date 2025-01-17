@@ -144,8 +144,8 @@ class Odom {
             //    r_on_2 ,  r_on_2, 
             //    rs_on_w, -rs_on_w ,
              //   params.wheelradius/params.wheelbase, - params.wheelradius/params.wheelbase;
-            double sts = sin(-pose.th_body);
-            double cts = cos(-pose.th_body);
+            double sts = sin(pose.th_body);
+            double cts = cos(pose.th_body);
 
             holonomic_k <<
                r_on_2 * cts + rs_on_w * sts,  r_on_2 * cts - rs_on_w * sts, 
@@ -161,17 +161,16 @@ class Odom {
             float vel_y = x3[1];
             float w =     x3[2];
 
-            pose.th += w * dt - pose.w_body;
-
+            pose.th +=    (w + pose.w_body) * dt;
+           
             double st = sin(pose.th);
             double ct = cos(pose.th);
 
             float vx = vel_x * ct  + vel_y * -st;
             float vy = vel_x * st  + vel_y *  ct ;
- 
+            
             pose.x += vx * dt;
-            pose.y += vy * dt ;
-
+            pose.y += vy * dt;
 
 
 ////#endif
@@ -181,7 +180,7 @@ class Odom {
             odom.pose.pose.position.z = 0;
 
             tf2::Quaternion q;
-            q.setRPY(0.0,0.0,pose.th+pose.th_body);
+            q.setRPY(0.0,0.0,pose.th);
 
             //RCLCPP_DEBUG(node->get_logger(),"Got Quaternion");
 

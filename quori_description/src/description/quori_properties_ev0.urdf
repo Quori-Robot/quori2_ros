@@ -31,14 +31,16 @@
 
   <xacro:property name="wheel_ygap" value="0.0"/>
   <xacro:property name="wheel_yoff" value="0.1615"/>
-  <xacro:property name="wheel_xoff" value="-0.100"/>
+  <xacro:property name="wheel_xoff" value="-0.117935"/>
 
-  <xacro:property name="caster_radius" value="0.04"/>
-  <xacro:property name="caster_xoff"   value="0.13"/>
-  <xacro:property name="caster_yoff"   value="0.13"/>
+  <xacro:property name="caster_radius" value="0.0381"/>
+  <xacro:property name="caster_xoff"   value="0.16746"/>
+  <xacro:property name="caster_yoff"   value="0.115"/>
 
-  <xacro:property name="lidar_xoff" value="0.09"/>
-  <xacro:property name="lidar_zoff" value="0.065"/> <!-- base link to bottom of lidar -->
+  <xacro:property name="lidar_xoff" value="0.0775"/>
+  <xacro:property name="lidar_zoff" value="0.10205"/> <!-- base link to bottom of lidar -->
+  <xacro:property name="lidar1_ang_offset" value="${-pi/2}"/>
+  <xacro:property name="lidar2_ang_offset" value="${-pi/2}"/>
 
  
   <xacro:property name="cam_top_xoff" value="0.00"/>
