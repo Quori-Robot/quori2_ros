@@ -6,21 +6,26 @@
   <!-- xacro:property name="pi" value="3.141592654"/ -->
 
   <!-- all values in meters -->
-  <xacro:property name="base_radius" value="0.140"/>
-  <xacro:property name="base_height" value="0.080"/>
+  <xacro:property name="base_plate_radius" value="0.140"/>
+  <xacro:property name="base_plate_height" value="0.010"/>
+  <xacro:property name="base_plate_z_offset" value="0.2"/>
 
+  <xacro:property name="diff_base_radius" value="0.140"/>
+  <xacro:property name="diff_base_height" value="0.06"/>
 
-  <xacro:property name="body_width" value="0.050"/>
+  <!-- xacro:property name="body_width" value="0.050"/>
   <xacro:property name="body_depth" value="0.050"/>
-  <xacro:property name="body_height" value="0.5"/>
+  <xacro:property name="body_height" value="0.5"/ -->
 
-  <xacro:property name="spine_width" value="0.050"/>
-  <xacro:property name="spine_depth" value="0.050"/>
-  <xacro:property name="spine_height" value="0.25"/>
+  <xacro:property name="spine_radius" value="0.035"/>
+  <xacro:property name="spine_height" value="0.75"/>
 
-  <xacro:property name="neck_width" value="0.075"/>
-  <xacro:property name="neck_depth"  value="0.2"/>
-  <xacro:property name="neck_height" value="0.1"/>
+  <xacro:property name="collar_radius" value="0.05"/>
+  <xacro:property name="collar_height" value="0.04"/>
+
+  <xacro:property name="neck_width" value="0.04"/>
+  <xacro:property name="neck_depth"  value="0.1"/>
+  <xacro:property name="neck_height" value="0.02"/>
 
   <xacro:property name="head_width" value="0.200"/>
   <xacro:property name="head_depth" value="0.025"/>
@@ -53,21 +58,21 @@
 
   <xacro:property name="imu_base_mtr_x" value="-0.06"/>
   <xacro:property name="imu_base_mtr_y" value="0.06"/>
-  <xacro:property name="imu_base_mtr_z" value="0.0"/>
+  <xacro:property name="imu_base_mtr_z" value="${diff_base_height/2+0.01}"/>
   <xacro:property name="imu_base_mtr_roll" value="0.0"/>
   <xacro:property name="imu_base_mtr_pitch" value="0.0"/>
   <xacro:property name="imu_base_mtr_yaw" value="0.0"/>
 
-  <xacro:property name="imu_head_x" value="0.0"/>
+  <xacro:property name="imu_head_x" value="${-head_depth/2-0.01}"/>
   <xacro:property name="imu_head_y" value="0.0"/>
-  <xacro:property name="imu_head_z" value="0.0"/>
+  <xacro:property name="imu_head_z" value="0.045"/>
   <xacro:property name="imu_head_roll" value="0.0"/>
-  <xacro:property name="imu_head_pitch" value="0.0"/>
+  <xacro:property name="imu_head_pitch" value="${pi/2}"/>
   <xacro:property name="imu_head_yaw" value="0.0"/>
 
   <xacro:property name="imu_main_x" value="-0.06"/>
   <xacro:property name="imu_main_y" value="-0.06"/>
-  <xacro:property name="imu_main_z" value="0.0"/>
+  <xacro:property name="imu_main_z" value="${base_plate_height/2+0.01}"/>
   <xacro:property name="imu_main_roll" value="0.0"/>
   <xacro:property name="imu_main_pitch" value="0.0"/>
   <xacro:property name="imu_main_yaw" value="0.0"/>

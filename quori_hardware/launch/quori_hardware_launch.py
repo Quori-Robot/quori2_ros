@@ -10,6 +10,7 @@ from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitut
 from launch.actions import IncludeLaunchDescription
 from launch_ros.substitutions import FindPackageShare
 from launch.event_handlers import OnProcessExit
+from launch.conditions import IfCondition,UnlessCondition
 
 def generate_launch_description():
 
@@ -18,23 +19,6 @@ def generate_launch_description():
     ]
 
     use_sim_time = LaunchConfiguration('use_sim_time')
-
-        # Get URDF via xacro
-    robot_description_content = Command(
-        [
-            PathJoinSubstitution([FindExecutable(name="xacro")]),
-            " ",
-            PathJoinSubstitution(
-                [
-                    FindPackageShare("quori_description"),
-                    "src","description"
-                    "quori_description.urdf",
-                ]
-            ),
-        ]
-    )
-
-    robot_description = {"robot_description": robot_description_content}
 
     robot_controllers_config = PathJoinSubstitution(
         [
@@ -53,6 +37,7 @@ def generate_launch_description():
         parameters=[robot_controllers_config],
         remappings=[("/controller_manager/robot_description","/robot_description")],
         output="both",
+        condition=UnlessCondition(use_sim_time),
     )
 
     joint_state_broadcaster_spawner = Node(
@@ -60,57 +45,57 @@ def generate_launch_description():
         executable="spawner",
         arguments=["neck_joint_state_broadcaster", "--param-file", robot_controllers_config],
         output="both",
+        condition=UnlessCondition(use_sim_time),
     )
 
-   
-    robot_controller_spawner_x = Node(
+    neck_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["joint_trajectory_controller", "--param-file", robot_controllers_config],
+        arguments=["neck_pos_ctrl", "--param-file", robot_controllers_config],
         output="both",
+        condition=UnlessCondition(use_sim_time),
     )
 
-    robot_controller_spawner_x = Node(
+    pan_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["joint_group_position_controller", "--param-file", robot_controllers_config],
+        arguments=["pan_pos_ctrl", "--param-file", robot_controllers_config],
         output="both",
+        condition=UnlessCondition(use_sim_time),
     )
-
-    robot_controller_spawner_x = Node(
+    
+    tilt_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["pid_controller", "--param-file", robot_controllers_config],
+        arguments=["tilt_pos_ctrl", "--param-file", robot_controllers_config],
         output="both",
-    )
-
-    robot_controller_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["vel_ctrl", "--param-file", robot_controllers_config],
-        output="both",
+        condition=UnlessCondition(use_sim_time),
     )
 
     head_teleop = Node(
         package="quori_hardware",
         executable="head_teleop.py",
         output="both",
+        parameters=[parameters],
     )
         # Delay start of joint_state_broadcaster after `robot_controller`
     # TODO(anyone): This is a workaround for flaky tests. Remove when fixed.
     delay_joint_state_broadcaster_after_robot_controller_spawner = RegisterEventHandler(
         event_handler=OnProcessExit(
-            target_action=robot_controller_spawner,
+            target_action=neck_controller_spawner,
             on_exit=[joint_state_broadcaster_spawner],
-        )
+        ),
+        condition=UnlessCondition(use_sim_time),
     )
 
 
-    return launch.LaunchDescription(
+    return LaunchDescription(
         
         args + [
             control_node,
-            robot_controller_spawner,
+            pan_controller_spawner,
+            tilt_controller_spawner,
+            neck_controller_spawner,
             delay_joint_state_broadcaster_after_robot_controller_spawner,
             head_teleop,
         ]

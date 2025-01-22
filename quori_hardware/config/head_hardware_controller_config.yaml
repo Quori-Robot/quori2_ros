@@ -16,8 +16,18 @@ controller_manager:
     #pid_controller:
     #  type: pid_controller/PidController
 
-    vel_ctrl:
-      type: velocity_controllers/JointGroupVelocityController
+    #vel_ctrl:
+    #  type: velocity_controllers/JointGroupVelocityController
+
+    neck_pos_ctrl:
+      type: position_controllers/JointpositionController
+
+    tilt_pos_ctrl:
+      type: position_controllers/JointpositionController
+
+    pan_pos_ctrl:
+      type: position_controllers/JointpositionController
+
 
 neck_joint_state_broadcaster:
   ros__parameters:
@@ -92,3 +102,19 @@ vel_ctrl:
       - neck_joint
       - pan_joint
       - tilt_joint
+
+neck_pos_ctrl:
+  ros__parameters:
+    joints:
+      - neck_joint
+
+tilt_pos_ctrl:
+  ros__parameters:
+    joints:
+      - tilt_joint
+
+pan_pos_ctrl:
+  ros__parameters:
+    joints:
+      - pan_joint
+    

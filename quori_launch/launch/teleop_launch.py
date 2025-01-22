@@ -23,6 +23,7 @@ def generate_launch_description():
         DeclareLaunchArgument('autorepeaterate', default_value='20'), 
         DeclareLaunchArgument('coalesce_interval', default_value='0.001'), 
         DeclareLaunchArgument('dev_ff', default_value='/dev/input/event9'),
+        DeclareLaunchArgument('use_sim_time', default_value='false'),
        
        
     ]
@@ -47,7 +48,7 @@ def generate_launch_description():
         package='nav2_velocity_smoother',
         name='velocity_smoother',
         executable='velocity_smoother',
-        parameters=[smoother_config_path],
+        parameters=[parameters,smoother_config_path],
         remappings=[('cmd_vel','/cmd_vel_mux'),('cmd_vel_smoothed','/cmd_vel')],
         output='screen'
 
@@ -79,7 +80,7 @@ def generate_launch_description():
             package='twist_mux',
             name='twist_mux',
             executable='twist_mux',
-            parameters=[mux_config_path],
+            parameters=[parameters,mux_config_path],
             remappings=[('cmd_vel_out','cmd_vel_mux')],
             output='screen'
 

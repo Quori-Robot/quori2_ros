@@ -11,6 +11,14 @@
   <exec_depend>orbbec_camera</exec_depend>
   <exec_depend>zed_wrapper</exec_depend>
   <exec_depend>realsense_camera</exec_depend>
+  <exec_depend>ros_gz_bridge</exec_depend>
+  <exec_depend>ros_gz_sim</exec_depend>
+  <exec_depend>ros_gz_image</exec_depend>
+  <!-- See https://github.com/gazebosim/ros_gz/issues/40 -->
+  <!--exec_depend>ros_gz_point_cloud</exec_depend-->
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>sdformat_urdf</exec_depend>
+  <exec_depend>xacro</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
@@ -19,5 +27,8 @@
   
   <export>
     <build_type>ament_cmake</build_type>
+    <gazebo_ros gazebo_model_path="${prefix}/../" />
+    <gazebo_ros gazebo_media_path="${prefix}/media" />
+    <!-- gazebo_ros plugin_path="${prefix}/plugins" / -->
   </export>
 </package>

@@ -1,176 +1,345 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
+ 
+ 
+    <!-- ground locked reference frame -->
+    <gazebo reference="base_footprint"></gazebo>
 
-    <gazebo reference="base_footprint">
+    <!-- virtual reference frame -->
+    <gazebo reference="base_link"></gazebo>
 
-    </gazebo>
-
-    <gazebo reference="base_joint">
-
-    </gazebo>
-
-    <gazebo reference="base_link">
-        <material>Gazebo/Yellow</material>
-    </gazebo>
-
-    <gazebo reference="body_link">
+    <!-- differential drive base -->
+    <gazebo reference="diff_base_link">
         <material>Gazebo/Gray</material>
     </gazebo>
 
-    <gazebo reference="drivewhl_l_link">
-        <mu1>200.0</mu1>
-        <mu2>100.0</mu2>
+    <!-- join diff base to body -->
+    <gazebo reference="twist_joint"></gazebo>
+
+
+    <gazebo reference="spine_link">
+        <material>Gazebo/Gray</material>
+    </gazebo>
+
+    <gazebo reference="collar_link"></gazebo>
+    <gazebo reference="spine_joint"></gazebo>
+
+    <gazebo reference="neck_link">
+        <material>Gazebo/Gray</material>
+    </gazebo>
+
+    <gazebo reference="head_link">
+        <material>Gazebo/Gray</material>
+    </gazebo>
+
+    <gazebo reference="neck_joint"></gazebo>
+    <gazebo reference="pan_joint"></gazebo>
+    <gazebo reference="tilt_joint"></gazebo>
+    
+    <gazebo reference="left_wheel_link">
+        <mu1>100.0</mu1>
+        <mu2>10.0</mu2>
         <kp>1000000.0</kp>
-        <kd>1.0</kd>
-        <max_vel>0.01</max_vel>
+        <kd>0.1</kd>
+        <max_vel>100</max_vel>
         <min_depth>0.001</min_depth>
         <material>Gazebo/Black</material>
     </gazebo>
 
-    <gazebo reference="drivewhl_r_link">
-        <mu1>200.0</mu1>
-        <mu2>100.0</mu2>
+    <gazebo reference="right_wheel_link">
+        <mu1>100.0</mu1>
+        <mu2>10.0</mu2>
         <kp>1000000.0</kp>
-        <kd>1.0</kd>
-        <max_vel>0.01</max_vel>
+        <kd>0.1</kd>
+        <max_vel>100</max_vel>
         <min_depth>0.001</min_depth>
         <material>Gazebo/Black</material>
     </gazebo>
 
-    <gazebo reference="drivewhl_l_joint">
+    <gazebo reference="left_wheel_mount_link"></gazebo>
+    <gazebo reference="right_wheel_mount_link"></gazebo>
+
+
+    <gazebo reference="left_wheel_joint">
 
     </gazebo>
 
-    <gazebo reference="drivewhl_r_joint">
+    <gazebo reference="right_wheel_joint">
 
     </gazebo>
 
-    <gazebo reference="front_caster">
+    <gazebo reference="left_caster">
         <mu1>0.00000</mu1>
         <mu2>0.00000</mu2>
         <!-- kp>100000.0</kp>
         <kd>1.0</kd  -->
-        <max_vel>0.001</max_vel>
-        <min_depth>0.0001</min_depth>
+        <max_vel>100</max_vel>
+        <min_depth>0.000</min_depth>
         <material>Gazebo/Black</material>
     </gazebo>
     
 
-    <gazebo reference="rear_caster">
+    <gazebo reference="right_caster">
         <mu1>0.00000</mu1>
         <mu2>0.00000</mu2>
         <!-- kp>100000.0</kp>
         <kd>1.0</kd  -->
-        <max_vel>0.001</max_vel>
-        <min_depth>0.0001</min_depth>
+        <max_vel>100</max_vel>
+        <min_depth>0.000</min_depth>
         <material>Gazebo/Black</material>
     </gazebo>
 
-    <gazebo reference="front_caster_joint">
-
-    </gazebo>
-
-    <gazebo reference="rear_caster_joint">
-
-    </gazebo>
+    <gazebo reference="left_caster_joint"></gazebo>
+    <gazebo reference="right_caster_joint"></gazebo>
 
     
-    <gazebo reference="lidar_link">
+    <gazebo reference="lidar1_link">
 
-        <!-- ray sensor -->
-        <sensor name="sensor_ray" type="ray">
-          <ray>
-            <scan>
-              <horizontal>
-                <samples>160</samples>
-                <resolution>1.0</resolution>
-                <min_angle>-1.369263</min_angle>
-                <max_angle>1.369263</max_angle>
-              </horizontal>
-            </scan>
-            <range>
-              <min>0.05</min>
-              <max>10.0</max>
-            </range>
-            <noise>
-                <type>gaussian</type>
-                <mean>0.0</mean>
-                <stddev>0.02</stddev>
-            </noise>
-          </ray>
-          <always_on>true</always_on>
-          <update_rate>15.0</update_rate>
-          
-          <plugin name="laserscan" filename="libgazebo_ros_ray_sensor.so">
-            <ros>
-              <namespace>/vgo</namespace>
-              <remapping>~/out:=/scan_raw</remapping>
-            </ros>
-            <output_type>sensor_msgs/LaserScan</output_type>
-            <frame_name>lidar_link</frame_name>
-            
-          </plugin>
-          <visualize>1</visualize>
+        <sensor name="lidar1" type="gpu_lidar">
+            <always_on>true</always_on>
+            <visualize>true</visualize>
+            <pose>0.0 0.0 0.0 0 0 0</pose>
+            <update_rate>10</update_rate>
+            <topic>lidar1/scan</topic>
+            <gz_frame_id>lidar1_link</gz_frame_id>
+            <lidar>
+
+                <scan>
+                    <horizontal>
+                        <samples>800</samples>
+                        <resolution>1.0</resolution>
+                        <min_angle>-0.78539816339744830961566084581988</min_angle>
+                        <max_angle>3.9269908169872415480783042290994</max_angle>
+                    </horizontal>
+                </scan>
+                <range>
+                    <min>0.2</min>
+                    <max>12.0</max>
+                </range>
+                <noise>
+                    <type>gaussian</type>
+                    <mean>0.0</mean>
+                    <stddev>0.02</stddev>
+                </noise>
+
+            </lidar>
         </sensor>
+   
         <material>Gazebo/Blue</material>
     </gazebo>
 
-    <gazebo reference="lidar_base_joint">
-    </gazebo>
+    <gazebo reference="lidar2_link">
 
-    <gazebo reference="lidar_joint">
-    </gazebo>
+        <sensor name="lidar2" type="gpu_lidar">
+            <always_on>true</always_on>
+            <visualize>true</visualize>
+            <pose>0.0 0.0 0.0 0 0 0</pose>
+            <update_rate>5</update_rate>
+            <topic>lidar2/scan</topic>
+            <gz_frame_id>lidar2_link</gz_frame_id>
+            <lidar>
+                <scan>
+                    <horizontal>
+                        <samples>800</samples>
+                        <resolution>1.0</resolution>
+                        <min_angle>-3.9269908169872415480783042290994</min_angle>
+                        <max_angle>0.78539816339744830961566084581988</max_angle>
+                    </horizontal>
+                </scan>
+                <range>
+                    <min>0.2</min>
+                    <max>12.0</max>
+                </range>
+                <noise>
+                    <type>gaussian</type>
+                    <mean>0.0</mean>
+                    <stddev>0.02</stddev>
+                </noise>
 
-    <gazebo reference="lidar_base_link">
+            </lidar>
+        </sensor>
+
+      
         <material>Gazebo/Blue</material>
     </gazebo>
 
-    <gazebo reference="lmu_joint">
+    <gazebo reference="lidar1_base_joint">
     </gazebo>
 
-    <gazebo reference="imu_link">
+    <gazebo reference="lidar1_joint">
+    </gazebo>
+
+    <gazebo reference="lidar1_base_link">
+        <material>Gazebo/Blue</material>
+    </gazebo>
+
+    <gazebo reference="lidar2_base_joint">
+    </gazebo>
+
+    <gazebo reference="lidar2_joint">
+    </gazebo>
+
+    <gazebo reference="lidar2_base_link">
+        <material>Gazebo/Blue</material>
+    </gazebo>
+
+    <gazebo reference="head_imu_joint"></gazebo>
+    <gazebo reference="main_imu_joint"></gazebo>
+    <gazebo reference="base_mtr_imu_joint"></gazebo>
+
+    <gazebo reference="imu_head_link">
         <material>Gazebo/Yellow</material>
 
-
-        <sensor name="imu" type="imu">
+        <sensor name="imu_head" type="imu">
             <always_on>true</always_on>
             <!-- Publish at 30 hz -->
             <update_rate>100</update_rate>
-            <plugin name="imu_plugin" filename="libgazebo_ros_imu_sensor.so">
+            <topic>imu_head_raw</topic>
+            <gz_frame_id>imu_head_link</gz_frame_id>
+            <!-- plugin name="imu_plugin" filename="libgazebo_ros_imu_sensor.so">
             <ros>
-                <!-- Will publish to /imu/data -->
-                <namespace>/imu</namespace>
-                <argument>~/out:=data_raw</argument>
+                <!- - Will publish to /imu/data - ->       
+                <remapping>~/out:=/imu_head_raw</remapping>
             </ros>
-            <!-- frame_name ommited, will be "my_link" -->
-            </plugin>
+            <!- - frame_name ommited, will be "my_link" - ->
+            </plugin -->
         </sensor>
     </gazebo>
+
+    <gazebo reference="imu_base_mtr_link">
+        <material>Gazebo/Yellow</material>
+
+        <sensor name="imu_base_mtr" type="imu">
+            <always_on>true</always_on>
+            <!-- Publish at 30 hz -->
+            <update_rate>100</update_rate>
+            <topic>imu_base_mtr_raw</topic>
+            <gz_frame_id>imu_base_mtr_link</gz_frame_id>
+            <!-- plugin name="imu_plugin" filename="libgazebo_ros_imu_sensor.so">
+            <ros>
+                <!- - Will publish to /imu/data - ->
+                <remapping>~/out:=/imu_base_mtr_raw</remapping>
+            </ros>
+            <!- - frame_name ommited, will be "my_link" - ->
+            </plugin -->
+        </sensor>
+    </gazebo>
+
+    <gazebo reference="imu_main_link">
+        <material>Gazebo/Yellow</material>
+
+        <sensor name="imu_main" type="imu">
+            <always_on>true</always_on>
+            <!-- Publish at 30 hz -->
+            <update_rate>100</update_rate>
+            <topic>imu_main_raw</topic>
+            <gz_frame_id>imu_main_link</gz_frame_id>
+            <!-- plugin name="imu_plugin" filename="libgazebo_ros_imu_sensor.so">
+            <ros>
+                <!- - Will publish to /imu/data - ->
+                <remapping>~/out:=/imu_main_raw</remapping>
+            </ros>
+            <!- - frame_name ommited, will be "my_link" - ->
+            </plugin -->
+        </sensor>
+    </gazebo>
+
+
+
     <gazebo>
-        <plugin name='diff_drive_vgo' filename='libgazebo_ros_diff_drive.so'>
+
+        <!-- JOINT CONTROLL PLUGINS -->
+        <plugin
+            filename="gz-sim-joint-controller-system"
+            name="gz::sim::systems::JointController">
+            <joint_name>twist_joint</joint_name>
+            <initial_velocity>0.0</initial_velocity>
+            <topic>twist_joint_vel</topic>
+        </plugin>
+
+
+
+        <plugin
+            filename="gz-sim-joint-position-controller-system"
+            name="gz::sim::systems::JointPositionController">
+            <joint_name>neck_joint</joint_name>
+            <initial_position>0.0</initial_position>
+            <topic>neck_joint_pos</topic>
+
+            <p_gain>150</p_gain>
+            <i_gain>10</i_gain>
+            <d_gain>1</d_gain>
+
+        </plugin>
+
+        <plugin
+            filename="gz-sim-joint-position-controller-system"
+            name="gz::sim::systems::JointPositionController">
+            <joint_name>pan_joint</joint_name>
+            <initial_position>0.0</initial_position>
+            <topic>pan_joint_pos</topic>
+            <p_gain>5</p_gain>
+            <i_gain>1</i_gain>
+            <d_gain>1</d_gain>
+        </plugin>
+
+        <plugin
+            filename="gz-sim-joint-position-controller-system"
+            name="gz::sim::systems::JointPositionController">
+            <joint_name>tilt_joint</joint_name>
+            <initial_position>0.0</initial_position>
+            <topic>tilt_joint_pos</topic>
+        </plugin>
+
+
+        <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
+            <!-- Remove <ros> tag. -->
+
+            <!-- wheels -->
+            <left_joint>left_wheel_joint</left_joint>
+            <right_joint>right_wheel_joint</right_joint>
+
+            <!-- kinematics -->
+            <wheel_separation>${2*wheel_yoff}</wheel_separation>
+            <wheel_radius>${wheel_radius}</wheel_radius> <!-- computed from <wheel_diameter> in the original plugin-->
+
+            <!-- limits -->
+            <max_linear_acceleration>200.0</max_linear_acceleration> <!-- computed from <max_linear_acceleration> in the original plugin-->
+
+            <topic>cmd_vel</topic> <!-- from <commant_topic> -->
+
+            <odom_topic>odom_raw</odom_topic> <!-- from <odometry_topic> -->
+            <frame_id>odom</frame_id> <!-- from <odometry_frame> -->
+            <child_frame_id>base_footprint</child_frame_id> <!-- from <robot_base_frame> -->
+            <odom_publisher_frequency>30</odom_publisher_frequency> <!-- from <update_rate>-->
+
+            <tf_topic>/tf</tf_topic> <!-- Short topic name for tf output -->
+
+            </plugin>
+
+        <!--plugin name='diff_drive' filename='libgazebo_ros_diff_drive.so'>
 
             <ros>
-                <namespace>/vgo</namespace>
                 <remapping>cmd_vel:=/cmd_vel</remapping>
-                <remapping>odom:=/odom</remapping>
+                <remapping>odom:=/odom_raw</remapping>
                 
             </ros>
 
-            <!-- wheels -->
-            <left_joint>drivewhl_l_joint</left_joint>
-            <right_joint>drivewhl_r_joint</right_joint>
+            <!- - wheels - ->
+            <left_joint>left_wheel_joint</left_joint>
+            <right_joint>right_wheel_joint</right_joint>
 
-            <!-- kinematics -->
+            <!- - kinematics - ->
             <wheel_separation>0.3</wheel_separation>
             <wheel_diameter>0.18</wheel_diameter>
 
             <update_rate>50.0</update_rate>
 
-            <!-- limits -->
+            <!- - limits - ->
             <max_wheel_torque>10.0</max_wheel_torque>
             <max_wheel_acceleration>2.0</max_wheel_acceleration>
 
-            <!-- output -->
+            <!- - output - ->
             <publish_odom>true</publish_odom>
             <publish_odom_tf>false</publish_odom_tf>
             <publish_wheel_tf>false</publish_wheel_tf>
@@ -178,48 +347,81 @@
             <odometry_frame>odom</odometry_frame>
             <robot_base_frame>base_footprint</robot_base_frame>
 
+        </plugin -->
+        <plugin filename="gz-sim-joint-state-publisher-system"
+            name="gz::sim::systems::JointStatePublisher">
+            <topic>quori_joint_states</topic> <!--from <ros><remapping> -->
+            <joint_name>left_wheel_joint</joint_name>
+            <joint_name>right_wheel_joint</joint_name>
+            <joint_name>twist_joint</joint_name>
         </plugin>
-        <plugin name="gazebo_ros_joint_state_publisher"   filename="libgazebo_ros_joint_state_publisher.so">
-            <ros>
-                <!-- Add a namespace -->
-                <namespace>/vgo</namespace>
-                <!-- Remap the default topic -->
-                <remapping>joint_states:=/base_wheel_joints</remapping>
-            </ros>
-            <!-- Update rate in Hertz -->
-            <update_rate>50</update_rate>
-            <!-- Name of joints in the model whose states will be published. -->
-            <joint_name>drivewhl_l_joint</joint_name>
-            <joint_name>drivewhl_r_joint</joint_name>
+
+        <plugin filename="gz-sim-joint-state-publisher-system"
+            name="gz::sim::systems::JointStatePublisher">
+            <topic>neck_joint_states</topic> <!--from <ros><remapping> -->
+            <joint_name>neck_joint</joint_name>
+            <joint_name>tilt_joint</joint_name>
+            <joint_name>pan_joint</joint_name>
         </plugin>
     </gazebo>
 
 
     <!-- RGB cam -->
-    <gazebo reference="cam_rgb_link">
+
+    <gazebo reference="camera_mount_link" />
+
+    <gazebo reference="camera_link">
         <material>Gazebo/Black</material>
     </gazebo>
 
-    <gazebo reference="cam_rgb_frame"/>
-
-    <gazebo reference="cam_rgb_optical_frame" />
-    <gazebo reference="cam_rgb_base_link_joint" />
-    <gazebo reference="cam_rgb_joint" />
-    <gazebo reference="cam_rgb_optical_joint" />
+  
+    <gazebo reference="camera_bottom_screw_frame"/>
+    <gazebo reference="camera_bottom_screw_frame_joint"/>
 
 
-    <!-- generate the RGB camera image -->
-    <gazebo reference="cam_rgb_frame">
-        <sensor name="cam_rgb" type="camera">
+    <gazebo reference="camera_color_optical_frame" />
+
+    <gazebo reference="camera_depth_optical_frame" />
+    <gazebo reference="camera_depth_frame" />
+
+    <gazebo reference="camera_infra_1_optical_frame" />
+    <gazebo reference="camera_infra_1_frame" />
+
+    <gazebo reference="camera_infra2_optical_frame" />
+    <gazebo reference="camera_infra2_frame" />
+
+
+    <gazebo reference="camera_mount_joint" />
+    <gazebo reference="camera_link_mount_joint" />
+
+
+    <gazebo reference="camera_color_joint" />
+    <gazebo reference="camera_color_optical_joint" />
+
+    <gazebo reference="camera_depth_joint" />
+    <gazebo reference="camera_depth_optical_joint" />
+
+    <gazebo reference="camera_infra_1_joint" />
+    <gazebo reference="camera_infra_1_optical_joint" />
+
+    <gazebo reference="camera_infra2_joint" />
+    <gazebo reference="camera_infra2_optical_joint" />
+
+    <!-- generate the RGBD camera image -->
+    <gazebo reference="camera_depth_frame">
+        <sensor name="depth_camera" type="depth_camera">
             <always_on>true</always_on>
             <visualize>true</visualize>
+            <topic>camera/depth_image_raw</topic>
+            <gz_frame_id>camera_depth_optical_frame</gz_frame_id>
             <update_rate>15</update_rate>
-            <camera name="cam_rgb">
+            <camera name="depth_camera">
                 <horizontal_fov>1.085595</horizontal_fov>
                 <image>
                     <width>1280</width>
                     <height>960</height>
-                    <format>BGR8</format>
+                    <format>R_FLOAT32</format>
+                    <!-- format>BGR8</format -->
                 </image>
                 <clip>
                     <near>0.03</near>
@@ -234,160 +436,42 @@
                     <stddev>0.007</stddev>
                 </noise>
             </camera>
-            <plugin name="cam_rgb_driver" filename="libgazebo_ros_camera.so">
-                <ros>
-                <!-- <namespace></namespace> -->
 
-                    <!-- 
-                    <remapping>${cam_name}/image_raw:=cam_rgb/image_raw</remapping>
-                    <remapping>${cam_name}/image_raw/compressed:=${cam_name}/color/image_raw/compressed</remapping>
-                    <remapping>${cam_name}/image_raw/theora:=${cam_name}/color/image_raw/theora</remapping>
-                    <remapping>${cam_name}/image_raw/compressedDepth:=${cam_name}/color/image_raw/compressedDepth</remapping>
+        </sensor>
+    </gazebo>
+    <gazebo reference="camera_color_frame">
+        <sensor name="color_camera" type="camera">
+            <always_on>true</always_on>
+            <visualize>true</visualize>
+            <topic>camera/image_raw</topic>
+            <gz_frame_id>camera_color_optical_frame</gz_frame_id>
+            <update_rate>15</update_rate>
+            <camera name="color_camera">
+                <horizontal_fov>1.085595</horizontal_fov>
+                <image>
+                    <width>1280</width>
+                    <height>960</height>
+                   
+                    <!-- format>BGR8</format -->
+                </image>
+                <clip>
+                    <near>0.03</near>
+                    <far>1000</far>
+                </clip>
+                <noise>
+                    <type>gaussian</type>
+                    <!-- Noise is sampled independently per pixel on each frame.
+                        That pixel's noise value is added to each of its color
+                        channels, which at that point lie in the range [0,1]. -->
+                    <mean>0.0</mean>
+                    <stddev>0.007</stddev>
+                </noise>
+            </camera>
 
-                    <remapping>${cam_name}/camera_info:=${cam_name}/color/camera_info</remapping>
-                    -->
-                </ros>
-
-                <!-- Set camera name. If empty, defaults to sensor name (i.e. "sensor_name") -->
-                <camera_name>cam_rgb</camera_name>
-
-                <!-- camera_name>omit so it defaults to sensor name</camera_name-->
-                <frame_name>cam_rgb_frame</frame_name>
-
-            </plugin>
         </sensor>
     </gazebo>
 
 
-    <xacro:macro name="RealsenseGazebo" params="cam_name" >
-
-        <!-- depth cam -->
-        <gazebo reference="${cam_name}_link">
-            <material>Gazebo/Black</material>
-        </gazebo>
-        <gazebo reference="${cam_name}_color_optical_frame"/>
-        <gazebo reference="${cam_name}_depth_frame"/>
-
-        <gazebo reference="${cam_name}_joint" />
-        <gazebo reference="${cam_name}_color_joint" />
-        <gazebo reference="${cam_name}_depth_joint" />
-        <gazebo reference="${cam_name}_color_optical_joint" />
-        <gazebo reference="${cam_name}_depth_optical_joint" />
-
-        <!-- generate teh RGB image for the depth camera (using seperate plugin as RGB is different resolutin then depth) -->
-        <gazebo reference="${cam_name}_color_frame">
-            <sensor name="${cam_name}_color" type="camera">
-                <always_on>true</always_on>
-                <visualize>true</visualize>
-                <update_rate>15</update_rate>
-                <camera name="${cam_name}_color">
-                    <horizontal_fov>1.085595</horizontal_fov>
-                    <image>
-                        <width>640</width>
-                        <height>480</height>
-                        <format>BGR8</format>
-                    </image>
-                    <clip>
-                        <near>0.03</near>
-                        <far>1000</far>
-                    </clip>
-                    <noise>
-                        <type>gaussian</type>
-                        <!-- Noise is sampled independently per pixel on each frame.
-                            That pixel's noise value is added to each of its color
-                            channels, which at that point lie in the range [0,1]. -->
-                        <mean>0.0</mean>
-                        <stddev>0.007</stddev>
-                    </noise>
-                </camera>
-                <plugin name="${cam_name}_driver_color" filename="libgazebo_ros_camera.so">
-                    <ros>
-                    <!-- <namespace></namespace> -->
-
-                        <remapping>${cam_name}/image_raw:=${cam_name}/color/image_raw</remapping>
-                        <remapping>${cam_name}/image_raw/compressed:=${cam_name}/color/image_raw/compressed</remapping>
-                        <remapping>${cam_name}/image_raw/theora:=${cam_name}/color/image_raw/theora</remapping>
-                        <remapping>${cam_name}/image_raw/compressedDepth:=${cam_name}/color/image_raw/compressedDepth</remapping>
-                           
-                        <remapping>${cam_name}/camera_info:=${cam_name}/color/camera_info</remapping>
-
-                    </ros>
-
-                    <!-- Set camera name. If empty, defaults to sensor name (i.e. "sensor_name") -->
-                    <camera_name>${cam_name}</camera_name>
-
-                    <!-- camera_name>omit so it defaults to sensor name</camera_name-->
-                    <frame_name>${cam_name}_color_optical_frame</frame_name>
-                    <!-- <hack_baseline>0.07</hack_baseline> -->
-                </plugin>
-            </sensor>
-        </gazebo>
-
-
-        <!--  Add an RGBD camera -->
-        <!--
-            The "depth" camera plugin generates RGB and depth images, however they must both have teh same resolution.
-            On VGo we are using a different resolution for RGB and DEPTH, so the color camera is renamed cam_dummy...
-            the RGB image simulation is generated by a seperate plugin above
-        -->
-        <gazebo reference="${cam_name}_link">
-            <sensor name="${cam_name}" type="depth">
-                <always_on>true</always_on>
-                <visualize>true</visualize>
-                <update_rate>6</update_rate>
-                <camera name="${cam_name}">
-                    <horizontal_fov>1.085595</horizontal_fov>
-                    <image>
-                        <width>424</width>
-                        <height>240</height>
-                        <format>Z16</format>
-                    </image>
-                    <clip>
-                        <near>0.04</near>
-                        <far>2.0</far>
-                    </clip>
-                    <noise>
-                        <type>gaussian</type>
-                        <!-- Noise is sampled independently per pixel on each frame.
-                            That pixel's noise value is added to each of its color
-                            channels, which at that point lie in the range [0,1]. -->
-                        <mean>0.0</mean>
-                        <stddev>0.07</stddev>
-                    </noise>
-                </camera>
-                <plugin name="${cam_name}_driver" filename="libgazebo_ros_camera.so">
-                    <ros>
-
-                        <remapping>${cam_name}/image_raw:=${cam_name}/cam_dummy/image_raw</remapping>
-                        <remapping>${cam_name}/image_raw/compressed:=${cam_name}/cam_dummy/image_raw/compressed</remapping>
-                        <remapping>${cam_name}/image_raw/theora:=${cam_name}/cam_dummy/image_raw/theora</remapping>
-                        <remapping>${cam_name}/image_raw/compressedDepth:=${cam_name}/cam_dummy/image_raw/compressedDepth</remapping>
-                        <remapping>${cam_name}/camera_info:=${cam_name}/cam_dummy/camera_info</remapping>
-                        
-                        
-                        <remapping>${cam_name}/depth/image_raw:=${cam_name}/depth/image_rect_raw</remapping>
-                        <remapping>${cam_name}/depth/image_raw/compressed:=${cam_name}/depth/image_rect_raw/compressed</remapping>
-                        <remapping>${cam_name}/depth/image_raw/theora:=${cam_name}/depth/image_rect_raw/theora</remapping>
-                        <remapping>${cam_name}/depth/image_raw/compressedDepth:=${cam_name}/depth/image_rect_raw/compressedDepth</remapping>
-
-                        
-                        <!-- remapping>${cam_name}/camera_info_depth:=${cam_name}/depth/camera_info</remapping -->
-
-                        <remapping>${cam_name}/points:=${cam_name}/depth/color/points</remapping>
-                    </ros>
-                    <camera_name>${cam_name}</camera_name>
-
-                    <frame_name>${cam_name}_depth_optical_frame</frame_name>
-                    <hack_baseline>0.07</hack_baseline>
-                    <min_depth>0.4</min_depth>
-                    <max_depth>2.0</max_depth>
-                </plugin>
-            </sensor>
-        </gazebo>
-
-    </xacro:macro>
-
-    <xacro:RealsenseGazebo cam_name="cam_bottom" />
-    <xacro:RealsenseGazebo cam_name="cam_top" />
+   
 
 </robot>

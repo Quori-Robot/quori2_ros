@@ -14,11 +14,31 @@ find_package(ament_cmake REQUIRED)
 # Install  files
 install(DIRECTORY 
     launch
+    DESTINATION share/${PROJECT_NAME}
+    )
+
+install(DIRECTORY 
     meshes
+    DESTINATION share/${PROJECT_NAME}
+    )
+
+install(DIRECTORY 
     models
+    DESTINATION share/${PROJECT_NAME}
+    )
+
+install(DIRECTORY 
     worlds
+    DESTINATION share/${PROJECT_NAME}
+    )
+
+install(DIRECTORY 
     src
-    rviz
+    DESTINATION share/${PROJECT_NAME}
+    )
+
+install(DIRECTORY 
+    params
     DESTINATION share/${PROJECT_NAME}
     )
 
@@ -33,5 +53,8 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+
+ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/hooks/${PROJECT_NAME}.dsv.in")
 
 ament_package()
