@@ -85,6 +85,6 @@ def generate_launch_description():
         joint_state_publisher_node,
         joint_state_publisher_gui_node,
         robot_state_publisher_node,
-       # gazebo_ld,
+        gazebo_ld,
 
     ])

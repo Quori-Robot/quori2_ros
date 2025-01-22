@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+source ~/dev/semio/ros_ws/install/setup.bash
+
+ros2 run nav2_map_server map_saver_cli -f `ros2 pkg prefix quori_nav`/../../src/quori2_ros/quori_nav/maps/$1
+

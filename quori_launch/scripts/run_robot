@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+source ~/dev/semio/ros_ws/install/setup.bash
+
+
+ros2 launch quori_launch quori_launch.py $@
+

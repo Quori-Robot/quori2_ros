@@ -35,7 +35,7 @@ def generate_launch_description():
 
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(os.path.join(pkg_ros_gz_sim, 'launch', 'gz_sim.launch.py')),
-            launch_arguments =  {'gz_args': [TextSubstitution(text='-r -z 1000000 '), world_file, world ] }.items(),
+            launch_arguments =  {'gz_args': [TextSubstitution(text='-r -z 1000000 '), world_file, world ], 'use_sim_time': use_sim_time  }.items(),
         ),
 
             # Spawn
@@ -48,7 +48,7 @@ def generate_launch_description():
                     '-y', '3.4',
                     '-topic', '/robot_description'],
                 output='screen',
-                #parameters=[{ 'use_sim_time': use_sim_time }]
+                parameters=[{ 'use_sim_time': use_sim_time }]
         ),
 
         Node(
@@ -60,7 +60,7 @@ def generate_launch_description():
                 f'config_file:={bridge_params}',
             ],
             output='screen',
-            #parameters=[{ 'use_sim_time': use_sim_time }]
+            parameters=[{ 'use_sim_time': use_sim_time }]
         ),
 
         Node(

@@ -7,7 +7,7 @@ teleop_joy:
     axis_linear.y: 2 
     axis_linear.z: 4
 
-    scale_linear.x: 0.5 
+    scale_linear.x: 2.0 
     scale_linear.y: 0.5
     scale_linear.z: 1.0
 
