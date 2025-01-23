@@ -13,6 +13,12 @@ Install additional ros-humble binaries that may not already be installed:
 sudo apt-get install ros-humble-rplidar-ros ros-humble-teleop-twist-keyboard  ros-humble-ros-gz
 ```
 
+Make a ros workspace folder <ros_ws>/src - the default path is ~/dev/semio/ros_ws/src
+
+```
+mkdir -p ~/dev/semio/ros_ws/src
+```
+
 You will need to install the OrbbecSDK_ROS2 source package into the same workspace src folder as quori2_ros
 
 ```
@@ -67,7 +73,9 @@ run_sim
 save_map
 ```
 
-Thes scripts take the same arguments as shown below for the full ros2 launch commands.
+Note: You may need to edit the path to the workspace inside each of these files depending on where you installed your workspace.
+
+These scripts take the same arguments as shown below for the full ros2 launch commands.
 
 These files are in the quori_launch/scripts folder, add this folder to your PATH env variable so they can be run from any folder.
 
@@ -111,7 +119,7 @@ Note: by default maps are expected to be in the quori_nav/maps folder
 
 After saving the map from mapping mode using one of the commands above, the map files (.png and .yaml) must be in the quori_nav/maps folder.
 
-To use the map in navigation mode pass the map path/name to the launch command via the map parameter or edit the default value of the map parameter in the quori_launch/launch/quori_launch.py or quori_launch/launch/quori_sim_launch.py files.
+To use the map in navigation mode pass the path and yaml file name i.e. <path/map_name>.yaml,  of the map to the launch command via the map parameter or edit the default value of the map parameter in the quori_launch/launch/quori_launch.py or quori_launch/launch/quori_sim_launch.py files.
 
 
 ### Using the Joystick
