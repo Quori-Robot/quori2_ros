@@ -61,12 +61,27 @@ class Odom {
 
 
         void publish(NET_PACKET & packet) {
+            MTR_STS_PACKET & mtr_sts = packet.data.mtr_sts;
+            float w1;
+            float w2;
+
+            if(params.swap_left_right) {
+                w1= params.mtr1_dir * mtr_sts.vel_pos[1];
+                w2= params.mtr2_dir * mtr_sts.vel_pos[0];
+            }
+            else {
+                w1=  params.mtr1_dir * mtr_sts.vel_pos[0];
+                w2=  params.mtr2_dir * mtr_sts.vel_pos[1];
+            }
+
+            publish( w1,w2);
+        }
+
+        void publish(float w1, float w2) {
 
             RCLCPP_DEBUG(node->get_logger(),"Publish Odom");
 
             nav_msgs::msg::Odometry odom;
-
-            MTR_STS_PACKET & mtr_sts = packet.data.mtr_sts;
 
             rclcpp::Time timestamp = node->get_clock()->now();
 
@@ -89,15 +104,7 @@ class Odom {
             odom.header.frame_id = "odom";
             odom.child_frame_id = "base_footprint";
 
-            if(params.swap_left_right) {
-                w1= params.mtr2_dir * mtr_sts.vel_pos[1];
-                w2= params.mtr1_dir * mtr_sts.vel_pos[0];
-            }
-            else {
-                w1= params.mtr1_dir * mtr_sts.vel_pos[0];
-                w2= params.mtr2_dir * mtr_sts.vel_pos[1];
-            }
-
+            
             ja1 += w1 * dt;
             ja2 += w2 * dt;
 

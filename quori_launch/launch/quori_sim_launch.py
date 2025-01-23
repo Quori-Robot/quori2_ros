@@ -54,7 +54,6 @@ def generate_launch_description():
                 FindPackageShare("quori_node"),"/launch/","quori_node_launch.py"
             ]), 
             launch_arguments=parameters.items(),
-            condition=IfCondition('False')
         ),
 
         IncludeLaunchDescription(

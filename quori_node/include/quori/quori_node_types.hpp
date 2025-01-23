@@ -43,9 +43,13 @@ typedef struct {
     bool publish_odom_tf=true;
     bool publish_wheel_joints=true;
     bool swap_left_right=false;
+    
     int mtr1_dir =1;
     int mtr2_dir =1;
     int mtr3_dir =1;
+
+    bool use_sim_time=false;
+
 } PARAMS;
 
 #endif // _QUORI_NODE_TYPES_HPP_

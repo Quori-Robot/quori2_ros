@@ -12,6 +12,7 @@
 #include "geometry_msgs/msg/twist.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "sensor_msgs/msg/imu.hpp"
+#include "std_msgs/msg/float64.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 #include <tf2/LinearMath/Quaternion.h>
 #include "quori_odom.hpp"
@@ -51,7 +52,13 @@ class QuoriNode : public rclcpp::Node
         rclcpp::Time last_timestamp;
 
         Eigen::Matrix3d holonomic_invk;
-       
+
+        // used in simulation mode
+        rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr quori_joint_state_sub;
+        rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr twist_vel_cmd_pub;
+        rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr right_wheel_vel_cmd_pub;
+        rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr left_wheel_vel_cmd_pub;
+
         void cmd_vel_cb(const geometry_msgs::msg::Twist::SharedPtr msg) {
             RCLCPP_DEBUG(get_logger(),"Got cmd_vel message");
 
@@ -89,17 +96,40 @@ class QuoriNode : public rclcpp::Node
   //  #endif
             QUORI2_INTERFACE_STS sts;
 
-            if(params.swap_left_right) {
-                sts=quori_send_base_mtr_cmd_packet(context, params.mtr1_dir*v2,params.mtr2_dir*v1, params.mtr3_dir*v3,MTR_CMD_FLAGS::MTR_CMD_SET_VEL);
-            }
-            else {
-                sts=quori_send_base_mtr_cmd_packet(context, params.mtr1_dir*v1,params.mtr2_dir*v2, params.mtr3_dir*v3,MTR_CMD_FLAGS::MTR_CMD_SET_VEL);
+            // not in simulation - send comands to robot base
+            if(!params.use_sim_time) {
+                if(params.swap_left_right) {
+                    sts=quori_send_base_mtr_cmd_packet(context, params.mtr1_dir*v2,params.mtr2_dir*v1, params.mtr3_dir*v3,MTR_CMD_FLAGS::MTR_CMD_SET_VEL);
+                }
+                else {
+                    sts=quori_send_base_mtr_cmd_packet(context, params.mtr1_dir*v1,params.mtr2_dir*v2, params.mtr3_dir*v3,MTR_CMD_FLAGS::MTR_CMD_SET_VEL);
+                }
+
+                if(sts != QUORI2_INTERFACE_STS::STS_OK) {
+                    RCLCPP_DEBUG(get_logger(),"Got send base mtr cmd Error: sts =%d",(int)sts);
+                }
             }
 
-            if(sts != QUORI2_INTERFACE_STS::STS_OK) {
-                RCLCPP_DEBUG(get_logger(),"Got send base mtr cmd Error: sts =%d",(int)sts);
-            }
-
+            // in simulation send commands to gazebo
+            std_msgs::msg::Float64 vel_cmd_msg;
+            if(params.use_sim_time) {
+                if(params.swap_left_right) {
+                    vel_cmd_msg.data = v2;
+                    left_wheel_vel_cmd_pub->publish(vel_cmd_msg);
+                    vel_cmd_msg.data = v1;
+                    right_wheel_vel_cmd_pub->publish(vel_cmd_msg);
+                }
+                else {
+                    vel_cmd_msg.data = v1;
+                    left_wheel_vel_cmd_pub->publish(vel_cmd_msg);
+                    vel_cmd_msg.data = v2;
+                    right_wheel_vel_cmd_pub->publish(vel_cmd_msg);
+                }
+                vel_cmd_msg.data = v3;
+                twist_vel_cmd_pub->publish(vel_cmd_msg);
+            } 
+            
+            // publish for debugging
             quori_msgs::msg::BaseVelCmd base_vel_cmd_msg;
             base_vel_cmd_msg.header.stamp = get_clock()->now();
             base_vel_cmd_msg.header.frame_id="diff_base_link";
@@ -128,6 +158,7 @@ class QuoriNode : public rclcpp::Node
             declare_parameter("mtr1_dir",params.mtr1_dir);
             declare_parameter("mtr2_dir",params.mtr2_dir);
             declare_parameter("mtr3_dir",params.mtr3_dir);
+            //declare_parameter("use_sim_time",params.use_sim_time);
 
             params.lib_params.robot_ip_address = get_parameter("robot_ip_address").as_string();
             params.lib_params.ethernet_interface = get_parameter("ethernet_interface").as_string();
@@ -139,6 +170,7 @@ class QuoriNode : public rclcpp::Node
             params.mtr1_dir = get_parameter("mtr1_dir").as_int();
             params.mtr2_dir = get_parameter("mtr2_dir").as_int();
             params.mtr3_dir = get_parameter("mtr3_dir").as_int();
+            params.use_sim_time = get_parameter("use_sim_time").as_bool();
 
 
             RCLCPP_INFO(get_logger(),"Param: robot_ip_address=%s",params.lib_params.robot_ip_address.c_str());
@@ -151,42 +183,53 @@ class QuoriNode : public rclcpp::Node
             RCLCPP_INFO(get_logger(),"Param: mtr1_dir=%d",params.mtr1_dir);
             RCLCPP_INFO(get_logger(),"Param: mtr2_dir=%d",params.mtr2_dir);
             RCLCPP_INFO(get_logger(),"Param: mtr3_dir=%d",params.mtr3_dir);
-
-            QUORI2_INTERFACE_STS sts = quori_open(context,params.lib_params.robot_ip_address.c_str(),params.lib_params.ethernet_interface.c_str());
-       
-            RCLCPP_INFO(get_logger(),"Quori Node opened quoriLib: sts=%d",(uint32_t)sts);  
-            if (sts != QUORI2_INTERFACE_STS::STS_OK) {
-               int qerr = quori_get_errno();
-               RCLCPP_INFO(get_logger(),"QuoriLib open error: %d",qerr); 
-            }
-
-            open_quori_stream(QUORI_BASE_MTR_STS_STREAM, MK_PACKET_CB(mtr_sts_packet_cb));
-            open_quori_stream(QUORI_MTR_CTRL_STS_STREAM, MK_PACKET_CB(mtr_ctrl_sts_packet_cb));
-            open_quori_stream(QUORI_IMU_STREAM, MK_PACKET_CB(imu_packet_cb));
-
-            cmd_vel_sub = create_subscription<geometry_msgs::msg::Twist>("cmd_vel",10, std::bind(&QuoriNode::cmd_vel_cb,this,_1));
-            odom_pub = create_publisher<nav_msgs::msg::Odometry>("odom_raw",10);
-            imu_main_pub = create_publisher<sensor_msgs::msg::Imu>("imu_main_raw",10);
-            imu_head_pub = create_publisher<sensor_msgs::msg::Imu>("imu_head_raw",10);
-            imu_base_mtr_pub = create_publisher<sensor_msgs::msg::Imu>("imu_base_mtr_raw",10);
-
-            mtr_ctrl_status_pub = create_publisher<quori_msgs::msg::MotorControllerStatus>("quori_motor_ctrl_status",10);
-
-            joint_state_pub = create_publisher<sensor_msgs::msg::JointState>("quori_joint_states",10);
+            RCLCPP_INFO(get_logger(),"Param: use_sim_time=%s",params.use_sim_time?"True":"False");
             
-            base_vel_cmd_pub = create_publisher<quori_msgs::msg::BaseVelCmd>("base_vel_cmd",10);
-
+            cmd_vel_sub = create_subscription<geometry_msgs::msg::Twist>("cmd_vel",10, std::bind(&QuoriNode::cmd_vel_cb,this,_1));
+            odom_pub = create_publisher<nav_msgs::msg::Odometry>("odom",10);
             tf_bc = std::make_shared<tf2_ros::TransformBroadcaster>(this);
 
             odom_helper = std::make_shared<Odom>(this,odom_pub,tf_bc,params,pose);
+            base_vel_cmd_pub = create_publisher<quori_msgs::msg::BaseVelCmd>("base_vel_cmd",10);
 
+            if(!params.use_sim_time) {
+                QUORI2_INTERFACE_STS sts = quori_open(context,params.lib_params.robot_ip_address.c_str(),params.lib_params.ethernet_interface.c_str());
+        
+                RCLCPP_INFO(get_logger(),"Quori Node opened quoriLib: sts=%d",(uint32_t)sts);  
+                if (sts != QUORI2_INTERFACE_STS::STS_OK) {
+                    int qerr = quori_get_errno();
+                    RCLCPP_INFO(get_logger(),"QuoriLib open error: %d",qerr); 
+                }
 
-            sts = quori_start_streaming(context);
-            RCLCPP_INFO(get_logger(),"Quori Node streaming started: sts=%d",(uint32_t)sts); 
-            if(sts != QUORI2_INTERFACE_STS::STS_OK) {
-                int qerr = quori_get_errno();
-                RCLCPP_INFO(get_logger(),"QuoriLib start stream error: %d",qerr); 
+                open_quori_stream(QUORI_BASE_MTR_STS_STREAM, MK_PACKET_CB(mtr_sts_packet_cb));
+                open_quori_stream(QUORI_MTR_CTRL_STS_STREAM, MK_PACKET_CB(mtr_ctrl_sts_packet_cb));
+                open_quori_stream(QUORI_IMU_STREAM, MK_PACKET_CB(imu_packet_cb));
+
+                imu_main_pub = create_publisher<sensor_msgs::msg::Imu>("imu_main_raw",10);
+                imu_head_pub = create_publisher<sensor_msgs::msg::Imu>("imu_head_raw",10);
+                imu_base_mtr_pub = create_publisher<sensor_msgs::msg::Imu>("imu_base_mtr_raw",10);
+
+                mtr_ctrl_status_pub = create_publisher<quori_msgs::msg::MotorControllerStatus>("quori_motor_ctrl_status",10);
+
+                joint_state_pub = create_publisher<sensor_msgs::msg::JointState>("quori_joint_states",10);
+
+                sts = quori_start_streaming(context);
+                RCLCPP_INFO(get_logger(),"Quori Node streaming started: sts=%d",(uint32_t)sts); 
+                if(sts != QUORI2_INTERFACE_STS::STS_OK) {
+                    int qerr = quori_get_errno();
+                    RCLCPP_INFO(get_logger(),"QuoriLib start stream error: %d",qerr); 
+                }
+
             }
+            else {
+                // for simulation only
+                quori_joint_state_sub = create_subscription<sensor_msgs::msg::JointState>("quori_joint_states",10, std::bind(&QuoriNode::quori_joint_states_cb,this,_1));
+                twist_vel_cmd_pub = create_publisher<std_msgs::msg::Float64>("sim/twist_joint_vel_cmd",10);
+                left_wheel_vel_cmd_pub = create_publisher<std_msgs::msg::Float64>("sim/left_wheel_joint_vel_cmd",10);
+                right_wheel_vel_cmd_pub = create_publisher<std_msgs::msg::Float64>("sim/right_wheel_joint_vel_cmd",10);
+   
+            }
+
 
             RCLCPP_INFO(get_logger(),"Quori Node Init Ok");
 
@@ -426,6 +469,39 @@ class QuoriNode : public rclcpp::Node
 
                 joint_state_pub->publish(joint_state);
         };
+
+        void quori_joint_states_cb(const sensor_msgs::msg::JointState::SharedPtr msg) {
+           
+            if(params.use_sim_time) {
+
+                    float v1; // left wheel
+                    float v2; // right wheel
+                    float v3; // twist
+
+                    float p3; // twist
+
+                    int len = msg->name.size();
+
+                    for(int idx=0; idx < len; idx++) {
+                        if(msg->name[idx] == "left_wheel_joint") {
+                            v2 = msg->velocity[idx];
+                        }
+                        if(msg->name[idx] == "right_wheel_joint") {
+                            v1 = msg->velocity[idx];
+                        }
+                        if(msg->name[idx] == "twist_joint") {
+                            v3 = msg->velocity[idx];
+                            p3 = msg->position[idx];
+                        }
+                    }
+
+                    odom_helper->publish(v1,v2);
+
+                    pose.th_body = p3;
+                    pose.w_body = v3;
+
+            }
+        }
 
 
 

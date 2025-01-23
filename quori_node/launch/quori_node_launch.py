@@ -26,7 +26,8 @@ def generate_launch_description():
         DeclareLaunchArgument('swap_left_right', default_value='True'),
         DeclareLaunchArgument('mtr1_dir', default_value='-1'),
         DeclareLaunchArgument('mtr2_dir', default_value='-1'),
-        DeclareLaunchArgument('mtr3_dir', default_value='1')
+        DeclareLaunchArgument('mtr3_dir', default_value='1'),
+        DeclareLaunchArgument('use_sim_time', default_value='false')
     ]
 
     # Node configuration
@@ -54,6 +55,7 @@ def generate_launch_description():
             executable='quori_cmd',
             parameters=[parameters],
             output='screen',
+            condition=IfCondition(LaunchConfiguration('use_sim_time'))
         ),
 
         Node(
@@ -62,6 +64,7 @@ def generate_launch_description():
             executable='quori_ivt',
             parameters=[parameters],
             output='screen',
+            condition=IfCondition(LaunchConfiguration('use_sim_time'))
         ),
 
         ]

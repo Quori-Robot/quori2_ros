@@ -1,5 +1,6 @@
 
 
+
 import launch
 from launch.events.process import *
 from launch import LaunchDescription
@@ -33,16 +34,12 @@ def generate_launch_description():
 
     quary_launch_pkg_path = FindPackageShare("quori_launch")
 
-
-    kb_teleop_config_path = [quary_launch_pkg_path,"/config/kb_teleop_config.yaml"]
     joy_teleop_config_path = [quary_launch_pkg_path,"/config/",LaunchConfiguration('controller_type'),"_config.yaml"]
     
     mux_config_path = [quary_launch_pkg_path,"/config/mux_config.yaml"]
     smoother_config_path = [quary_launch_pkg_path,"/config/smoother_config.yaml"]
 
-    # get  ROS_DISTRO
-    ros_distro = os.environ["ROS_DISTRO"]
-   
+
     vs_node = LifecycleNode(
         namespace="velocity_smoother",
         package='nav2_velocity_smoother',
@@ -75,7 +72,7 @@ def generate_launch_description():
             remappings=[('cmd_vel','cmd_vel_joy')]
 
         ),
-        
+
         Node(
             package='twist_mux',
             name='twist_mux',

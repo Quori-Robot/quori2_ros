@@ -20,11 +20,11 @@
   direction: GZ_TO_ROS
 
 # gz topic published by DiffDrive plugin
-- ros_topic_name: "odom"
-  gz_topic_name: "odom"
-  ros_type_name: "nav_msgs/msg/Odometry"
-  gz_type_name: "gz.msgs.Odometry"
-  direction: GZ_TO_ROS
+#- ros_topic_name: "odom"
+#  gz_topic_name: "odom"
+#  ros_type_name: "nav_msgs/msg/Odometry"
+#  gz_type_name: "gz.msgs.Odometry"
+#  direction: GZ_TO_ROS
 
 # gz topic published by DiffDrive plugin
 - ros_topic_name: "tf"
@@ -34,11 +34,11 @@
   direction: GZ_TO_ROS
 
 # gz topic subscribed to by DiffDrive plugin
-- ros_topic_name: "cmd_vel"
-  gz_topic_name: "cmd_vel"
-  ros_type_name: "geometry_msgs/msg/Twist"
-  gz_type_name: "gz.msgs.Twist"
-  direction: ROS_TO_GZ
+#- ros_topic_name: "cmd_vel"
+#  gz_topic_name: "cmd_vel"
+#  ros_type_name: "geometry_msgs/msg/Twist"
+#  gz_type_name: "gz.msgs.Twist"
+#  direction: ROS_TO_GZ
 
 # gz topic published by IMU plugin
 - ros_topic_name: "imu_head_raw"
@@ -77,7 +77,21 @@
 
 # gz topic subscribed to by Twist JointController plugin
 - ros_topic_name: "sim/twist_joint_vel_cmd"
-  gz_topic_name: "twist_joint_vel"
+  gz_topic_name: "twist_joint_vel_cmd"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+# gz topic subscribed to by Left wheel JointController plugin
+- ros_topic_name: "sim/left_wheel_joint_vel_cmd"
+  gz_topic_name: "left_wheel_joint_vel_cmd"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+# gz topic subscribed to by Right wheel JointController plugin
+- ros_topic_name: "sim/right_wheel_joint_vel_cmd"
+  gz_topic_name: "right_wheel_joint_vel_cmd"
   ros_type_name: "std_msgs/msg/Float64"
   gz_type_name: "gz.msgs.Double"
   direction: ROS_TO_GZ
