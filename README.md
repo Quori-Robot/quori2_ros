@@ -22,6 +22,19 @@ git clone https://github.com/orbbec/OrbbecSDK_ROS2.git
 cd ..
 ```
 
+Build and install the quori2_interfaces library:
+
+```
+mkdir -p  <development folder outside of the ros workspace>
+cd <development folder outside of the ros workspace>
+git clone git@github.com:Quori-Robot/quori2_interface.git
+cd quori2_interface
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+```
 
 ### Clone quori2_ros
 
@@ -96,14 +109,14 @@ Note: by default maps are expected to be in the quori_nav/maps folder
 
 After saving the map from mapping mode using one of the commands above, the map files (.png and .yaml) must be in the quori_nav/maps folder.
 
-To use the map in navigation mode pass the map path/name to the launch command via the map parameter or edit the default value of the map parameter in the quori_lunch/launch/quori_launch.py or quori_lunch/launch/quori_sim_launch.py files.
+To use the map in navigation mode pass the map path/name to the launch command via the map parameter or edit the default value of the map parameter in the quori_launch/launch/quori_launch.py or quori_launch/launch/quori_sim_launch.py files.
 
 
 ### Using the Joystick
 
 Two types of joystick are currently supported - xbox360 and xbox_one
 
-Pass the controller_type parameter to select the joystick or set the default type of controller you are using by editing the default value of the 'controller_type' parameter in the quori_lunch/launch/quori_launch.py and quori_lunch/launch/quori_sim_launch.py launch files.
+Pass the controller_type parameter to select the joystick or set the default type of controller you are using by editing the default value of the 'controller_type' parameter in the quori_launch/launch/quori_launch.py and quori_launch/launch/quori_sim_launch.py launch files.
 
 The button mapping is shown below
 
