@@ -18,9 +18,8 @@ def generate_launch_description():
         DeclareLaunchArgument('use_sim_time', default_value='true'), 
         DeclareLaunchArgument('mode', default_value=''),   
         DeclareLaunchArgument(name='world',  default_value='quori.world', description='specify name of world file to launch'),
-        DeclareLaunchArgument(
-            'map', default_value=os.path.join(get_package_share_directory("quori_nav"), 'maps', 'sim_cafe.yaml'), description='Full path to map yaml file to load'
-        ),
+        DeclareLaunchArgument('map', default_value=os.path.join(get_package_share_directory("quori_nav"), 'maps', 'sim_cafe.yaml'), description='Full path to map yaml file to load' ),
+        DeclareLaunchArgument('controller_type', default_value='xbox_one'), 
     ]
 
     rviz_config_dir = os.path.join(

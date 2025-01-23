@@ -49,7 +49,7 @@ def generate_launch_description():
         ),
 
         DeclareLaunchArgument(
-            'map', default_value=os.path.join(get_package_share_directory("quori_nav"), 'maps', 'map_1737075898.yaml'), description='Full path to map yaml file to load'
+            'map', default_value=os.path.join(get_package_share_directory("quori_nav"), 'maps', 'sim_cafe.yaml'), description='Full path to map yaml file to load'
         ),
            
         DeclareLaunchArgument('mode', default_value='navigation'),  

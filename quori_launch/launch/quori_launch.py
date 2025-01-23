@@ -4,6 +4,7 @@ from launch.substitutions import LaunchConfiguration
 from launch.actions import IncludeLaunchDescription
 from launch_ros.substitutions import  FindPackageShare
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from ament_index_python.packages import get_package_share_directory
 import os
 
 
@@ -13,6 +14,8 @@ def generate_launch_description():
         DeclareLaunchArgument('camera_type', default_value='gemini335'), 
         DeclareLaunchArgument('use_sim_time', default_value='false'), 
         DeclareLaunchArgument('mode', default_value='navigation'),   
+        DeclareLaunchArgument('map', default_value=os.path.join(get_package_share_directory("quori_nav"), 'maps', 'sim_cafe.yaml'), description='Full path to map yaml file to load'),
+        DeclareLaunchArgument('controller_type', default_value='xbox_one'), 
     ]
 
     # Node configuration
