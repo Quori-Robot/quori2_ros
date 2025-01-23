@@ -22,19 +22,31 @@ git clone https://github.com/orbbec/OrbbecSDK_ROS2.git
 cd ..
 ```
 
-To use the package git clone the repo to the ROS2 workspace/src folder.
 
-Note: on the embedded Nvidia Orin AGX this should be done within the quori docker image that is run on the machine.
+### Clone quori2_ros
+
+Git clone the quori2_ros repo to the ROS2 workspace/src folder.
+
 
 ```
 cd <ros_ws>/src
 git clone git@github.com:Quori-Robot/quori2_ros.git
 
 cd ..
+```
 
+### build teh packages
+
+Note: on the embedded Nvidia Orin AGX this should be done within the quori docker image that is run on the machine.
+
+```
+cd <ros_ws>/src
 colcon build --symlink-install
 source .install/setup.bash
 ```
+
+
+### Run the robot
 
 The Quori2 ROS application can be launched with the following command:
 
@@ -52,7 +64,12 @@ ros2 launch quori_launch quori_sim_launch.py [mode:=navigation|mapping]
 ```
 
 
-Using the Joystick:
+### Using the Joystick:
+
+
+
+### Using the keyboard:
+
 
 Two types of joystick are currently supported - xbox360 and xbox_one
 
