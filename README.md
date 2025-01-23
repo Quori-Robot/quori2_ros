@@ -91,6 +91,8 @@ Note: the map parameter is only valid if mode:=navigation
 
 If the mode parameter is not give, neither mapping nor localization functions are started.
 
+Note: in simulation after gazebo and rviz have launched - you may need to use the 'set initial pose' command in rviz before the simulation will start fully.
+
 *Saving the map*:
 
 When running in mapping mode to save the map - open a second terminal and run the save_map command
