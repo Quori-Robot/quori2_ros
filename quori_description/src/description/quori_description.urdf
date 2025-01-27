@@ -131,10 +131,19 @@
 
   </link>
 
+  <link name="twist_offset"/>
+
+  <joint name="twist_offset_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="twist_offset"/>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/> 
+    <axis xyz="0 0 1"/>
+    <dynamics friction="0.00001" damping="0.000001" />
+  </joint>
 
   <joint name="spine_joint" type="fixed">
     <parent link="base_link"/>
-    <child link="spine_link"/>
+    <child link="twist_offset"/>
     <origin xyz="0.0 0.0 ${(spine_height/2+diff_base_height/2)}" rpy="0 0 0"/>
   </joint>
 
@@ -404,5 +413,38 @@
     <child link="camera_link"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
   </joint>
+
+
+  <link name="respeaker_link"/>
+  <joint name="respeaker_joint" type="fixed">
+    <parent link="spine_link"/>
+    <child link="respeaker_link"/>
+    <origin xyz="${respeaker_x} ${respeaker_y} ${respeaker_z}" rpy="0 0 ${respeaker_yaw}"/>
+  </joint>
+
+  <xacro:macro name="respeaker_mic" params="index pos*">
+    <link name="respeaker_mic_${index}_link"/>
+    <joint name="respeaker_mic_${index}_joint" type="fixed">
+      <parent link="respeaker_link"/>
+      <child link="respeaker_mic_${index}_link"/>
+      <xacro:insert_block name="pos"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:respeaker_mic index="0" >
+     <origin xyz="0.02425 0.02425 0.0012" rpy="0 0 ${pi/4}"/>
+  </xacro:respeaker_mic>
+
+  <xacro:respeaker_mic index="1" >
+     <origin xyz="-0.02425 0.02425 0.0012" rpy="0 0 ${pi/2}"/>
+  </xacro:respeaker_mic>
+
+  <xacro:respeaker_mic index="2" >
+     <origin xyz="-0.02425 -0.02425 0.0012" rpy="0 0 ${3*pi/4}"/>
+  </xacro:respeaker_mic>
+
+  <xacro:respeaker_mic index="3" >
+     <origin xyz="0.02425 -0.02425 0.0012" rpy="0 0 ${-pi/4}"/>
+  </xacro:respeaker_mic>
 
 </robot>

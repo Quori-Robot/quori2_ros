@@ -78,4 +78,9 @@
   <xacro:property name="imu_main_yaw" value="0.0"/>
 
 
+  <xacro:property name="respeaker_x" value="0.0"/>
+  <xacro:property name="respeaker_y" value="0.0"/>
+  <xacro:property name="respeaker_z" value="1.0"/>
+  <xacro:property name="respeaker_yaw" value="${pi/4}"/>
+
 </robot>

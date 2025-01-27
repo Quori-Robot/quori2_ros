@@ -14,6 +14,7 @@
 #include "sensor_msgs/msg/imu.hpp"
 #include "std_msgs/msg/float64.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
+#include "sensor_msgs/msg/magnetic_field.hpp"
 #include <tf2/LinearMath/Quaternion.h>
 #include "quori_odom.hpp"
 #include "tf2_ros/transform_broadcaster.h"
@@ -38,6 +39,10 @@ class QuoriNode : public rclcpp::Node
         rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_main_pub;
         rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_head_pub;
         rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_base_mtr_pub;
+
+        rclcpp::Publisher<sensor_msgs::msg::MagneticField>::SharedPtr mag_main_pub;
+        rclcpp::Publisher<sensor_msgs::msg::MagneticField>::SharedPtr mag_head_pub;
+        rclcpp::Publisher<sensor_msgs::msg::MagneticField>::SharedPtr mag_base_mtr_pub;
 
         rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_state_pub;
 
@@ -208,6 +213,10 @@ class QuoriNode : public rclcpp::Node
                 imu_main_pub = create_publisher<sensor_msgs::msg::Imu>("imu_main_raw",10);
                 imu_head_pub = create_publisher<sensor_msgs::msg::Imu>("imu_head_raw",10);
                 imu_base_mtr_pub = create_publisher<sensor_msgs::msg::Imu>("imu_base_mtr_raw",10);
+
+                mag_main_pub = create_publisher<sensor_msgs::msg::MagneticField>("mag_main_raw",10);
+                mag_head_pub = create_publisher<sensor_msgs::msg::MagneticField>("mag_head_raw",10);
+                mag_base_mtr_pub = create_publisher<sensor_msgs::msg::MagneticField>("mag_base_mtr_raw",10);
 
                 mtr_ctrl_status_pub = create_publisher<quori_msgs::msg::MotorControllerStatus>("quori_motor_ctrl_status",10);
 
@@ -402,6 +411,7 @@ class QuoriNode : public rclcpp::Node
             RCLCPP_DEBUG(get_logger(),"Got imu sts packet on stream %d",stream_id);
 
             sensor_msgs::msg::Imu imu;
+            sensor_msgs::msg::MagneticField mag;
             IMU_PACKET & imu_data = packet.data.imu;
 
             std::array<double,9> cv= { 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0 };
@@ -410,7 +420,9 @@ class QuoriNode : public rclcpp::Node
 
             //timestamp = rclcpp::Time( imu_data.timestamp.sec, imu_data.timestamp.nanosec); 
  
+
             imu.header.stamp = timestamp;
+            mag.header.stamp = timestamp;
      
             imu.orientation.x = imu_data.orientation[0]; 
             imu.orientation.y = imu_data.orientation[1];
@@ -431,21 +443,36 @@ class QuoriNode : public rclcpp::Node
 
             imu.linear_acceleration_covariance = cv;
 
+            mag.magnetic_field.x = imu_data.mag[0];
+            mag.magnetic_field.y = imu_data.mag[1];
+            mag.magnetic_field.z = imu_data.mag[2];
+
+            mag.magnetic_field_covariance = cv;
+
             switch(imu_data.imu_id) {
 
                 case IMU_ID::MAIN_BOARD_IMU:
                     imu.header.frame_id = "imu_main_link";
                     imu_main_pub->publish(imu);
+
+                    mag.header.frame_id = "imu_main_link";
+                    mag_main_pub->publish(mag);
                     break;
 
                 case IMU_ID::HEAD_BOARD_IMU:
                     imu.header.frame_id = "imu_head_link";
                     imu_head_pub->publish(imu);
+
+                    mag.header.frame_id = "imu_head_link";
+                    mag_head_pub->publish(mag);
                     break;
 
                 case IMU_ID::BASE_MOTOR_BOARD_IMU:
                     imu.header.frame_id = "imu_base_mtr_link";
                     imu_base_mtr_pub->publish(imu);
+
+                    mag.header.frame_id = "imu_base_mtr_link";
+                    mag_base_mtr_pub->publish(mag);
                     break;
 
                 default:
