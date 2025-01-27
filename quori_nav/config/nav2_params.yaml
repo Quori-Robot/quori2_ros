@@ -38,6 +38,12 @@ amcl:
     z_rand: 0.5
     z_short: 0.05
     scan_topic: /lidar1/scan
+    set_initial_pose: true
+    initial_pose:
+      x: 1.2
+      y: 0.01
+      z: 3.4
+      yaw: 0.0
 
 bt_navigator:
   ros__parameters:
