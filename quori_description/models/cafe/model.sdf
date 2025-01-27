@@ -31,10 +31,10 @@
       </collision>
 
       <collision name="wall_3">
-        <pose>-1.48 7.43 1.415 0 0 0</pose>
+        <pose>-2.08 7.43 1.415 0 0 0</pose>
         <geometry>
           <box>
-            <size>7.2 0.12 2.83</size>
+            <size>6.0 0.12 2.83</size>
           </box>
         </geometry>
       </collision>
