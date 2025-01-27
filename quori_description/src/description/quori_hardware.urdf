@@ -14,8 +14,8 @@
                 <state_interface name="position"/>
                 <state_interface name="velocity"/>
                 <param name="initial_position">0.0</param>
-                <param name="max_velocity">0.25</param>       
-                <param name="max_torque">3.0</param>
+                <param name="max_velocity">1.0</param>       
+                <param name="max_torque">6.0</param>
                 <param name="max_accel">1000.0</param>
                 <param name="transmission_ratio">600.0</param>
             </joint>
@@ -26,8 +26,8 @@
                 <state_interface name="position"/>
                 <state_interface name="velocity"/>
                 <param name="initial_position">0.0</param>
-                <param name="max_velocity">50.0</param>
-                <param name="max_torque">0.5</param>
+                <param name="max_velocity">200.0</param>
+                <param name="max_torque">5.0</param>
                 <param name="max_accel">500</param>
                 <param name="transmission_ratio">1.0</param>
             </joint>
@@ -38,8 +38,8 @@
                 <state_interface name="position"/>
                 <state_interface name="velocity"/>
                 <param name="initial_position">0.0</param>
-                <param name="max_velocity">188.0</param>
-                <param name="max_torque">3.0</param>
+                <param name="max_velocity">200.0</param>
+                <param name="max_torque">5.0</param>
                 <param name="max_accel">500</param>
                 <param name="transmission_ratio">1.0</param>
             </joint>

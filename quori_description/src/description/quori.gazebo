@@ -16,6 +16,8 @@
     <!-- join diff base to body -->
     <gazebo reference="twist_joint"></gazebo>
 
+    <gazebo reference="twist_offset_link" />
+    <gazebo reference="twist_offset_joint" />
 
     <gazebo reference="spine_link">
         <material>Gazebo/Gray</material>
@@ -279,10 +281,9 @@
             <joint_name>neck_joint</joint_name>
             <initial_position>0.0</initial_position>
             <topic>neck_joint_pos</topic>
-
-            <p_gain>150</p_gain>
-            <i_gain>10</i_gain>
-            <d_gain>1</d_gain>
+            <p_gain>500</p_gain>
+            <i_gain>200</i_gain>
+            <d_gain>50</d_gain>
 
         </plugin>
 
@@ -293,7 +294,7 @@
             <initial_position>0.0</initial_position>
             <topic>pan_joint_pos</topic>
             <p_gain>5</p_gain>
-            <i_gain>1</i_gain>
+            <i_gain>10</i_gain>
             <d_gain>1</d_gain>
         </plugin>
 
@@ -303,6 +304,9 @@
             <joint_name>tilt_joint</joint_name>
             <initial_position>0.0</initial_position>
             <topic>tilt_joint_pos</topic>
+            <p_gain>5</p_gain>
+            <i_gain>1</i_gain>
+            <d_gain>1</d_gain>
         </plugin>
 
 
@@ -337,6 +341,7 @@
             <joint_name>left_wheel_joint</joint_name>
             <joint_name>right_wheel_joint</joint_name>
             <joint_name>twist_joint</joint_name>
+            <!-- joint_name>twist_offset_joint</joint_name -->
         </plugin>
 
         <!-- publish neck,pan,tilt joints -->
@@ -455,7 +460,25 @@
         </sensor>
     </gazebo>
 
+    <gazebo reference="respeaker_link" />
+    <gazebo reference="respeaker_joint" />
 
-   
+    <gazebo reference="respeaker_mic_0_link" />
+    <gazebo reference="respeaker_mic_0_joint" />
+
+    <gazebo reference="respeaker_mic_1_link" />
+    <gazebo reference="respeaker_mic_1_joint" />
+
+    <gazebo reference="respeaker_mic_2_link" />
+    <gazebo reference="respeaker_mic_2_joint" />
+
+    <gazebo reference="respeaker_mic_3_link" />
+    <gazebo reference="respeaker_mic_3_joint" />
+
+    <gazebo reference="head_speaker_link" />
+    <gazebo reference="head_speaker_joint" />
+
+    <gazebo reference="base_speaker_link" />
+    <gazebo reference="base_speaker_joint" />
 
 </robot>

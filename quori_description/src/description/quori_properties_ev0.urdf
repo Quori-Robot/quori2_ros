@@ -80,7 +80,21 @@
 
   <xacro:property name="respeaker_x" value="0.0"/>
   <xacro:property name="respeaker_y" value="0.0"/>
-  <xacro:property name="respeaker_z" value="1.0"/>
+  <xacro:property name="respeaker_z" value="${spine_height/2}"/>
   <xacro:property name="respeaker_yaw" value="${pi/4}"/>
+
+  <xacro:property name="head_speaker_x" value="-${head_depth/2+0.005}"/>
+  <xacro:property name="head_speaker_y" value="0.06"/>
+  <xacro:property name="head_speaker_z" value="0.04"/>
+  <xacro:property name="head_speaker_roll" value="0.0"/>
+  <xacro:property name="head_speaker_pitch" value="${pi/2}"/>
+  <xacro:property name="head_speaker_yaw" value="${pi}"/>
+
+  <xacro:property name="base_speaker_x" value="0.05"/>
+  <xacro:property name="base_speaker_y" value="0.05"/>
+  <xacro:property name="base_speaker_z" value="${base_plate_height/2+0.03}"/>
+  <xacro:property name="base_speaker_roll" value="0.0"/>
+  <xacro:property name="base_speaker_pitch" value="0.0"/>
+  <xacro:property name="base_speaker_yaw" value="0.0"/>
 
 </robot>

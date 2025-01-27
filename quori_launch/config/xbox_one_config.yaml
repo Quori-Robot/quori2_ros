@@ -8,14 +8,14 @@ teleop_joy:
     axis_linear.z: 4
 
     scale_linear.x: 2.0 
-    scale_linear.y: 0.5
+    scale_linear.y: 2.0
     scale_linear.z: 1.0
 
     axis_angular.yaw: 0 
     axis_angular.pitch: 5
     axis_angular.roll: 3
 
-    scale_angular.yaw: 1.2
+    scale_angular.yaw: 6.0
     scale_angular.pitch: 1.0
     scale_angular.roll: 1.0
     

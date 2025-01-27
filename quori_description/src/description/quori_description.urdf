@@ -63,7 +63,7 @@
       </geometry>
     </collision>
 
-    <xacro:cylinder_inertia m="3" r="${diff_base_radius}" h="${diff_base_height}">
+    <xacro:cylinder_inertia m="15" r="${diff_base_radius}" h="${diff_base_height}">
        <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
     </xacro:cylinder_inertia>
   </link>
@@ -73,7 +73,7 @@
     <parent link="base_link"/>
     <child link="diff_base_link"/>
     <axis xyz="0 0 -1"/>
-    <dynamics friction="0.5" damping="0.1" />
+    <dynamics friction="0.05" damping="0.001" />
     <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
   </joint>
 
@@ -108,6 +108,17 @@
 
   -->
 
+  
+  <link name="twist_offset_link"/>
+
+  <joint name="twist_offset_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="twist_offset_link"/>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/> 
+    <axis xyz="0 0 1"/>
+    <dynamics friction="100" damping="100" />
+  </joint>
+
   <!-- Robot spine -->
   <link name="spine_link">
 
@@ -131,19 +142,10 @@
 
   </link>
 
-  <link name="twist_offset"/>
-
-  <joint name="twist_offset_joint" type="continuous">
-    <parent link="base_link"/>
-    <child link="twist_offset"/>
-    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/> 
-    <axis xyz="0 0 1"/>
-    <dynamics friction="0.00001" damping="0.000001" />
-  </joint>
 
   <joint name="spine_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="twist_offset"/>
+    <parent link="twist_offset_link"/>
+    <child link="spine_link"/>
     <origin xyz="0.0 0.0 ${(spine_height/2+diff_base_height/2)}" rpy="0 0 0"/>
   </joint>
 
@@ -174,7 +176,7 @@
     <child link="collar_link"/>
     <axis xyz="0 0 1"/>
     <limit lower="${-spine_height/4}" upper="${spine_height/4}" effort="1000" velocity="0.3" />
-    <dynamics friction="0.1" damping="0.01" />
+    <dynamics friction="0.01" damping="0.001" />
     <origin xyz="0.0 0.0 ${spine_height/4}" rpy="0 0 0"/>
   </joint>
 
@@ -207,8 +209,8 @@
     <parent link="collar_link"/>
     <child link="neck_link"/>
     <axis xyz="0 0 1"/>
-    <limit lower="${-pi/2}" upper="${pi/2}"  effort="1000" velocity="400" />
-    <dynamics friction="0.1" damping="0.01" />
+    <limit lower="${-pi/2}" upper="${pi/2}"  effort="10000" velocity="400" />
+    <dynamics friction="0.01" damping="0.001" />
     <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
   </joint>
 
@@ -416,18 +418,29 @@
 
 
   <link name="respeaker_link"/>
+
   <joint name="respeaker_joint" type="fixed">
     <parent link="spine_link"/>
     <child link="respeaker_link"/>
     <origin xyz="${respeaker_x} ${respeaker_y} ${respeaker_z}" rpy="0 0 ${respeaker_yaw}"/>
   </joint>
 
-  <xacro:macro name="respeaker_mic" params="index pos*">
-    <link name="respeaker_mic_${index}_link"/>
+  <xacro:macro name="respeaker_mic" params="index *origin">
+    <link name="respeaker_mic_${index}_link">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <visual>
+          <origin xyz="0 0 0.0" rpy="${pi/2} 0 ${pi}"/>
+        <geometry>
+            <sphere radius="0.005" />
+        </geometry>
+        <material name="Blue"/>
+
+      </visual>
+    </link>
     <joint name="respeaker_mic_${index}_joint" type="fixed">
       <parent link="respeaker_link"/>
       <child link="respeaker_mic_${index}_link"/>
-      <xacro:insert_block name="pos"/>
+      <xacro:insert_block name="origin"/>
     </joint>
   </xacro:macro>
 
@@ -436,15 +449,69 @@
   </xacro:respeaker_mic>
 
   <xacro:respeaker_mic index="1" >
-     <origin xyz="-0.02425 0.02425 0.0012" rpy="0 0 ${pi/2}"/>
+     <origin xyz="-0.02425 0.02425 0.0012" rpy="0 0 ${3*pi/4}"/>
   </xacro:respeaker_mic>
 
   <xacro:respeaker_mic index="2" >
-     <origin xyz="-0.02425 -0.02425 0.0012" rpy="0 0 ${3*pi/4}"/>
+     <origin xyz="-0.02425 -0.02425 0.0012" rpy="0 0 ${5*pi/4}"/>
   </xacro:respeaker_mic>
 
   <xacro:respeaker_mic index="3" >
      <origin xyz="0.02425 -0.02425 0.0012" rpy="0 0 ${-pi/4}"/>
   </xacro:respeaker_mic>
+
+  <link name="head_speaker_link">
+    <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+            <cylinder radius="0.02" length="0.01"/>
+        </geometry>
+        <material name="Orange"/>
+    </visual>
+
+    <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.02" length="0.01"/>
+        </geometry>
+    </collision>
+
+    <xacro:cylinder_inertia m="0.25" r="0.02" h="0.01">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:cylinder_inertia> 
+  </link>
+
+  <joint name="head_speaker_joint"  type="fixed">
+      <parent link="head_link"/>
+      <child link="head_speaker_link"/>
+      <origin xyz="${head_speaker_x} ${head_speaker_y} ${head_speaker_z}" rpy="${head_speaker_roll} ${head_speaker_pitch} ${head_speaker_yaw}"/>
+  </joint>
+
+  <link name="base_speaker_link">
+    <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+            <cylinder radius="0.03" length="0.06"/>
+        </geometry>
+        <material name="Orange"/>
+    </visual>
+
+    <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.03" length="0.06"/>
+        </geometry>
+    </collision>
+
+    <xacro:cylinder_inertia m="0.3" r="0.03" h="0.03">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:cylinder_inertia> 
+  </link>
+
+  <joint name="base_speaker_joint"  type="fixed">
+      <parent link="body_plate_link"/>
+      <child link="base_speaker_link"/>
+      <origin xyz="${base_speaker_x} ${base_speaker_y} ${base_speaker_z}" rpy="${base_speaker_roll} ${base_speaker_pitch} ${base_speaker_yaw}"/>
+  </joint>
 
 </robot>
