@@ -271,26 +271,29 @@ hardware_interface::return_type QuoriHeadSystemHardware::read(
 hardware_interface::return_type QuoriHeadSystemHardware::write(
   const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
-
+  RCLCPP_DEBUG(rclcpp::get_logger("QuoriHeadSystemHardware"), "Writing...");
 
   if( 
-      //std::isnan(cmd_pos[0]) ||  std::isnan(cmd_pos[1]) ||  std::isnan(cmd_pos[2]) ||
-      std::isnan(cmd_vel[0]) ||  std::isnan(cmd_vel[1]) ||  std::isnan(cmd_vel[2]) || 
+      std::isnan(cmd_pos[0]) ||  std::isnan(cmd_pos[1]) ||  std::isnan(cmd_pos[2]) ||
+      //std::isnan(cmd_vel[0]) ||  std::isnan(cmd_vel[1]) ||  std::isnan(cmd_vel[2]) || 
       std::isnan(st_vel[0])  ||  std::isnan(st_vel[1])  ||  std::isnan(st_vel[2])  ||  
       std::isnan(st_pos[0])  ||  std::isnan(st_pos[1])  ||  std::isnan(st_pos[2]) ) {
       return hardware_interface::return_type::OK;
   }
 
-  RCLCPP_DEBUG(rclcpp::get_logger("QuoriHeadSystemHardware"), "Writing...");
-  //RCLCPP_INFO(rclcpp::get_logger("QuoriHeadSystemHardware"), "Writing Vel=%f", (float)cmd_vel[0]);
-  float pos[3] = { NAN, NAN,NAN}; //(float)cmd_pos[0], (float)cmd_pos[1], (float)cmd_pos[2]};
+
+  RCLCPP_INFO(rclcpp::get_logger("QuoriHeadSystemHardware"), "Writing Pos=%f, Writing Vel=%f",(float)cmd_pos[0], (float)cmd_vel[0]);
+  float pos[3] ={ (float)cmd_pos[0]* transmission_ratio[0], 
+                  (float)cmd_pos[1]* transmission_ratio[1],
+                  (float)cmd_pos[2]* transmission_ratio[2]};
+
   float vel[3] = { (float)cmd_vel[0] * transmission_ratio[0], 
                    (float)cmd_vel[1] * transmission_ratio[1],
                    (float)cmd_vel[2] * transmission_ratio[2]
                   };
   float accel[3] = { (float)max_accel[0], (float)max_accel[1], (float)max_accel[2]};
   
-  quori_send_head_mtr_cmd_packet(context,pos,vel,max_trq,accel,MTR_CMD_FLAGS::MTR_CMD_SET_VEL);
+  quori_send_head_mtr_cmd_packet(context,pos,vel,max_trq,accel,MTR_CMD_FLAGS::MTR_CMD_SET_POS);
 
   return hardware_interface::return_type::OK;
 }

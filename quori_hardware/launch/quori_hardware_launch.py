@@ -48,6 +48,14 @@ def generate_launch_description():
         condition=UnlessCondition(use_sim_time),
     )
 
+    joint_group_pos_ctrl_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["joint_group_position_controller", "--param-file", robot_controllers_config],
+        output="both",
+        condition=UnlessCondition(use_sim_time),
+    )
+
     neck_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
@@ -75,6 +83,7 @@ def generate_launch_description():
     head_teleop = Node(
         package="quori_hardware",
         executable="head_teleop.py",
+        remappings=[("/head_joint_pos_cmds","/joint_group_position_controller/commands")],
         output="both",
         parameters=[parameters],
     )
@@ -93,9 +102,10 @@ def generate_launch_description():
         
         args + [
             control_node,
-            pan_controller_spawner,
-            tilt_controller_spawner,
-            neck_controller_spawner,
+            #pan_controller_spawner,
+            #tilt_controller_spawner,
+            #neck_controller_spawner,
+            joint_group_pos_ctrl_spawner,
             delay_joint_state_broadcaster_after_robot_controller_spawner,
             head_teleop,
         ]

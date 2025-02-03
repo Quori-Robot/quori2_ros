@@ -21,12 +21,13 @@ class HeadTeleop(Node):
 
         self.neck_rate = 0.3
         self.pan_rate = 4.0
-        self.tilt_rate = 2.0
+        self.tilt_rate = 0.5
 
-        self.neck_pub = self.create_publisher(Float64, 'neck_joint_pos_cmd', 10)
-        self.tilt_pub = self.create_publisher(Float64, 'tilt_joint_pos_cmd', 10)
-        self.pan_pub = self.create_publisher(Float64, 'pan_joint_pos_cmd', 10)
+        self.neck_pub = self.create_publisher(Float64, 'sim/neck_joint_pos_cmd', 10)
+        self.tilt_pub = self.create_publisher(Float64, 'sim/tilt_joint_pos_cmd', 10)
+        self.pan_pub = self.create_publisher(Float64, 'sim/pan_joint_pos_cmd', 10)
         #self.publisher_ = self.create_publisher(MultiDOFCommand, 'pid_controller/reference', 10)
+        self.joint_pos_pub = self.create_publisher(Float64MultiArray, 'head_joint_pos_cmds', 10)
       
         self.subscription = self.create_subscription(
             Joy,
@@ -76,7 +77,7 @@ class HeadTeleop(Node):
             self.tilt = math.pi/4
 
 
-        #cmd_msg = MultiDOFCommand()
+        cmd_msg_group = Float64MultiArray()
         cmd_msg = Float64()
 
         cmd_msg.data =  -self.neck
@@ -87,6 +88,12 @@ class HeadTeleop(Node):
         
         cmd_msg.data = -self.tilt 
         self.tilt_pub.publish(cmd_msg) 
+
+
+        cmd_msg_group.data = [ -self.neck, self.pan, -self.tilt ]
+        self.joint_pos_pub.publish(cmd_msg_group) 
+
+
         
         #self.get_logger().info('I heard: "%s"' % msg)
 
