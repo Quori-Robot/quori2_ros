@@ -9,11 +9,12 @@
 #include <string>
 
 #include "rclcpp/rclcpp.hpp"
-
+#include <future>
 
 #include "quori_msgs/msg/quori_cmd.hpp"
 #include "quori_msgs/msg/quori_version_info.hpp"
 #include "quori_msgs/msg/switch_status.hpp"
+#include "std_msgs/msg/string.hpp"
 
 #include "quori/quori_node_types.hpp"
 #include "quori2_interface/quori2_interface.h"
@@ -33,6 +34,7 @@ class QuoriCmd : public rclcpp::Node
         rclcpp::Publisher<quori_msgs::msg::QuoriVersionInfo>::SharedPtr version_info_pub;
         rclcpp::Publisher<quori_msgs::msg::SwitchStatus>::SharedPtr switch_sts_pub;
 
+        bool _shutdown = false;
 
     public:
         QuoriCmd() : Node("quori_cmd") {
@@ -45,7 +47,8 @@ class QuoriCmd : public rclcpp::Node
            
             RCLCPP_INFO(get_logger(),"Param: robot_ip_address=%s",params.robot_ip_address.c_str());
             RCLCPP_INFO(get_logger(),"Param: ethernet_interface=%s",params.ethernet_interface.c_str());
-       
+
+
             QUORI2_INTERFACE_STS sts = quori_open(context,params.robot_ip_address.c_str(),params.ethernet_interface.c_str());
         
             RCLCPP_INFO(get_logger(),"Quori Node opened quoriLib: sts=%d",(uint32_t)sts);  
@@ -72,8 +75,12 @@ class QuoriCmd : public rclcpp::Node
         
         };
 
+        void close(void) {
+            quori_stop_streaming(context);
+            quori_close(context);
+        }
 
-    private:
+        inline bool shutdown(void) { return _shutdown; };
 
         void open_quori_stream(QuoriStreamID stream_id, QuoriStreamCallback cb) {
             QUORI2_INTERFACE_STS sts = quori_open_stream(context,stream_id,cb,(void*)this);
@@ -92,7 +99,7 @@ class QuoriCmd : public rclcpp::Node
 
 
         void main_coms_sts_packet_cb(NET_PACKET & packet, QuoriStreamID /* stream_id */, void* /*arg */) {
-            RCLCPP_INFO(get_logger(),"QuoriCmd Got %d packet.",(int)packet.header.type);
+            //RCLCPP_INFO(get_logger(),"QuoriCmd Got %d packet.",(int)packet.header.type);
           
          
             if(packet.header.type == NET_PACKET_TYPE::PT_VERSION_INFO) {
@@ -144,7 +151,11 @@ class QuoriCmd : public rclcpp::Node
 
             }
 
-            
+            if(packet.header.type == NET_PACKET_TYPE::PT_SHUTDOWN) {
+               RCLCPP_INFO(get_logger(),"Quori Cmd Shutdown Requested");
+               _shutdown = true;
+               RCLCPP_INFO(get_logger(),"Quori Cmd Shutdown Request done");
+            }
         }
 
 
