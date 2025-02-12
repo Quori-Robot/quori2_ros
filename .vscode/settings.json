@@ -85,5 +85,9 @@
         "/home/ralph/dev/semio/ros_ws/install/orbbec_camera_msgs/local/lib/python3.10/dist-packages",
         "/opt/ros/humble/lib/python3.10/site-packages",
         "/opt/ros/humble/local/lib/python3.10/dist-packages"
-    ]
+    ],
+    "urdf-visualizer.packages": {
+        "quori_description": "${workspaceFolder}/quori_description"
+    },
+
 }
