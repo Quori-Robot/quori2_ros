@@ -91,7 +91,7 @@ def generate_launch_description():
     # TODO(anyone): This is a workaround for flaky tests. Remove when fixed.
     delay_joint_state_broadcaster_after_robot_controller_spawner = RegisterEventHandler(
         event_handler=OnProcessExit(
-            target_action=neck_controller_spawner,
+            target_action=joint_group_pos_ctrl_spawner,
             on_exit=[joint_state_broadcaster_spawner],
         ),
         condition=UnlessCondition(use_sim_time),

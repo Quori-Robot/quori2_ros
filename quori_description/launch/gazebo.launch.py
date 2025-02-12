@@ -66,7 +66,7 @@ def generate_launch_description():
         Node(
             package='ros_gz_image',
             executable='image_bridge',
-            arguments=['camera/depth_image_raw'],
+            arguments=['camera/depth/image_raw'],
             output='screen',
             parameters=[{ 'use_sim_time': use_sim_time }]
         ),
@@ -75,7 +75,7 @@ def generate_launch_description():
         Node(
             package='ros_gz_image',
             executable='image_bridge',
-            arguments=['camera/image_raw'],
+            arguments=['camera/color/image_raw'],
             output='screen',
             parameters=[{ 'use_sim_time': use_sim_time }]
         )
