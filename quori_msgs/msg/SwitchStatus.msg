@@ -48,6 +48,9 @@ uint32 BUMP_SW_6_BIT = 0x02000000
 uint32 BUMP_SW_7_BIT = 0x04000000
 uint32 BUMP_SW_8_BIT = 0x08000000
 
+# ESTOP switch from Base Motor board
+uint32 ESTOP_SW_1_BIT = 0x10000000 
+
 # Message Structure
 uint32 state   # switch status  - bit map of all switch status - bit ==1 means switch is on
 uint32 changed # switch changed - corresponding bit = 1 if switch changed state

@@ -401,7 +401,7 @@
         <sensor name="depth_camera" type="depth_camera">
             <always_on>true</always_on>
             <visualize>true</visualize>
-            <topic>camera/depth_image_raw</topic>
+            <topic>camera/depth/image_raw</topic>
             <gz_frame_id>camera_depth_optical_frame</gz_frame_id>
             <update_rate>15</update_rate>
             <camera name="depth_camera">
@@ -432,7 +432,7 @@
         <sensor name="color_camera" type="camera">
             <always_on>true</always_on>
             <visualize>true</visualize>
-            <topic>camera/image_raw</topic>
+            <topic>camera/color/image_raw</topic>
             <gz_frame_id>camera_color_optical_frame</gz_frame_id>
             <update_rate>15</update_rate>
             <camera name="color_camera">
