@@ -41,7 +41,7 @@ def generate_launch_description():
         name='joint_state_publisher',
         condition=UnlessCondition(use_gui),
         parameters=[{
-            'source_list': ['quori_joint_states', 'neck_joint_states', 'twist_offset_joint_states'],
+            'source_list': ['quori_joint_states', '/head_joint_state_broadcaster/joint_states', 'twist_offset_joint_states'],
             'use_sim_time': use_sim_time
         }],
         output="screen"

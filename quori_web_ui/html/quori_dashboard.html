@@ -8,7 +8,6 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/roslib@1/build/roslib.min.js"></script>
     <script type="text/javascript" src="/scripts/quori_dashboard.js"></script>
 
-
     <title>Quori 2 Dashboard</title>
   </head>
 
@@ -149,8 +148,8 @@
           </div>
         </div>
         <div class="flex-sts-col">
-          <div id="img"><img height="300" src="http://127.0.0.1:8081/stream?topic=/camera/color/image_raw"/></div>
-         
+          <div id="img"><img id="image" height="300" src=""/></div>
+          <script type="text/javascript">document.getElementById("image").src=`http://${window.location.hostname}:8081/stream?topic=/camera/color/image_raw`;</script>
         </div>
       </div>
     </main>

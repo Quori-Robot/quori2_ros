@@ -43,7 +43,7 @@ def generate_launch_description():
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["neck_joint_state_broadcaster", "--param-file", robot_controllers_config],
+        arguments=["head_joint_state_broadcaster", "--param-file", robot_controllers_config],
         output="both",
         condition=UnlessCondition(use_sim_time),
     )

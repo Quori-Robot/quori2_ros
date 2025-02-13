@@ -10,8 +10,16 @@
     <color rgba="0.3 0.3 0.3 1.0"/>
   </material>
 
+  <material name="DarkGray">
+    <color rgba="0.25 0.25 0.25 1.0"/>
+  </material>
+
   <material name="BodyWhite">
     <color rgba="0.8 0.8 0.8 1.0"/>
+  </material>
+
+  <material name="White">
+    <color rgba="0.95 0.95 0.95 1.0"/>
   </material>
 
   <material name="HeadBlack">
@@ -28,6 +36,10 @@
 
   <material name="Orange">
       <color rgba="1.0 0.644 0.0 1.0"/>
+  </material>
+
+  <material name="Green">
+        <color rgba="0.0 1.0 0.0 1.0"/>
   </material>
 
   <!-- Define intertial property macros  -->

@@ -3,7 +3,7 @@
   // -----------------
 
   var ros = new ROSLIB.Ros({
-    url : 'ws://localhost:8082'
+    url : `ws://${window.location.hostname}:8082`
   });
 
   ros.on('connection', function() {
@@ -11,7 +11,7 @@
   });
 
   ros.on('error', function(error) {
-    console.log('Error connecting to websocket server: ', error);
+    console.log(`Error connecting to websocket server @${window.location.hostname}: ${error}`);
   });
 
   ros.on('close', function() {
