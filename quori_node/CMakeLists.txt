@@ -21,8 +21,10 @@ find_package(tf2_ros REQUIRED)
 find_package(Eigen3 3.3 REQUIRED)
 
 find_package(Quori2_Interface REQUIRED)
+find_package(Threads REQUIRED)
 
 add_executable(quori_node src/quori_node.cpp include/quori/quori_node.hpp include/quori/quori_odom.hpp)
+target_link_libraries(${PROJECT_NAME} Threads::Threads)
 target_include_directories(quori_node PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)

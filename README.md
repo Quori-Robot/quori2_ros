@@ -1,17 +1,17 @@
 
 # quori2_ros
 
-This repo provides the ROS2 Humble packages for the Quori2 Robot.
+This repo provides the ROS2 jazzy packages for the Quori2 Robot.
 
 
 ## Building and using the packages
 
 ### Dependencies
 
-Install additional ros-humble binaries that may not already be installed:
+Install additional ros-jazzy binaries that may not already be installed:
 
 ```
-sudo apt-get install ros-humble-rplidar-ros ros-humble-teleop-twist-keyboard  ros-humble-ros-gz
+sudo apt-get install ros-jazzy-rplidar-ros ros-jazzy-teleop-twist-keyboard  ros-jazzy-ros-gz
 ```
 
 Make a ros workspace folder <ros_ws>/src - the default path is ~/dev/semio/ros_ws/src
@@ -62,7 +62,7 @@ Note: on the embedded Nvidia Orin AGX this should be done within the quori docke
 ```
 cd <ros_ws>/src
 colcon build --symlink-install
-source .install/setup.bash
+source ./install/setup.bash
 ```
 
 ### Run the robot
@@ -94,6 +94,10 @@ run_robot [mode:=navigation|mapping] [map:=<full path to map file>] [controller_
 ros2 launch quori_launch quori_sim_launch.py [mode:=navigation|mapping] [map:=<full path to map file>] [controller_type:=xbox360|xbox_one] [world:=<full path to gazebo world file to use>]
 or
 run_sim [mode:=navigation|mapping] [map:=<full path to map file>] [controller_type:=xbox360|xbox_one] [world:=<full path to gazebo world file to use>]
+
+# Example Quicklaunch Command:
+ros2 launch quori_launch quori_sim_launch.py controller_type:=xbox360 world:=quori.world
+
 ```
 
 Note: the map parameter is only valid if mode:=navigation
