@@ -16,10 +16,14 @@ def generate_launch_description():
         DeclareLaunchArgument('mode', default_value='navigation'),   
         DeclareLaunchArgument('map', default_value=os.path.join(get_package_share_directory("quori_nav"), 'maps', 'cafe2.yaml'), description='Full path to map yaml file to load'),
         DeclareLaunchArgument('controller_type', default_value='xbox_one'), 
+        DeclareLaunchArgument('web_address', default_value='192.168.0.58'), 
     ]
+
 
     # Node configuration
     parameters = {arg.name: LaunchConfiguration(arg.name) for arg in args}
+
+    parameters.update({"address" : LaunchConfiguration("web_address")})
 
     # get  ROS_DISTRO
     ros_distro = os.environ["ROS_DISTRO"]
@@ -72,6 +76,12 @@ def generate_launch_description():
                 FindPackageShare("quori_nav"),"/launch/","quori_nav.launch.py"
             ]), 
             launch_arguments=parameters.items(),
+        ),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                FindPackageShare("quori_web_ui"),"/launch/","quori_web_ui_launch.py"
+            ]), 
+            launch_arguments = parameters.items(),
         ),
         ]
         

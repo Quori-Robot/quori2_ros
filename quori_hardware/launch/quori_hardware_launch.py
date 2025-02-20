@@ -43,7 +43,7 @@ def generate_launch_description():
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["neck_joint_state_broadcaster", "--param-file", robot_controllers_config],
+        arguments=["head_joint_state_broadcaster", "--param-file", robot_controllers_config],
         output="both",
         condition=UnlessCondition(use_sim_time),
     )
@@ -91,7 +91,7 @@ def generate_launch_description():
     # TODO(anyone): This is a workaround for flaky tests. Remove when fixed.
     delay_joint_state_broadcaster_after_robot_controller_spawner = RegisterEventHandler(
         event_handler=OnProcessExit(
-            target_action=neck_controller_spawner,
+            target_action=joint_group_pos_ctrl_spawner,
             on_exit=[joint_state_broadcaster_spawner],
         ),
         condition=UnlessCondition(use_sim_time),

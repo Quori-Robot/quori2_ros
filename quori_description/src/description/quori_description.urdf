@@ -42,9 +42,60 @@
   </link>
 
   <joint name="body_plate_joint" type="fixed">
-    <parent link="base_link"/>
+    <parent link="twist_offset_link"/>
     <child link="body_plate_link"/>
     <origin xyz="0.0 0.0 ${base_plate_z_offset}" rpy="0 0 0"/>
+  </joint>
+
+
+  <link name="lidar_plate_link">
+    <visual>
+      <geometry>
+        <cylinder radius="${lidar_plate_radius}" length="${lidar_plate_height}"/> 
+      </geometry>
+      <material name="Black"/>
+    </visual>
+
+    <collision>
+      <geometry>
+        <cylinder radius="${lidar_plate_radius}" length="${lidar_plate_height}"/>
+      </geometry>
+    </collision>
+
+    <xacro:cylinder_inertia m="0.5" r="${lidar_plate_radius}" h="${lidar_plate_height}">
+       <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    </xacro:cylinder_inertia>
+  </link>
+
+  <joint name="lidar_plate_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_plate_link"/>
+    <origin xyz="0.0 0.0 ${lidar_plate_z_offset}" rpy="0 0 0"/>
+  </joint>
+
+  <link name="body_center_link">
+    <visual>
+      <geometry>
+        <cylinder radius="${body_center_radius}" length="${base_plate_z_offset}"/> 
+      </geometry>
+      <material name="DarkGray"/>
+    </visual>
+
+    <collision>
+      <geometry>
+        <cylinder radius="${body_center_radius}" length="${base_plate_z_offset}"/>
+      </geometry>
+    </collision>
+
+    <xacro:cylinder_inertia m="1" r="${body_center_radius}" h="${base_plate_z_offset}">
+       <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    </xacro:cylinder_inertia>
+  </link>
+
+  <joint name="body_center_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="body_center_link"/>
+    <origin xyz="0.0 0.0 ${base_plate_z_offset/2}" rpy="0 0 0"/>
   </joint>
 
   <!-- Robot Diff Base -->
@@ -77,38 +128,8 @@
     <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
   </joint>
 
-  <!-- Robot body
+  <!-- Robot body -->
 
-  <link name="body_link">
-
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <visual>
-      <geometry>
-        <box size="${body_depth} ${body_width} ${body_height}"/> 
-      </geometry>
-      <material name="BodyWhite">
-        <color rgba="0.8 0.8 0.8 1.0"/>
-      </material>
-    </visual>
-
-    <collision>
-      <geometry>
-        <box size="${body_depth} ${body_width} ${body_height}"/>  
-      </geometry>
-    </collision>
-    <xacro:box_inertia m="1.0" w="${body_width}" h="${body_height}" d="${body_depth}"/> 
-  </link>
-
-  
-  <joint name="body_joint" type="fixed">
-    <parent link="spine_link"/>
-    <child link="body_link"/>
-    <origin xyz="0.0 0.0 ${(spine_height/2+base_height/2)}" rpy="0 0 0"/>
-  </joint>
-
-  -->
-
-  
   <link name="twist_offset_link"/>
 
   <joint name="twist_offset_joint" type="continuous">
@@ -127,7 +148,7 @@
       <geometry>
          <cylinder radius="${spine_radius}" length="${spine_height}"/> 
       </geometry>
-      <material name="BodyWhite"/>
+      <material name="DarkGray"/>
 
     </visual>
 
@@ -144,9 +165,9 @@
 
 
   <joint name="spine_joint" type="fixed">
-    <parent link="twist_offset_link"/>
+    <parent link="body_plate_link"/>
     <child link="spine_link"/>
-    <origin xyz="0.0 0.0 ${(spine_height/2+diff_base_height/2)}" rpy="0 0 0"/>
+    <origin xyz="${spine_x_offset} 0.0 ${(spine_height/2+base_plate_height/2)}" rpy="0 0 0"/>
   </joint>
 
   <link name="collar_link" >
@@ -175,9 +196,9 @@
     <parent link="spine_link"/>
     <child link="collar_link"/>
     <axis xyz="0 0 1"/>
-    <limit lower="${-spine_height/4}" upper="${spine_height/4}" effort="1000" velocity="0.3" />
+    <limit lower="${-neck_travel/2}" upper="${neck_travel/2}" effort="1000" velocity="0.3" />
     <dynamics friction="0.01" damping="0.001" />
-    <origin xyz="0.0 0.0 ${spine_height/4}" rpy="0 0 0"/>
+    <origin xyz="0.0 0.0 ${spine_height/2-neck_travel/2-0.02}" rpy="0 0 0"/>
   </joint>
 
   <link name="neck_link"> 
@@ -216,14 +237,50 @@
 
 
   <!-- Robot Head -->
-  <link name="head_link">
+  <link name="head_stalk_link">
 
+    <origin xyz="${neck_depth/2} 0 0" rpy="0 0 0"/>
+    <visual>
+      <origin xyz="${neck_depth/2} 0.0 0.0" rpy="0 0 0"/>
+      <geometry>
+       
+        <box size="${neck_depth} ${neck_width} ${neck_height}"/> 
+      </geometry>
+      <material name="BodyWhite"/>
+
+    </visual>
+
+    <collision> 
+      <origin xyz="${neck_depth/2} 0.0 0.0" rpy="0 0 0"/>
+      <geometry>
+       
+        <box size="${neck_depth} ${neck_width} ${neck_height}"/>  
+      </geometry>
+    </collision>
+
+    <xacro:box_inertia m="0.2" y="${neck_width}" z="${neck_height}" x="${neck_depth}"> 
+         <origin xyz="${neck_depth/2} 0.0 0.0" rpy="0 0 0"/>
+    </xacro:box_inertia>
+
+  </link>
+
+
+  <joint name="tilt_joint" type="revolute">
+    <parent link="neck_link"/>
+    <child link="head_stalk_link"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="${-pi/4}" upper="${pi/4}"  effort="10000" velocity="400"/>
+    <dynamics friction="0.01" damping="0.001" />
+    <origin xyz="${neck_depth} 0.0 0.0" rpy="0 0 0"/>
+  </joint>
+ 
+   <link name="head_link">
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <visual>
       <geometry>
         <box size="${head_depth} ${head_width} ${head_height}"/> 
       </geometry>
-      <material name="HeadBlack"/>
+      <material name="White"/>
 
     </visual>
 
@@ -238,15 +295,12 @@
 
   </link>
 
-  <joint name="tilt_joint" type="revolute">
-    <parent link="neck_link"/>
+  <joint name="head_stalk_joint" type="fixed">
+    <parent link="head_stalk_link"/>
     <child link="head_link"/>
-    <axis xyz="0 1 0"/>
-    <limit lower="${-pi/4}" upper="${pi/4}"  effort="10000" velocity="400"/>
-    <dynamics friction="0.01" damping="0.001" />
     <origin xyz="${neck_depth} 0.0 0.0" rpy="0 0 0"/>
   </joint>
- 
+
   <!-- IMUs -->
   <xacro:imu name="base_mtr" parent="diff_base_link">
       <origin xyz="${imu_base_mtr_x} ${imu_base_mtr_y} ${imu_base_mtr_z}" rpy="${imu_base_mtr_roll} ${imu_base_mtr_pitch} ${imu_base_mtr_yaw}"/>
@@ -344,7 +398,7 @@
   </link>
 
   <joint name="lidar1_base_joint" type="fixed">
-    <parent link="base_link"/>
+    <parent link="lidar_plate_link"/>
     <child link="lidar1_base_link"/>
     <origin xyz="${lidar_xoff} 0.0 ${lidar_zoff}" rpy="0 0 0"/>
     
@@ -382,7 +436,7 @@
   </link>
 
   <joint name="lidar2_base_joint" type="fixed">
-    <parent link="base_link"/>
+    <parent link="lidar_plate_link"/>
     <child link="lidar2_base_link"/>
     <origin xyz="${-lidar_xoff} 0.0 ${lidar_zoff}" rpy="0 0 0"/>
   </joint>

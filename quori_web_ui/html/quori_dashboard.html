@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="/css/layout.css" />
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/eventemitter2@6.4.9/lib/eventemitter2.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/roslib@1/build/roslib.min.js"></script>
+    <script type="text/javascript" src="/scripts/quori_dashboard.js"></script>
+
+    <title>Quori 2 Dashboard</title>
+  </head>
+
+  <body id="page" class="page"  onresize="doresize()">
+    <header>
+      <div id="header" class="flex-header">
+        <div><img width="200" src="/images/SemioLogo.png"/></div>
+        <div><h1>Quori 2 Dashboard</h1></div>
+        <div width="200" style="flex-basis: 200px;"></div>
+      </div>
+    </header>
+    <main>
+      <div id="main_body" class="flex-body">
+        <div id="ivt"><b>IVT</b></div>
+        <div class="flex-mtr-sts-frame" id="mtr_sts_frame">
+          <div class="flex-mtr-sts-row" style="justify-content: flex-start;">
+            <div id="Base_controller_sts">
+              <table>
+                <caption><b>Base Motors</b></caption>
+                <tr><th>Param</th><th>Value</th><th>Units</th></tr>
+
+                <tr><td>Temp 1</td><td id="bm_temp1">0</td><td>&deg;C</td></tr>
+                <tr><td>Temp 2</td><td id="bm_temp2">0</td><td>&deg;C</td></tr>
+
+                <tr><td>State</td><td id="bm_state">--</td><td></td></tr>
+
+                <tr><td>Volts (Internal)</td><td id="bm_volts1">0.00</td><td>Volts</td></tr>
+                <tr><td>Volts (Bus)</td><td id="bm_volts2">0.00</td><td>Volts</td></tr>
+                <tr><td>Volts (5V)</td><td id="bm_volts3">0.00</td><td>Volts</td></tr>
+
+                <tr><td>Amps Mtr 1</td><td id="bm_amps1">0.00</td><td>Amps</td></tr>
+                <tr><td>Amps Mtr 2</td><td id="bm_amps2">0.00</td><td>Amps</td></tr>
+
+                <tr><td>Data input</td><td id="bm_di">0</td><td></td></tr>
+
+                <tr><td>Mtr 1 Sts.</td><td id="bm_fm1">0</td><td><button onClick="showRBTQMtrDetail('bm_fm1')">Detail</button></td></tr>
+                <tr><td>Mtr 2 Sts.</td><td id="bm_fm2">0</td><td><button onClick="showRBTQMtrDetail('bm_fm2')">Detail</button></td></tr>
+
+                <tr><td>FS flags</td><td id="bm_fs">0</td><td><button onClick="showRBTQFlagsDetail('bm_fs')">Detail</button></td></tr>
+                <td>FF faults</td><td id="bm_ff">0</td><td><button onClick="showRBTQFFFaultDetail('bm_ff')">Detail</button></td></tr>
+
+                <tr><td>Coms errors</td><td id="bm_cec">0</td><td></td></tr>
+
+              </table>
+            </div>
+            <div id="Twist_controller_sts">   
+              <table>
+                <caption><b>Twist Motor</b></caption>
+                <tr><th>Param</th><th>Value</th><th>Units</th></tr>
+
+                <tr><td>Temp</td><td id="Twist_temp">0</td><td>&deg;C</td></tr>
+
+                <tr><td>Mode</td><td id="Twist_mode">--</td><td></td></tr>
+
+                <tr><td>Volts </td><td id="Twist_volts">0.00</td><td>Volts</td></tr>
+                <tr><td>Amps</td><td id="Twist_amps">0.00</td><td>Amps</td></tr>
+
+                <tr><td>Drv sts 1</td><td id="Twist_fm1">0</td><td><button onClick="showMoteusDrv1Detail('Twist_fm1')">Detail</button></td></tr>
+                <tr><td>Drv sts 2</td><td id="Twist_fm2">0</td><td><button onClick="showMoteusDrv2Detail('Twist_fm2')">Detail</button></td></tr>
+
+                <tr><td>Flags</td><td id="Twist_fs">0</td><td><button onClick="showMoteusFlagsDetail('Twist_fs')">Detail</button></td></tr>
+                <td>Fault Code</td><td id="Twist_ff">0</td><td><button onClick="showMoteusFaultCodeDetail('Twist_ff')">Detail</button></td></tr>
+
+                <tr><td>Coms errors</td><td id="Twist_cec">0</td><td></td></tr>
+
+              </table>
+            </div>
+            <div id="fault_detail"><b>Flag Details</b></div>
+          </div>
+          <div class="flex-mtr-sts-row">
+            <div id="Neck_controller_sts">
+              <table>
+                <caption><b>Neck Motor</b></caption>
+                <tr><th>Param</th><th>Value</th><th>Units</th></tr>
+
+                <tr><td>Temp</td><td id="Neck_temp">0</td><td>&deg;C</td></tr>
+
+                <tr><td>Mode</td><td id="Neck_mode">--</td><td></td></tr>
+
+                <tr><td>Volts </td><td id="Neck_volts">0.00</td><td>Volts</td></tr>
+                <tr><td>Amps</td><td id="Neck_amps">0.00</td><td>Amps</td></tr>
+
+                <tr><td>Drv sts 1</td><td id="Neck_fm1">0</td><td><button onClick="showMoteusDrv1Detail('Neck_fm1')">Detail</button></td></tr>
+                <tr><td>Drv sts 2</td><td id="Neck_fm2">0</td><td><button onClick="showMoteusDrv2Detail('Neck_fm2')">Detail</button></td></tr>
+
+                <tr><td>Flags</td><td id="Neck_fs">0</td><td><button onClick="showMoteusFlagsDetail('Neck_fs')">Detail</button></td></tr>
+                <td>Fault Code</td><td id="Neck_ff">0</td><td><button onClick="showMoteusFaultCodeDetail('Neck_ff')">Detail</button></td></tr>
+
+                <tr><td>Coms errors</td><td id="Neck_cec">0</td><td></td></tr>
+
+              </table>
+
+            </div>
+            <div id="Pan_controller_sts">
+              <table>
+                <caption><b>Pan Motor</b></caption>
+                <tr><th>Param</th><th>Value</th><th>Units</th></tr>
+
+                <tr><td>Temp</td><td id="Pan_temp">0</td><td>&deg;C</td></tr>
+
+                <tr><td>Mode</td><td id="Pan_mode">--</td><td></td></tr>
+
+                <tr><td>Volts </td><td id="Pan_volts">0.00</td><td>Volts</td></tr>
+                <tr><td>Amps</td><td id="Pan_amps">0.00</td><td>Amps</td></tr>
+
+                <tr><td>Drv sts 1</td><td id="Pan_fm1">0</td><td><button onClick="showMoteusDrv1Detail('Pan_fm1')">Detail</button></td></tr>
+                <tr><td>Drv sts 2</td><td id="Pan_fm2">0</td><td><button onClick="showMoteusDrv2Detail('Pan_fm2')">Detail</button></td></tr>
+
+                <tr><td>Flags</td><td id="Pan_fs">0</td><td><button onClick="showMoteusFlagsDetail('Pan_fs')">Detail</button></td></tr>
+                <td>Fault Code</td><td id="Pan_ff">0</td><td><button onClick="showMoteusFaultCodeDetail('Pan_ff')">Detail</button></td></tr>
+
+                <tr><td>Coms errors</td><td id="Pan_cec">0</td><td></td></tr>
+
+              </table>
+            </div>
+            <div id="Tilt_controller_sts">
+              <table>
+                <caption><b>Tilt Motor</b></caption>
+                <tr><th>Param</th><th>Value</th><th>Units</th></tr>
+
+                <tr><td>Temp</td><td id="Tilt_temp">0</td><td>&deg;C</td></tr>
+
+                <tr><td>Mode</td><td id="Tilt_mode">--</td><td></td></tr>
+
+                <tr><td>Volts </td><td id="Tilt_volts">0.00</td><td>Volts</td></tr>
+                <tr><td>Amps</td><td id="Tilt_amps">0.00</td><td>Amps</td></tr>
+
+                <tr><td>Drv sts 1</td><td id="Tilt_fm1">0</td><td><button onClick="showMoteusDrv1Detail('Tilt_fm1')">Detail</button></td></tr>
+                <tr><td>Drv sts 2</td><td id="Tilt_fm2">0</td><td><button onClick="showMoteusDrv2Detail('Tilt_fm2')">Detail</button></td></tr>
+
+                <tr><td>Flags</td><td id="Tilt_fs">0</td><td><button onClick="showMoteusFlagsDetail('Tilt_fs')">Detail</button></td></tr>
+                <td>Fault Code</td><td id="Tilt_ff">0</td><td><button onClick="showMoteusFaultCodeDetail('Tilt_ff')">Detail</button></td></tr>
+
+                <tr><td>Coms errors</td><td id="Tilt_cec">0</td><td></td></tr>
+
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="flex-sts-col">
+          <div id="img"><img id="image" height="300" src=""/></div>
+          <script type="text/javascript">document.getElementById("image").src=`http://${window.location.hostname}:8081/stream?topic=/camera/color/image_raw`;</script>
+          <div>
+              <h2>System Health Status</h2>
+              <ul>
+                <li>Orin: <span id="orin_sts"></span></li>
+                <li>Base Board: <span id="base_board_sts"></span></li>
+                <li>Head Board: <span id="head_board_sts"></span></li>
+                <li>Power Board: <span id="power_board_sts"></span></li>
+                <li>Base Motor Board: <span id="base_motor_board_sts"></span></li>
+                <li>Base Motor Ctrl: <span id="rbtq_sts"></span></li>
+                <li>Twist Motor: <span id="twist_sts"></span></li>
+                <li>Neck Motor: <span id="neck_sts"></span></li>
+                <li>Pan Motor: <span id="pan_sts"></span></li>
+                <li>Tilt Motor: <span id="tilt_sts"></span></li>
+              </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer>
+      <div id="footer" class="flex-footer">
+        <div class="batt_guage" >Battery:&nbsp;<span class="batt_frame"><span class="batt_ind" id="batt_ind"></span></span></div>
+        <div style="gap: 10px;"><button  onClick="send_quori_cmd(6,0,0)">Clear Faults</button>&nbsp;<button  onClick="send_quori_cmd(5,0,0)">Shutdown</button></div>
+      </div>
+    </footer>
+  </body>
+</html>
+
+

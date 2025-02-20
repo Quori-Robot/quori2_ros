@@ -2,13 +2,15 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration,PythonExpression,TextSubstitution
 from launch_ros.actions import PushRosNamespace
-from launch.actions import GroupAction
+from launch.actions import GroupAction,EmitEvent, RegisterEventHandler
 from launch.actions import IncludeLaunchDescription
 from launch_ros.descriptions import ComposableNode
 from launch_ros.actions import Node
+from launch.event_handlers import OnProcessExit
+from launch.events import Shutdown
 from ament_index_python.packages import get_package_share_directory
 from launch_ros.substitutions import  FindPackageShare
-from launch.conditions import IfCondition,LaunchConfigurationEquals
+from launch.conditions import IfCondition,UnlessCondition,LaunchConfigurationEquals
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 import os
 
@@ -36,36 +38,46 @@ def generate_launch_description():
     # get  ROS_DISTRO
     ros_distro = os.environ["ROS_DISTRO"]
 
-  
-    # Launch description
-    ld = LaunchDescription(
-        args + [
-
-        Node(
+    qnode=Node(
             package='quori_node',
             name='quori_node',
             executable='quori_node',
             parameters=[parameters],
             output='screen'
-        ),
-        
-        Node(
-            package='quori_node',
-            name='quori_cmd',
-            executable='quori_cmd',
-            parameters=[parameters],
-            output='screen',
-            condition=IfCondition(LaunchConfiguration('use_sim_time'))
-        ),
+    )
+    
+    qcmd=Node(
+        package='quori_node',
+        name='quori_cmd',
+        executable='quori_cmd',
+        parameters=[parameters],
+        output='screen',
+    )
 
-        Node(
-            package='quori_node',
-            name='quori_ivt',
-            executable='quori_ivt',
-            parameters=[parameters],
-            output='screen',
-            condition=IfCondition(LaunchConfiguration('use_sim_time'))
-        ),
+    qivt=Node(
+        package='quori_node',
+        name='quori_ivt',
+        executable='quori_ivt',
+        parameters=[parameters],
+        output='screen',
+        condition=UnlessCondition(LaunchConfiguration('use_sim_time'))
+    )
+  
+    # Launch description
+    ld = LaunchDescription(
+        args + [
+
+            qnode,
+            qcmd,
+            qivt,
+
+            RegisterEventHandler(
+                OnProcessExit(
+                    target_action=qcmd,
+                    on_exit=[EmitEvent(event=Shutdown(reason="System Shut Down"))]
+                )
+            )
+
 
         ]
  

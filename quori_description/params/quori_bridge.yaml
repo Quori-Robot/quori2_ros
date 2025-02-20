@@ -97,35 +97,35 @@
   direction: ROS_TO_GZ
 
 # gz topic subscribed to by Neck JointPositionController plugin
-- ros_topic_name: "neck_joint_pos_cmd"
+- ros_topic_name: "sim/neck_joint_pos_cmd"
   gz_topic_name: "neck_joint_pos"
   ros_type_name: "std_msgs/msg/Float64"
   gz_type_name: "gz.msgs.Double"
   direction: ROS_TO_GZ
 
 # gz topic subscribed to by Pan JointPositionController plugin
-- ros_topic_name: "pan_joint_pos_cmd"
+- ros_topic_name: "sim/pan_joint_pos_cmd"
   gz_topic_name: "pan_joint_pos"
   ros_type_name: "std_msgs/msg/Float64"
   gz_type_name: "gz.msgs.Double"
   direction: ROS_TO_GZ
 
 # gz topic subscribed to by tilt JointPositionController plugin
-- ros_topic_name: "tilt_joint_pos_cmd"
+- ros_topic_name: "sim/tilt_joint_pos_cmd"
   gz_topic_name: "tilt_joint_pos"
   ros_type_name: "std_msgs/msg/Float64"
   gz_type_name: "gz.msgs.Double"
   direction: ROS_TO_GZ
 
 # gz topic published by Sensors plugin (Camera)
-- ros_topic_name: "camera/camera_info"
+- ros_topic_name: "camera/color/camera_info"
   gz_topic_name: "camera/camera_info"
   ros_type_name: "sensor_msgs/msg/CameraInfo"
   gz_type_name: "gz.msgs.CameraInfo"
   direction: GZ_TO_ROS
 
   # gz topic published by Sensors plugin (Depth Camera)
-- ros_topic_name: "camera/depth_camera_info"
+- ros_topic_name: "camera/depth/camera_info"
   gz_topic_name: "camera/depth_camera_info"
   ros_type_name: "sensor_msgs/msg/CameraInfo"
   gz_type_name: "gz.msgs.CameraInfo"
