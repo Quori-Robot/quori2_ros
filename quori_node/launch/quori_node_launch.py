@@ -23,9 +23,9 @@ def generate_launch_description():
         DeclareLaunchArgument('xy_offset', default_value='0.117935'), 
         DeclareLaunchArgument('publish_odom_tf', default_value='True'),
         DeclareLaunchArgument('publish_wheel_joint_states', default_value='True'),
-        DeclareLaunchArgument('swap_left_right', default_value='True'),
-        DeclareLaunchArgument('mtr1_dir', default_value='-1'),
-        DeclareLaunchArgument('mtr2_dir', default_value='-1'),
+        DeclareLaunchArgument('swap_left_right', default_value='False'),
+        DeclareLaunchArgument('mtr1_dir', default_value='1'),
+        DeclareLaunchArgument('mtr2_dir', default_value='1'),
         DeclareLaunchArgument('mtr3_dir', default_value='1'),
         DeclareLaunchArgument('use_sim_time', default_value='false')
     ]
