@@ -21,6 +21,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/QuoriVersionInfo.msg"
   "msg/QuoriIVT.msg"
   "msg/SwitchStatus.msg"
+  "msg/QuoriHealthStatus.msg"
   DEPENDENCIES std_msgs
 )
 

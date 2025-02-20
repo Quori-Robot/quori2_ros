@@ -282,7 +282,7 @@ hardware_interface::return_type QuoriHeadSystemHardware::write(
   }
 
 
-  RCLCPP_INFO(rclcpp::get_logger("QuoriHeadSystemHardware"), "Writing Pos=%f, Writing Vel=%f",(float)cmd_pos[0], (float)cmd_vel[0]);
+  RCLCPP_DEBUG(rclcpp::get_logger("QuoriHeadSystemHardware"), "Writing Pos=%f, Writing Vel=%f",(float)cmd_pos[0], (float)cmd_vel[0]);
   float pos[3] ={ (float)cmd_pos[0]* transmission_ratio[0], 
                   (float)cmd_pos[1]* transmission_ratio[1],
                   (float)cmd_pos[2]* transmission_ratio[2]};

@@ -11,16 +11,16 @@
     <title>Quori 2 Dashboard</title>
   </head>
 
-  <body style="flex: display; flex-direction: column; margin: 0px 0px 0px 0px;">
+  <body id="page" class="page"  onresize="doresize()">
     <header>
-      <div class="flex-header">
+      <div id="header" class="flex-header">
         <div><img width="200" src="/images/SemioLogo.png"/></div>
         <div><h1>Quori 2 Dashboard</h1></div>
         <div width="200" style="flex-basis: 200px;"></div>
       </div>
     </header>
     <main>
-      <div class="flex-container">
+      <div id="main_body" class="flex-body">
         <div id="ivt"><b>IVT</b></div>
         <div class="flex-mtr-sts-frame" id="mtr_sts_frame">
           <div class="flex-mtr-sts-row" style="justify-content: flex-start;">
@@ -150,12 +150,28 @@
         <div class="flex-sts-col">
           <div id="img"><img id="image" height="300" src=""/></div>
           <script type="text/javascript">document.getElementById("image").src=`http://${window.location.hostname}:8081/stream?topic=/camera/color/image_raw`;</script>
+          <div>
+              <h2>System Health Status</h2>
+              <ul>
+                <li>Orin: <span id="orin_sts"></span></li>
+                <li>Base Board: <span id="base_board_sts"></span></li>
+                <li>Head Board: <span id="head_board_sts"></span></li>
+                <li>Power Board: <span id="power_board_sts"></span></li>
+                <li>Base Motor Board: <span id="base_motor_board_sts"></span></li>
+                <li>Base Motor Ctrl: <span id="rbtq_sts"></span></li>
+                <li>Twist Motor: <span id="twist_sts"></span></li>
+                <li>Neck Motor: <span id="neck_sts"></span></li>
+                <li>Pan Motor: <span id="pan_sts"></span></li>
+                <li>Tilt Motor: <span id="tilt_sts"></span></li>
+              </ul>
+          </div>
         </div>
       </div>
     </main>
     <footer>
-      <div class="flex-footer">
-        <button  onClick="send_quori_cmd(5,0,0)">Shutdown</button>
+      <div id="footer" class="flex-footer">
+        <div class="batt_guage" >Battery:&nbsp;<span class="batt_frame"><span class="batt_ind" id="batt_ind"></span></span></div>
+        <div style="gap: 10px;"><button  onClick="send_quori_cmd(6,0,0)">Clear Faults</button>&nbsp;<button  onClick="send_quori_cmd(5,0,0)">Shutdown</button></div>
       </div>
     </footer>
   </body>
