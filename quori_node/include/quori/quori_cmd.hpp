@@ -46,6 +46,7 @@ class QuoriCmd : public rclcpp::Node
         bool _shutdown = false;
         uint8_t ping_seq = 0;
         bool got_ping_reply=false;
+        bool use_sim_time=false;
 
     public:
         QuoriCmd() : Node("quori_cmd") {
@@ -55,6 +56,7 @@ class QuoriCmd : public rclcpp::Node
             
             params.robot_ip_address = get_parameter("robot_ip_address").as_string();
             params.ethernet_interface = get_parameter("ethernet_interface").as_string();
+            use_sim_time = get_parameter("use_sim_time").as_bool();
            
             RCLCPP_INFO(get_logger(),"Param: robot_ip_address=%s",params.robot_ip_address.c_str());
             RCLCPP_INFO(get_logger(),"Param: ethernet_interface=%s",params.ethernet_interface.c_str());
@@ -82,9 +84,11 @@ class QuoriCmd : public rclcpp::Node
                 RCLCPP_INFO(get_logger(),"QuoriLib start stream error: %d",qerr); 
             }
 
-            ping_timer = this->create_wall_timer(500ms,std::bind(&QuoriCmd::ping_timer_cb,this));
-            ping_resp_timer = this->create_wall_timer(PING_RESP_TIMEOUT,std::bind(&QuoriCmd::ping_resp_timer_cb,this));
-            ping_resp_timer->cancel();
+            if(!use_sim_time) {
+                ping_timer = this->create_wall_timer(500ms,std::bind(&QuoriCmd::ping_timer_cb,this));
+                ping_resp_timer = this->create_wall_timer(PING_RESP_TIMEOUT,std::bind(&QuoriCmd::ping_resp_timer_cb,this));
+                ping_resp_timer->cancel();
+            }
 
 
             RCLCPP_INFO(get_logger(),"Quori Cmd Init Ok");

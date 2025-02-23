@@ -21,7 +21,7 @@ class HeadTeleop(Node):
 
         self.neck_rate = 0.3
         self.pan_rate = 4.0
-        self.tilt_rate = 0.5
+        self.tilt_rate = 3.0
 
         self.neck_pub = self.create_publisher(Float64, 'sim/neck_joint_pos_cmd', 10)
         self.tilt_pub = self.create_publisher(Float64, 'sim/tilt_joint_pos_cmd', 10)

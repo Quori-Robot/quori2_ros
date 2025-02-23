@@ -14,7 +14,12 @@
   <link name="base_footprint"/>
 
   <!-- Main reference point -->
-  <link name="base_link"/>
+  <link name="base_link">
+      <!-- give it some inertia to keep gazebo happy -->
+      <xacro:cylinder_inertia m="0.01" r="${spine_radius}" h="0.5">
+      <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    </xacro:cylinder_inertia>
+  </link>
 
   <joint name="base_joint" type="fixed">
     <parent link="base_footprint"/>
@@ -23,13 +28,6 @@
   </joint>
 
   <link name="body_plate_link">
-    <visual>
-      <geometry>
-        <cylinder radius="${base_plate_radius}" length="${base_plate_height}"/> 
-      </geometry>
-      <material name="PaperYellow"/>
-    </visual>
-
     <collision>
       <geometry>
         <cylinder radius="${base_plate_radius}" length="${base_plate_height}"/>
@@ -47,6 +45,78 @@
     <origin xyz="0.0 0.0 ${base_plate_z_offset}" rpy="0 0 0"/>
   </joint>
 
+  <link name="bucket_mesh">
+    <visual>
+      <geometry>
+        <mesh filename="package://quori_description/meshes/DAE/0221_REV-A_URDF_Bucket.dae" scale="1.0 1.0 1.0"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="torso_mesh">
+    <visual>
+      <geometry>
+        <mesh filename="package://quori_description/meshes/DAE/0221_REV-A_URDF_Torso.dae" scale="1.0 1.0 1.0"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="skirt_mesh">
+    <visual>
+      <geometry>
+        <mesh filename="package://quori_description/meshes/DAE/0221_REV-A_URDF_Skirt.dae" scale="1.0 1.0 1.0"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="upper_base_mesh">
+    <visual>
+      <geometry>
+        <mesh filename="package://quori_description/meshes/DAE/0221_REV-A_URDF_UpperBase.dae" scale="1.0 1.0 1.0"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="neck_mesh">
+    <visual>
+      <geometry>
+        <mesh filename="package://quori_description/meshes/DAE/0221_REV-A_URDF_Neck.dae" scale="1.0 1.0 1.0"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="base_mesh_link" />
+
+  <joint name="base_mesh_joint" type="fixed">
+    <parent link="twist_offset_link"/>
+    <child link="base_mesh_link"/>
+    <origin xyz="0.0 0.0 ${mesh_z_offset}" rpy="0 0 ${mesh_yaw_offset}"/>
+  </joint>
+
+  <joint name="bucket_mesh_joint" type="fixed">
+    <parent link="base_mesh_link"/>
+    <child link="bucket_mesh"/>
+  </joint>
+
+  <joint name="torso_mesh_joint" type="fixed">
+    <parent link="base_mesh_link"/>
+    <child link="torso_mesh"/>
+  </joint>
+
+  <joint name="skirt_mesh_joint" type="fixed">
+    <parent link="base_mesh_link"/>
+    <child link="skirt_mesh"/>
+  </joint>
+
+  <joint name="upper_base_mesh_joint" type="fixed">
+    <parent link="base_mesh_link"/>
+    <child link="upper_base_mesh"/>
+  </joint>
+
+  <joint name="neck_mesh_joint" type="fixed">
+    <parent link="base_mesh_link"/>
+    <child link="neck_mesh"/>
+  </joint>
 
   <link name="lidar_plate_link">
     <visual>
@@ -68,43 +138,23 @@
   </link>
 
   <joint name="lidar_plate_joint" type="fixed">
-    <parent link="base_link"/>
+    <parent link="twist_offset_link"/>
     <child link="lidar_plate_link"/>
     <origin xyz="0.0 0.0 ${lidar_plate_z_offset}" rpy="0 0 0"/>
   </joint>
 
-  <link name="body_center_link">
-    <visual>
-      <geometry>
-        <cylinder radius="${body_center_radius}" length="${base_plate_z_offset}"/> 
-      </geometry>
-      <material name="DarkGray"/>
-    </visual>
-
-    <collision>
-      <geometry>
-        <cylinder radius="${body_center_radius}" length="${base_plate_z_offset}"/>
-      </geometry>
-    </collision>
-
-    <xacro:cylinder_inertia m="1" r="${body_center_radius}" h="${base_plate_z_offset}">
-       <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
-    </xacro:cylinder_inertia>
-  </link>
-
-  <joint name="body_center_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="body_center_link"/>
-    <origin xyz="0.0 0.0 ${base_plate_z_offset/2}" rpy="0 0 0"/>
-  </joint>
 
   <!-- Robot Diff Base -->
   <link name="diff_base_link">
     <visual>
+      <origin xyz="0.0 0.0 ${mesh_z_offset}" rpy="0 0 ${mesh_yaw_offset}"/>
       <geometry>
-        <cylinder radius="${diff_base_radius}" length="${diff_base_height}"/> 
+        <!-- cylinder radius="${diff_base_radius}" length="${diff_base_height}"/ --> 
+        <mesh filename="package://quori_description/meshes/DAE/0221_REV-A_URDF_LowerBase.dae" scale="1.0 1.0 1.0"/>
+       
+
       </geometry>
-      <material name="PaperYellow"/>
+      <!-- material name="PaperYellow"/ -->
 =
     </visual>
 
@@ -144,13 +194,13 @@
   <link name="spine_link">
 
     <origin xyz="0 0 0" rpy="0 0 0"/>
-    <visual>
+    <!-- visual>
       <geometry>
          <cylinder radius="${spine_radius}" length="${spine_height}"/> 
       </geometry>
       <material name="DarkGray"/>
 
-    </visual>
+    </visual -->
 
     <collision>
       <geometry>
@@ -171,26 +221,11 @@
   </joint>
 
   <link name="collar_link" >
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <visual>
-      <geometry>
-         <cylinder radius="${collar_radius}" length="${collar_height}"/> 
-      </geometry>
-      <material name="BodyWhite"/>
-
-    </visual>
-
-    <collision>
-      <geometry>
-        <cylinder radius="${collar_radius}" length="${collar_height}"/>  
-      </geometry>
-    </collision>
-
-    <xacro:cylinder_inertia m="0.1" r="${collar_radius}" h="${collar_height}">
-       <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    <xacro:cylinder_inertia m="0.01" r="${spine_radius}" h="0.5">
+      <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
     </xacro:cylinder_inertia>
-
   </link>
+  
 
   <joint name="neck_joint" type="prismatic">
     <parent link="spine_link"/>
@@ -199,19 +234,21 @@
     <limit lower="${-neck_travel/2}" upper="${neck_travel/2}" effort="1000" velocity="0.3" />
     <dynamics friction="0.01" damping="0.001" />
     <origin xyz="0.0 0.0 ${spine_height/2-neck_travel/2-0.02}" rpy="0 0 0"/>
-  </joint>
+  </joint> 
 
   <link name="neck_link"> 
 
     <origin xyz="${neck_depth/2} 0.0 0.0" rpy="0 0 0"/>
     <visual>
-      <origin xyz="${neck_depth/2} 0.0 0.0" rpy="0 0 0"/>
+      <origin xyz="0.0 0.0 0.0" rpy="0 0 ${pi/2}"/>
       <geometry>
-        <box size="${neck_depth} ${neck_width} ${neck_height}"/> 
+         <!-- cylinder radius="${collar_radius}" length="${collar_height}"/ --> 
+        <mesh filename="package://quori_description/meshes/DAE/0221_REV-A_URDF_HeadClamp2.dae" scale="0.001 0.001 0.001"/>
       </geometry>
-      <material name="BodyWhite"/>
+      <!-- material name="BodyWhite"/ -->
 
     </visual>
+
 
     <collision> 
       <origin xyz="${neck_depth/2} 0.0 0.0" rpy="0 0 0"/>
@@ -237,52 +274,24 @@
 
 
   <!-- Robot Head -->
-  <link name="head_stalk_link">
-
-    <origin xyz="${neck_depth/2} 0 0" rpy="0 0 0"/>
-    <visual>
-      <origin xyz="${neck_depth/2} 0.0 0.0" rpy="0 0 0"/>
-      <geometry>
-       
-        <box size="${neck_depth} ${neck_width} ${neck_height}"/> 
-      </geometry>
-      <material name="BodyWhite"/>
-
-    </visual>
-
-    <collision> 
-      <origin xyz="${neck_depth/2} 0.0 0.0" rpy="0 0 0"/>
-      <geometry>
-       
-        <box size="${neck_depth} ${neck_width} ${neck_height}"/>  
-      </geometry>
-    </collision>
-
-    <xacro:box_inertia m="0.2" y="${neck_width}" z="${neck_height}" x="${neck_depth}"> 
-         <origin xyz="${neck_depth/2} 0.0 0.0" rpy="0 0 0"/>
-    </xacro:box_inertia>
-
-  </link>
-
-
   <joint name="tilt_joint" type="revolute">
     <parent link="neck_link"/>
-    <child link="head_stalk_link"/>
+    <child link="head_link"/>
     <axis xyz="0 1 0"/>
     <limit lower="${-pi/4}" upper="${pi/4}"  effort="10000" velocity="400"/>
     <dynamics friction="0.01" damping="0.001" />
-    <origin xyz="${neck_depth} 0.0 0.0" rpy="0 0 0"/>
+    <origin xyz="${head_tilt_x_off} 0.0 0.0" rpy="0 0 0"/>
   </joint>
  
    <link name="head_link">
     <origin xyz="0 0 0" rpy="0 0 0"/>
-    <visual>
+    <!-- visual>
       <geometry>
         <box size="${head_depth} ${head_width} ${head_height}"/> 
       </geometry>
       <material name="White"/>
 
-    </visual>
+    </visual -->
 
     <collision>
       <geometry>
@@ -295,10 +304,34 @@
 
   </link>
 
-  <joint name="head_stalk_joint" type="fixed">
-    <parent link="head_stalk_link"/>
-    <child link="head_link"/>
-    <origin xyz="${neck_depth} 0.0 0.0" rpy="0 0 0"/>
+  <link name="head_mesh">
+   <visual>
+      <origin xyz="0.0 0.0 0.0" rpy="0 0 ${pi/2}"/>
+      <geometry>
+         <mesh filename="package://quori_description/meshes/DAE/0221_REV-A_URDF_Head2.dae"  scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="visor_mesh">
+   <visual>
+      <origin xyz="0.0 0.0 0.0" rpy="0 0 ${pi/2}"/>
+      <geometry>
+         <mesh filename="package://quori_description/meshes/DAE/0221_REV-A_URDF_Visor2.dae"  scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="head_mesh_joint" type="fixed">
+    <parent link="head_link"/>
+    <child link="head_mesh"/>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="head_visor_joint" type="fixed">
+    <parent link="head_link"/>
+    <child link="visor_mesh"/>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
   </joint>
 
   <!-- IMUs -->

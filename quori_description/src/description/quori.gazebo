@@ -309,31 +309,6 @@
             <d_gain>1</d_gain>
         </plugin>
 
-
-        <!-- plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
-  
-            <!- - wheels - ->
-            <left_joint>left_wheel_joint</left_joint>
-            <right_joint>right_wheel_joint</right_joint>
-
-            <!- - kinematics - ->
-            <wheel_separation>${2*wheel_yoff}</wheel_separation>
-            <wheel_radius>${wheel_radius}</wheel_radius> 
-
-            <!- - limits - ->
-            <max_linear_acceleration>200.0</max_linear_acceleration> 
-
-            <topic>cmd_vel</topic> 
-
-            <odom_topic>odom_raw</odom_topic> 
-            <frame_id>odom</frame_id> 
-            <child_frame_id>base_footprint</child_frame_id> 
-            <odom_publisher_frequency>30</odom_publisher_frequency>
-
-            <tf_topic>/tf</tf_topic>
-
-        </plugin -->
-
         <!-- publish wheel and twsit joints -->
         <plugin filename="gz-sim-joint-state-publisher-system"
             name="gz::sim::systems::JointStatePublisher">
@@ -347,7 +322,7 @@
         <!-- publish neck,pan,tilt joints -->
         <plugin filename="gz-sim-joint-state-publisher-system"
             name="gz::sim::systems::JointStatePublisher">
-            <topic>neck_joint_states</topic> 
+            <topic>head_joint_states</topic> 
             <joint_name>neck_joint</joint_name>
             <joint_name>tilt_joint</joint_name>
             <joint_name>pan_joint</joint_name>
