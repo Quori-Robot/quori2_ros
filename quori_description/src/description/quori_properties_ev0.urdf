@@ -8,6 +8,10 @@
   <xacro:property name="base_plate_radius" value="0.140"/>
   <xacro:property name="base_plate_height" value="0.010"/>
   <xacro:property name="base_plate_z_offset" value="0.2"/> <!-- above base link -->
+  
+  <xacro:property name="mesh_z_offset" value="-0.046"/>     <!-- correct DAE mesh origins -->
+  <xacro:property name="mesh_yaw_offset" value="${pi/2}"/> <!-- correct DAE mesh origins -->
+  
 
   <xacro:property name="body_center_radius" value="0.03"/> 
 
@@ -19,10 +23,11 @@
   <xacro:property name="diff_base_height" value="0.06"/>
 
   <xacro:property name="spine_radius" value="0.035"/>
-  <xacro:property name="spine_height" value="0.5"/>
+  <xacro:property name="spine_height" value="1.154"/>
   <xacro:property name="spine_x_offset" value="0.07"/>
 
   <xacro:property name="neck_travel" value="0.25"/>
+  <xacro:property name="head_tilt_x_off" value="0.15"/>
 
   <xacro:property name="collar_radius" value="0.05"/>
   <xacro:property name="collar_height" value="0.04"/>
@@ -33,7 +38,7 @@
 
   <xacro:property name="head_width" value="0.200"/>
   <xacro:property name="head_depth" value="0.030"/>
-  <xacro:property name="head_height" value="0.100"/>
+  <xacro:property name="head_height" value="0.080"/>
 
   <xacro:property name="wheel_radius" value="0.065"/>
   <xacro:property name="wheel_width" value="0.03"/>
@@ -52,13 +57,13 @@
   <xacro:property name="lidar2_ang_offset" value="${-pi/2}"/>
 
  
-  <xacro:property name="cam_top_xoff" value="0.00"/>
-  <xacro:property name="cam_top_zoff" value="${head_height/2+0.04}"/>
+  <xacro:property name="cam_top_xoff" value="0.088"/>
+  <xacro:property name="cam_top_zoff" value="${head_height/2+0.01}"/>
   <xacro:property name="cam_top_tilt" value="0.0"/>
 
-  <xacro:property name="cam_rgb_xoff" value="0.03"/>
+  <!-- xacro:property name="cam_rgb_xoff" value="0.03"/>
   <xacro:property name="cam_rgb_zoff" value="1.02"/>
-  <xacro:property name="cam_rgb_tilt" value="0.0"/>
+  <xacro:property name="cam_rgb_tilt" value="0.0"/ -->
 
   <xacro:property name="imu_base_mtr_x" value="-0.06"/>
   <xacro:property name="imu_base_mtr_y" value="0.06"/>
@@ -67,7 +72,7 @@
   <xacro:property name="imu_base_mtr_pitch" value="0.0"/>
   <xacro:property name="imu_base_mtr_yaw" value="0.0"/>
 
-  <xacro:property name="imu_head_x" value="${-head_depth/2-0.01}"/>
+  <xacro:property name="imu_head_x" value="${0.08}"/>
   <xacro:property name="imu_head_y" value="0.0"/>
   <xacro:property name="imu_head_z" value="0.045"/>
   <xacro:property name="imu_head_roll" value="0.0"/>
@@ -87,7 +92,7 @@
   <xacro:property name="respeaker_z" value="${spine_height/2}"/>
   <xacro:property name="respeaker_yaw" value="${pi/4}"/>
 
-  <xacro:property name="head_speaker_x" value="-${head_depth/2+0.005}"/>
+  <xacro:property name="head_speaker_x" value="0.08"/>
   <xacro:property name="head_speaker_y" value="0.06"/>
   <xacro:property name="head_speaker_z" value="0.04"/>
   <xacro:property name="head_speaker_roll" value="0.0"/>

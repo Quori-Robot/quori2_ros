@@ -14,13 +14,18 @@
 #include "quori_msgs/msg/quori_cmd.hpp"
 #include "quori_msgs/msg/quori_version_info.hpp"
 #include "quori_msgs/msg/switch_status.hpp"
+#include "quori_msgs/msg/quori_health_status.hpp"
 #include "std_msgs/msg/string.hpp"
 
 #include "quori/quori_node_types.hpp"
 #include "quori2_interface/quori2_interface.h"
 using std::placeholders::_1;
 
+#define PING_RESP_TIMEOUT 500ms
+
 #define MK_PACKET_CB(func) [] (NET_PACKET & packet, short unsigned int stream_id, void * arg) { ((QuoriCmd*)arg)->func(packet,stream_id,arg); }
+
+using namespace std::chrono_literals;
 
 class QuoriCmd : public rclcpp::Node 
 { 
@@ -33,8 +38,15 @@ class QuoriCmd : public rclcpp::Node
         rclcpp::Subscription<quori_msgs::msg::QuoriCmd>::SharedPtr cmd_sub;
         rclcpp::Publisher<quori_msgs::msg::QuoriVersionInfo>::SharedPtr version_info_pub;
         rclcpp::Publisher<quori_msgs::msg::SwitchStatus>::SharedPtr switch_sts_pub;
+        rclcpp::Publisher<quori_msgs::msg::QuoriHealthStatus>::SharedPtr health_sts_pub;
+
+        rclcpp::TimerBase::SharedPtr ping_timer;
+        rclcpp::TimerBase::SharedPtr ping_resp_timer;
 
         bool _shutdown = false;
+        uint8_t ping_seq = 0;
+        bool got_ping_reply=false;
+        bool use_sim_time=false;
 
     public:
         QuoriCmd() : Node("quori_cmd") {
@@ -44,6 +56,7 @@ class QuoriCmd : public rclcpp::Node
             
             params.robot_ip_address = get_parameter("robot_ip_address").as_string();
             params.ethernet_interface = get_parameter("ethernet_interface").as_string();
+            use_sim_time = get_parameter("use_sim_time").as_bool();
            
             RCLCPP_INFO(get_logger(),"Param: robot_ip_address=%s",params.robot_ip_address.c_str());
             RCLCPP_INFO(get_logger(),"Param: ethernet_interface=%s",params.ethernet_interface.c_str());
@@ -62,6 +75,7 @@ class QuoriCmd : public rclcpp::Node
             cmd_sub = create_subscription<quori_msgs::msg::QuoriCmd>("quori_cmd",10, std::bind(&QuoriCmd::cmd_cb,this,_1));
             version_info_pub = create_publisher<quori_msgs::msg::QuoriVersionInfo>("quori_version_info",10);
             switch_sts_pub = create_publisher<quori_msgs::msg::SwitchStatus>("quori_switch_status",10);
+            health_sts_pub = create_publisher<quori_msgs::msg::QuoriHealthStatus>("quori_health_status",10);
 
             sts = quori_start_streaming(context);
             RCLCPP_INFO(get_logger(),"Quori Node streaming started: sts=%d",(uint32_t)sts); 
@@ -69,6 +83,13 @@ class QuoriCmd : public rclcpp::Node
                 int qerr = quori_get_errno();
                 RCLCPP_INFO(get_logger(),"QuoriLib start stream error: %d",qerr); 
             }
+
+            if(!use_sim_time) {
+                ping_timer = this->create_wall_timer(500ms,std::bind(&QuoriCmd::ping_timer_cb,this));
+                ping_resp_timer = this->create_wall_timer(PING_RESP_TIMEOUT,std::bind(&QuoriCmd::ping_resp_timer_cb,this));
+                ping_resp_timer->cancel();
+            }
+
 
             RCLCPP_INFO(get_logger(),"Quori Cmd Init Ok");
 
@@ -154,8 +175,44 @@ class QuoriCmd : public rclcpp::Node
             if(packet.header.type == NET_PACKET_TYPE::PT_SHUTDOWN) {
                RCLCPP_INFO(get_logger(),"Quori Cmd Shutdown Requested");
                _shutdown = true;
-               RCLCPP_INFO(get_logger(),"Quori Cmd Shutdown Request done");
+               //RCLCPP_INFO(get_logger(),"Quori Cmd Shutdown Request done");
             }
+
+            
+            if(packet.header.type == NET_PACKET_TYPE::PT_PING) {
+                ping_resp_timer->cancel();
+                //RCLCPP_INFO(get_logger(),"Quori Cmd got Ping Response");
+                got_ping_reply=true;
+            }
+
+            if(packet.header.type == NET_PACKET_TYPE::PT_HEALTH_STATUS) {
+                  
+                quori_msgs::msg::QuoriHealthStatus msg;
+                msg.status_flags = (uint32_t) packet.data.health_status.status;
+                if(got_ping_reply) {
+                    msg.status_flags |= (uint32_t) HealthFlags::HF_BASE_BOARD_OK;
+                }
+                else {
+                    msg.status_flags &= ~(uint32_t)HealthFlags::HF_BASE_BOARD_OK;
+                }
+                health_sts_pub->publish(msg);
+            }
+        }
+
+        void ping_timer_cb(void) {
+            ping_resp_timer->reset();
+            quori_send_quori_ping_packet(context,ping_seq);
+        }
+
+        
+        void ping_resp_timer_cb(void) {
+            ping_resp_timer->cancel();
+            RCLCPP_INFO(get_logger(),"Quori Cmd Missed Ping Response");
+            got_ping_reply=false;
+            quori_msgs::msg::QuoriHealthStatus msg;
+            msg.status_flags = (uint32_t) HealthFlags::HF_ORIN_OK;
+            health_sts_pub->publish(msg);
+
         }
 
 

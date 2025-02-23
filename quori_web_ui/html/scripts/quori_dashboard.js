@@ -8,16 +8,33 @@
 
   ros.on('connection', function() {
     console.log('Connected to websocket server.');
+    show_health_status(0);
+    doresize();
   });
 
   ros.on('error', function(error) {
     console.log(`Error connecting to websocket server @${window.location.hostname}: ${error}`);
+    show_health_status(0);
   });
 
   ros.on('close', function() {
     console.log('Connection to websocket server closed.');
+    show_health_status(0);
   });
 
+  function doresize() {
+    var header = document.getElementById("header");
+    var footer = document.getElementById("footer");
+    var body = document.getElementById("main_body");
+    var page = document.getElementById("page");
+
+    header_size = header.getBoundingClientRect();
+    footer_size = footer.getBoundingClientRect();
+    page_size = footer_size.top - header_size.bottom-30;
+
+    body.style.height = `${(page_size).toFixed(0)}px`;
+    console.log(`header: ${header_size.height}, footer: ${footer_size.height}, page: ${page_size.height}, new body: ${body.style.height}`);
+  };
   
   var quori_ivt = new ROSLIB.Message({
     num_values : 0 ,   // number of valid entries in the arrays
@@ -116,6 +133,8 @@
           case 8192: 
             name="BATT SOC";
             units="%";
+            bat_ind = document.getElementById("batt_ind");
+            bat_ind.style.width =  message.value[v].toFixed(0) + "%";
             break;
       }
       if(message.valid[v]) {
@@ -202,6 +221,61 @@
     }
 
   });
+
+  var quori_health_sts_listener = new ROSLIB.Topic({
+    ros : ros,
+    name : '/quori_health_status',
+    messageType : 'quori_msgs/QuoriHealthStatus'
+  });
+
+	var HF_NONE=0;
+
+	var HF_BASE_BOARD_OK=1;
+	var HF_HEAD_BOARD_OK=2;
+	var HF_POWER_BOARD_OK=4;
+	var HF_BASE_MTR_BOARD_OK=8;
+
+	var HF_ORIN_OK=16;
+
+	var HF_RBTQ_OK=32;
+
+	var HF_TWIST_MOTOR_OK=64;
+	var HF_NECK_MOTOR_OK=128;
+	var HF_PAN_MOTOR_OK=256;
+	var HF_TILT_MOTOR_OK=512;
+
+  function show_health_status_value(tag,flags,bit) {
+    var el = document.getElementById(tag);
+
+    if( (flags & bit) == bit) {
+      el.innerHTML = "Ok";
+      el.style="color: green;";
+    }
+    else {
+      el.innerHTML = "Not Responding";
+      el.style="color: red;";
+    }
+  };
+
+
+  quori_health_sts_listener.subscribe(function(message) {
+      var flags = message.status_flags;
+      show_health_status(flags);
+  });
+
+  function show_health_status(flags) {
+      show_health_status_value("orin_sts",flags,HF_ORIN_OK);
+      show_health_status_value("base_board_sts",flags, HF_BASE_BOARD_OK);
+      show_health_status_value("head_board_sts",flags, HF_HEAD_BOARD_OK);
+      show_health_status_value("power_board_sts",flags, HF_POWER_BOARD_OK);
+      show_health_status_value("base_motor_board_sts",flags, HF_BASE_MTR_BOARD_OK);
+      show_health_status_value("rbtq_sts",flags, HF_RBTQ_OK);
+      show_health_status_value("twist_sts",flags, HF_TWIST_MOTOR_OK);
+      show_health_status_value("neck_sts",flags, HF_NECK_MOTOR_OK);
+      show_health_status_value("pan_sts",flags, HF_PAN_MOTOR_OK);
+      show_health_status_value("tilt_sts",flags, HF_TILT_MOTOR_OK);
+
+  };
 
   // Publishers
   var quori_cmd = new ROSLIB.Topic({
