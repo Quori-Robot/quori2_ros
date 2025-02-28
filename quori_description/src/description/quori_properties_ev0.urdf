@@ -27,7 +27,7 @@
   <xacro:property name="spine_x_offset" value="0.07"/>
 
   <xacro:property name="neck_travel" value="0.25"/>
-  <xacro:property name="head_tilt_x_off" value="0.15"/>
+  <xacro:property name="head_tilt_x_off" value="0.148"/>
 
   <xacro:property name="collar_radius" value="0.05"/>
   <xacro:property name="collar_height" value="0.04"/>
