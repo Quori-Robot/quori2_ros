@@ -1,21 +1,21 @@
 teleop_joy:
   ros__parameters:
     require_enable_button: True
-    enable_button: 6 
+    enable_button: 6
 
     axis_linear.x: 1
-    axis_linear.y: 2 
+    axis_linear.y: 2
     axis_linear.z: 4
 
-    scale_linear.x: 0.5
-    scale_linear.y: 0.5
-    scale_linear.z: 1.0
+    scale_linear.x: 0.4
+    scale_linear.y: 0.4
+    scale_linear.z: 0.7
 
     axis_angular.yaw: 0 
-    axis_angular.pitch: 5
-    axis_angular.roll: 3
+    axis_angular.pitch: 6
+    axis_angular.roll: 7
 
-    scale_angular.yaw: 2.0
+    scale_angular.yaw: 1.5
     scale_angular.pitch: 1.0
     scale_angular.roll: 1.0
     
