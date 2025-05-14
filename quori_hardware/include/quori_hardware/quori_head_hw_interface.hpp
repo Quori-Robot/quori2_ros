@@ -72,7 +72,7 @@ private:
   // Joint Parameters
   float initial_position[3] = { 0.0,0.0,0.0};
   float max_vel[3]={1.0,1.0,1.0};
-  float max_trq[3]={0.5,0.5,0.5};
+  float max_trq[3]={3.0,3.0,3.0};
   float max_accel[3] = {NAN,NAN,NAN};
   float transmission_ratio[3] = { 1.0,1.0,1.0};
 };

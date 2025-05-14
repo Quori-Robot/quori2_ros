@@ -215,9 +215,9 @@
 
 
   <joint name="spine_joint" type="fixed">
-    <parent link="body_plate_link"/>
+    <parent link="twist_offset_link"/>
     <child link="spine_link"/>
-    <origin xyz="${spine_x_offset} 0.0 ${(spine_height/2+base_plate_height/2)}" rpy="0 0 0"/>
+    <origin xyz="${spine_x_offset} 0.0 ${spine_height}" rpy="0 0 0"/>
   </joint>
 
   <link name="collar_link" >
@@ -233,7 +233,7 @@
     <axis xyz="0 0 1"/>
     <limit lower="${-neck_travel/2}" upper="${neck_travel/2}" effort="1000" velocity="0.3" />
     <dynamics friction="0.01" damping="0.001" />
-    <origin xyz="0.0 0.0 ${spine_height/2-neck_travel/2-0.02}" rpy="0 0 0"/>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
   </joint> 
 
   <link name="neck_link"> 
@@ -306,7 +306,7 @@
 
   <link name="head_mesh">
    <visual>
-      <origin xyz="0.0 0.0 0.0" rpy="0 0 ${pi/2}"/>
+      <origin xyz="-0.028 0.0 0.0" rpy="0 0 ${pi/2}"/>
       <geometry>
          <mesh filename="package://quori_description/meshes/DAE/0221_REV-A_URDF_Head2.dae"  scale="0.001 0.001 0.001"/>
       </geometry>
@@ -315,7 +315,7 @@
 
   <link name="visor_mesh">
    <visual>
-      <origin xyz="0.0 0.0 0.0" rpy="0 0 ${pi/2}"/>
+      <origin xyz="-0.028 0.0 0.0" rpy="0 0 ${pi/2}"/>
       <geometry>
          <mesh filename="package://quori_description/meshes/DAE/0221_REV-A_URDF_Visor2.dae"  scale="0.001 0.001 0.001"/>
       </geometry>
@@ -507,7 +507,7 @@
   <link name="respeaker_link"/>
 
   <joint name="respeaker_joint" type="fixed">
-    <parent link="spine_link"/>
+    <parent link="twist_offset_link"/>
     <child link="respeaker_link"/>
     <origin xyz="${respeaker_x} ${respeaker_y} ${respeaker_z}" rpy="0 0 ${respeaker_yaw}"/>
   </joint>
