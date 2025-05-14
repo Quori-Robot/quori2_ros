@@ -23,11 +23,11 @@
   <xacro:property name="diff_base_height" value="0.06"/>
 
   <xacro:property name="spine_radius" value="0.035"/>
-  <xacro:property name="spine_height" value="1.154"/>
+  <xacro:property name="spine_height" value="1.144"/>
   <xacro:property name="spine_x_offset" value="0.07"/>
 
-  <xacro:property name="neck_travel" value="0.25"/>
-  <xacro:property name="head_tilt_x_off" value="0.15"/>
+  <xacro:property name="neck_travel" value="0.174"/>
+  <xacro:property name="head_tilt_x_off" value="0.148"/>
 
   <xacro:property name="collar_radius" value="0.05"/>
   <xacro:property name="collar_height" value="0.04"/>
@@ -57,7 +57,7 @@
   <xacro:property name="lidar2_ang_offset" value="${-pi/2}"/>
 
  
-  <xacro:property name="cam_top_xoff" value="0.088"/>
+  <xacro:property name="cam_top_xoff" value="0.060"/>
   <xacro:property name="cam_top_zoff" value="${head_height/2+0.01}"/>
   <xacro:property name="cam_top_tilt" value="0.0"/>
 
@@ -72,7 +72,7 @@
   <xacro:property name="imu_base_mtr_pitch" value="0.0"/>
   <xacro:property name="imu_base_mtr_yaw" value="0.0"/>
 
-  <xacro:property name="imu_head_x" value="${0.08}"/>
+  <xacro:property name="imu_head_x" value="0.052"/>
   <xacro:property name="imu_head_y" value="0.0"/>
   <xacro:property name="imu_head_z" value="0.045"/>
   <xacro:property name="imu_head_roll" value="0.0"/>
@@ -87,12 +87,12 @@
   <xacro:property name="imu_main_yaw" value="0.0"/>
 
 
-  <xacro:property name="respeaker_x" value="0.0"/>
+  <xacro:property name="respeaker_x" value="${spine_x_offset}"/>
   <xacro:property name="respeaker_y" value="0.0"/>
-  <xacro:property name="respeaker_z" value="${spine_height/2}"/>
+  <xacro:property name="respeaker_z" value="${1.333}"/>
   <xacro:property name="respeaker_yaw" value="${pi/4}"/>
 
-  <xacro:property name="head_speaker_x" value="0.08"/>
+  <xacro:property name="head_speaker_x" value="0.052"/>
   <xacro:property name="head_speaker_y" value="0.06"/>
   <xacro:property name="head_speaker_z" value="0.04"/>
   <xacro:property name="head_speaker_roll" value="0.0"/>

@@ -58,11 +58,11 @@ class HeadTeleop(Node):
         self.pan  += self.pan_rate   * pan  * dt
         self.tilt += self.tilt_rate  * tilt * dt
 
-        if self.neck  < -0.2: #0.0:
-            self.neck = -0.2 #0.0
+        if self.neck  < -0.087: #0.0:
+            self.neck = -0.087 #0.0
 
-        if self.neck  > 0.2: # 0.5:
-            self.neck = 0.2  #0.5
+        if self.neck  > 0.087: # 0.5:
+            self.neck = 0.087  #0.5
 
         if self.pan  < -math.pi/2:
             self.pan = -math.pi/2
@@ -70,11 +70,11 @@ class HeadTeleop(Node):
         if self.pan  > math.pi/2:
             self.pan = math.pi/2
 
-        if self.tilt  < -math.pi/4:
-            self.tilt = -math.pi/4
+        if self.tilt  < -0.47:
+            self.tilt = -0.47
 
-        if self.tilt  > math.pi/4:
-            self.tilt = math.pi/4
+        if self.tilt  > 0.47:
+            self.tilt = 0.47
 
 
         cmd_msg_group = Float64MultiArray()

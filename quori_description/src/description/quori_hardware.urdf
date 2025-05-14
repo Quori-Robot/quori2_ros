@@ -14,10 +14,10 @@
                 <state_interface name="position"/>
                 <state_interface name="velocity"/>
                 <param name="initial_position">0.0</param>
-                <param name="max_velocity">1.0</param>       
+                <param name="max_velocity">50.0</param>       
                 <param name="max_torque">6.0</param>
                 <param name="max_accel">1000.0</param>
-                <param name="transmission_ratio">180.0</param>
+                <param name="transmission_ratio">785.0</param>
             </joint>
             <joint name="pan_joint">
                 <command_interface name="position"/>
