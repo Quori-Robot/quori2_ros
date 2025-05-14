@@ -19,7 +19,7 @@ def generate_launch_description():
     # Declare arguments
     args = [
         DeclareLaunchArgument('controller_type', default_value='xbox_one'), 
-        DeclareLaunchArgument('dev_name', default_value='Xbox Wireless Controller'), 
+        DeclareLaunchArgument('dev_name', default_value='Xbox Series X Controller'), 
         DeclareLaunchArgument('deadzone', default_value='0.2'), 
         DeclareLaunchArgument('autorepeaterate', default_value='20'), 
         DeclareLaunchArgument('coalesce_interval', default_value='0.001'), 
