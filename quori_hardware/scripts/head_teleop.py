@@ -49,7 +49,7 @@ class HeadTeleop(Node):
         dt = (t-self.last_time).nanoseconds/ 1e9 
         self.last_time = t
 
-        neck = (msg.axes[5]-msg.axes[2])/2
+        neck = (msg.axes[5]-msg.axes[4])/2
         pan  = msg.axes[6]
         tilt = msg.axes[7]
 
