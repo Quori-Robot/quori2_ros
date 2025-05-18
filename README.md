@@ -10,19 +10,19 @@ This repo provides the ROS2 jazzy packages for the Quori2 Robot.
 
 Install additional ros-jazzy binaries that may not already be installed:
 
-```
+```bash
 sudo apt-get install ros-jazzy-rplidar-ros ros-jazzy-teleop-twist-keyboard  ros-jazzy-ros-gz
 ```
 
 Make a ros workspace folder <ros_ws>/src - the default path is ~/dev/semio/ros_ws/src
 
-```
+```bash
 mkdir -p ~/dev/semio/ros_ws/src
 ```
 
 You will need to install the OrbbecSDK_ROS2 source package into the same workspace src folder as quori2_ros
 
-```
+```bash
 cd <ros_ws>/src
 git clone https://github.com/orbbec/OrbbecSDK_ROS2.git
 
@@ -48,7 +48,7 @@ sudo make install
 Git clone the quori2_ros repo to the ROS2 workspace/src folder.
 
 
-```
+```bash
 cd <ros_ws>/src
 git clone git@github.com:Quori-Robot/quori2_ros.git
 
@@ -59,10 +59,16 @@ cd ..
 
 Note: on the embedded Nvidia Orin AGX this should be done within the quori docker image that is run on the machine.
 
-```
+```bash
 cd <ros_ws>/src
 colcon build --symlink-install
 source ./install/setup.bash
+```
+
+Note: an issue with snap package install may give Gazebo errors, try unsetting the following:
+```bash
+unset GTK_PATH
+unset GIO_MODULE_DIR
 ```
 
 ### Run the robot
@@ -82,7 +88,7 @@ These files are in the quori_launch/scripts folder, add this folder to your PATH
 
 *Run the robot*:
 
-```
+```bash
 ros2 launch quori_launch quori_launch.py [mode:=navigation|mapping] [map:=<full path to map file>] [controller_type:=xbox360|xbox_one]
 or
 run_robot [mode:=navigation|mapping] [map:=<full path to map file>] [controller_type:=xbox360|xbox_one]
@@ -90,7 +96,7 @@ run_robot [mode:=navigation|mapping] [map:=<full path to map file>] [controller_
 
 *Run the simulation*:
 
-```
+```bash
 ros2 launch quori_launch quori_sim_launch.py [mode:=navigation|mapping] [map:=<full path to map file>] [controller_type:=xbox360|xbox_one] [world:=<full path to gazebo world file to use>]
 or
 run_sim [mode:=navigation|mapping] [map:=<full path to map file>] [controller_type:=xbox360|xbox_one] [world:=<full path to gazebo world file to use>]
@@ -110,7 +116,7 @@ Note: in simulation after gazebo and rviz have launched - you may need to use th
 
 When running in mapping mode to save the map - open a second terminal and run the save_map command
 
-```
+```bash
 ros2 run nav2_map_server map_saver_cli -f <full path to map file name>
 or
 save map <map_name>
@@ -141,7 +147,7 @@ The button mapping is shown below
 
 To operate the robot via the keyboard open a second terminal and run the teleop keyboard node as follows:
 
-```
+```bash
 ros2 launch quori_launch teleop_kb_only_launch.py
 ```
 
