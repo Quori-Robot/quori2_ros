@@ -19,3 +19,8 @@ teleop_joy:
     scale_angular.pitch: 1.0
     scale_angular.roll: 1.0
     
+head_teleop:
+  ros__parameters:
+    axis_neck: 4,5
+    axis_pan:  6
+    axis_tilt: 7

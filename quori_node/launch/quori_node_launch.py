@@ -25,15 +25,23 @@ def generate_launch_description():
         DeclareLaunchArgument('xy_offset', default_value='0.117935'), 
         DeclareLaunchArgument('publish_odom_tf', default_value='True'),
         DeclareLaunchArgument('publish_wheel_joint_states', default_value='True'),
+        DeclareLaunchArgument('use_sim_time', default_value='false'),
         DeclareLaunchArgument('swap_left_right', default_value='False'),
         DeclareLaunchArgument('mtr1_dir', default_value='1'),
         DeclareLaunchArgument('mtr2_dir', default_value='1'),
         DeclareLaunchArgument('mtr3_dir', default_value='1'),
-        DeclareLaunchArgument('use_sim_time', default_value='false')
     ]
 
     # Node configuration
     parameters = {arg.name: LaunchConfiguration(arg.name) for arg in args}
+    #parameters_motors_real = {arg.name: LaunchConfiguration(arg.name) for arg in args_motors_real}
+    #parameters_motors_sim = {arg.name: LaunchConfiguration(arg.name) for arg in args_motors_sim}
+
+    swap_left_right = PythonExpression(["'True' if '", LaunchConfiguration("use_sim_time"), "' == 'true' else '",  LaunchConfiguration('swap_left_right'), "'"])
+    mtr1_dir = PythonExpression(["-1 if '", LaunchConfiguration("use_sim_time"), "' == 'true' else ", LaunchConfiguration('mtr1_dir')])
+    mtr2_dir = PythonExpression(["-1 if '", LaunchConfiguration("use_sim_time"), "' == 'true' else ", LaunchConfiguration('mtr2_dir')])
+
+    motor_parameters =  {'swap_left_right': swap_left_right, 'mtr1_dir' : mtr1_dir, 'mtr2_dir' : mtr2_dir }
 
     # get  ROS_DISTRO
     ros_distro = os.environ["ROS_DISTRO"]
@@ -42,7 +50,7 @@ def generate_launch_description():
             package='quori_node',
             name='quori_node',
             executable='quori_node',
-            parameters=[parameters],
+            parameters=[parameters, motor_parameters],
             output='screen'
     )
     
@@ -50,7 +58,7 @@ def generate_launch_description():
         package='quori_node',
         name='quori_cmd',
         executable='quori_cmd',
-        parameters=[parameters],
+        parameters=[parameters,motor_parameters],
         output='screen',
     )
 
@@ -58,7 +66,7 @@ def generate_launch_description():
         package='quori_node',
         name='quori_ivt',
         executable='quori_ivt',
-        parameters=[parameters],
+        parameters=[parameters,motor_parameters],
         output='screen',
         condition=UnlessCondition(LaunchConfiguration('use_sim_time'))
     )

@@ -23,6 +23,20 @@ class HeadTeleop(Node):
         self.pan_rate = 4.0
         self.tilt_rate = 3.0
 
+        self.declare_parameter("axis_neck",[4,5])
+        self.declare_parameter("axis_pan",6)
+        self.declare_parameter("axis_tilt",7)
+
+       
+
+        [self.neck_axis_p,self.neck_axis_n] = self.get_parameter('axis_neck').get_parameter_value().integer_array_value
+        # = [int(n) for n in self.neck_axis.split(",")]
+
+        self.axis_pan = self.get_parameter('axis_pan').get_parameter_value().integer_value
+        self.axis_tilt = self.get_parameter('axis_tilt').get_parameter_value().integer_value
+
+        self.get_logger().info(f'Head teleop Node got params:\n\taxis_pan [{self.neck_axis_p}-{self.neck_axis_n}]\n\taxis_pan {self.axis_pan}\n\taxis_tilt {self.axis_tilt}')
+
         self.neck_pub = self.create_publisher(Float64, 'sim/neck_joint_pos_cmd', 10)
         self.tilt_pub = self.create_publisher(Float64, 'sim/tilt_joint_pos_cmd', 10)
         self.pan_pub = self.create_publisher(Float64, 'sim/pan_joint_pos_cmd', 10)
@@ -49,9 +63,9 @@ class HeadTeleop(Node):
         dt = (t-self.last_time).nanoseconds/ 1e9 
         self.last_time = t
 
-        neck = (msg.axes[5]-msg.axes[4])/2
-        pan  = msg.axes[6]
-        tilt = msg.axes[7]
+        neck = (msg.axes[self.neck_axis_p]-msg.axes[self.neck_axis_n])/2
+        pan  = msg.axes[self.axis_pan]
+        tilt = msg.axes[self.axis_tilt]
 
         
         self.neck += self.neck_rate  * neck * dt
