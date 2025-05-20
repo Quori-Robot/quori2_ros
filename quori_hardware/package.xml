@@ -19,6 +19,10 @@
   <depend>sensor_msgs</depend>
   <depend>rclcpp_lifecycle</depend>
   <depend>quori_msgs</depend>
+
+  <exec_depend>controller_manager</exec_depend>
+  
+  <depend>ros2_control_test_assets</depend>
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
   <test_depend>ament_add_gtest</test_depend>

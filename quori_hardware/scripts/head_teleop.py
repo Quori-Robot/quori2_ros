@@ -35,7 +35,7 @@ class HeadTeleop(Node):
         self.axis_pan = self.get_parameter('axis_pan').get_parameter_value().integer_value
         self.axis_tilt = self.get_parameter('axis_tilt').get_parameter_value().integer_value
 
-        self.get_logger().info(f'Head teleop Node got params:\n\taxis_pan [{self.neck_axis_p}-{self.neck_axis_n}]\n\taxis_pan {self.axis_pan}\n\taxis_tilt {self.axis_tilt}')
+        self.get_logger().info(f'Head teleop Node got params:\n\taxis_neck [{self.neck_axis_p}-{self.neck_axis_n}]\n\taxis_pan {self.axis_pan}\n\taxis_tilt {self.axis_tilt}')
 
         self.neck_pub = self.create_publisher(Float64, 'sim/neck_joint_pos_cmd', 10)
         self.tilt_pub = self.create_publisher(Float64, 'sim/tilt_joint_pos_cmd', 10)
