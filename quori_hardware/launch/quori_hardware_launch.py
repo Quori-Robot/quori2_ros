@@ -15,7 +15,8 @@ from launch.conditions import IfCondition,UnlessCondition
 def generate_launch_description():
 
     args = [
-        DeclareLaunchArgument(name= 'use_sim_time', default_value='false',  description='Use simulation (Gazebo) clock if true')
+        DeclareLaunchArgument(name= 'use_sim_time', default_value='false',  description='Use simulation (Gazebo) clock if true'),
+        DeclareLaunchArgument('controller_type', default_value='xbox_one'), 
     ]
 
     use_sim_time = LaunchConfiguration('use_sim_time')
@@ -27,6 +28,9 @@ def generate_launch_description():
             "head_hardware_controller_config.yaml",
         ]
     )
+
+    joy_teleop_config_path = [ FindPackageShare("quori_launch"),"/config/",LaunchConfiguration('controller_type'),"_config.yaml"]
+ 
 
     #pkg_share = launch_ros.substitutions.FindPackageShare(package='quori_hardware').find('quori_hardware')
     parameters = {arg.name: LaunchConfiguration(arg.name) for arg in args}
@@ -85,7 +89,7 @@ def generate_launch_description():
         executable="head_teleop.py",
         remappings=[("/head_joint_pos_cmds","/joint_group_position_controller/commands")],
         output="both",
-        parameters=[parameters],
+        parameters=[parameters,joy_teleop_config_path],
     )
         # Delay start of joint_state_broadcaster after `robot_controller`
     # TODO(anyone): This is a workaround for flaky tests. Remove when fixed.

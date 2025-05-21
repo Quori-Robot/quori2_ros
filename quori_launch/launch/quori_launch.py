@@ -16,9 +16,11 @@ def generate_launch_description():
         DeclareLaunchArgument('mode', default_value='navigation'),   
         DeclareLaunchArgument('map', default_value=os.path.join(get_package_share_directory("quori_nav"), 'maps', 'cafe2.yaml'), description='Full path to map yaml file to load'),
         DeclareLaunchArgument('controller_type', default_value='xbox_one'), 
+        #DeclareLaunchArgument('controller_type', default_value='xbox360'), 
 
         DeclareLaunchArgument('web_address', default_value='192.168.0.28'), 
         #DeclareLaunchArgument('web_address', default_value='192.168.0.58'), 
+        #DeclareLaunchArgument('web_address', default_value='192.168.0.27'), 
         #DeclareLaunchArgument('web_address', default_value='10.10.2.245'), 
 
 

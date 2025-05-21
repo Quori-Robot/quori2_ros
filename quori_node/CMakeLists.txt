@@ -19,6 +19,7 @@ find_package(quori_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(Eigen3 3.3 REQUIRED)
+find_package(Threads REQUIRED)
 
 find_package(Quori2_Interface REQUIRED)
 

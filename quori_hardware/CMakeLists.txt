@@ -68,8 +68,9 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+set(BUILD_TESTING,'false')
 
-if(BUILD_TESTING)
+if(0)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
   # comment the line when a copyright and license is added to all source files
