@@ -1,0 +1,151 @@
+#! /usr/bin/env python3
+
+from ftplib import FTP as ftp, all_errors, error_perm
+import bincopy
+import sys
+import CRC32_STM32 as crc32
+import os
+import io
+
+USER = ""
+PASSWORD = ""
+HOST_IP = "10.2.99.111"
+
+class FTPClient(object):
+    def __init__(self):
+        try:
+            self.client = ftp(HOST_IP, USER, PASSWORD)
+            self.client.login()
+        except all_errors as e:
+            print(f"FTP connection/login error: {e}")
+            raise
+        self.sent = 0
+        self.length = 0
+
+    def put(self, file_name, file, length):
+        self.sent = 0
+        self.length = length
+        try:
+            self.client.storbinary(f"STOR {file_name}", file, 8192, self.progress)
+        except error_perm as e:
+            print(f"FTP permission error during upload of {file_name}: {e}")
+            raise
+        except all_errors as e:
+            print(f"FTP error during upload of {file_name}: {e}")
+            raise
+        except Exception as e:
+            print(f"Unexpected error during upload of {file_name}: {e}")
+            raise
+
+    def progress(self, data):
+        self.sent += len(data)
+        try:
+            percent = (100 * self.sent / self.length)
+        except ZeroDivisionError:
+            percent = 100.0
+        print(f"sent {percent:5.1f}%, [{self.sent}/{self.length}] bytes")
+
+class SRecord(object):
+    def __init__(self, file_name):
+        try:
+            self.bindata = bincopy.BinFile(file_name)
+        except Exception as e:
+            print(f"Error loading S-record file '{file_name}': {e}")
+            raise
+
+class Bootloader(object):
+    def __init__(self, file_name, target, version):
+        try:
+            self.binfile = SRecord(file_name)
+            self.start_addr = self.binfile.bindata.minimum_address
+            self.end_addr = self.binfile.bindata.maximum_address
+            self.length = self.end_addr - self.start_addr
+
+            # align start and end addresses to 32 byte boundaries
+            self.adj_start_addr = self.start_addr & 0xFFFFFFE0
+            if (self.end_addr & 0x1f) != 0:
+                self.adj_end_addr = (self.end_addr & 0xFFFFFFE0) + 32
+            else:
+                self.adj_end_addr = self.end_addr
+
+            self.adj_length = self.adj_end_addr - self.adj_start_addr
+
+            if (self.adj_length != self.length):
+                pad_data = bytearray([0xFF for x in range(self.adj_length - self.length)])
+                self.binfile.bindata.add_binary(pad_data, self.end_addr)
+
+            print(f"Loaded firmware image '{file_name}'\n\tRaw Size -        Data Length: {self.length}, Range: 0x{self.start_addr:08x}-0x{self.end_addr:08x}")
+            print(f"\tAdjusted Size -   Data Length: {self.adj_length}, Range: 0x{self.adj_start_addr:08x}-0x{self.adj_end_addr:08x}\n")
+            #print(f"Data has {len(self.binfile.bindata.segments)} segments\n")
+
+            self.data = self.binfile.bindata.as_binary(
+                minimum_address=self.adj_start_addr,
+                maximum_address=self.adj_end_addr,
+                padding=b'\xFF'
+            )
+            self.binfile = None
+
+            try:
+                crc = crc32.CRC32_STM32()
+                self.crc = crc.calculate(bytes(self.data))
+                print(f"Adjusted data CRC = 0x{self.crc:08x}")
+            except Exception as ex:
+                print(f"Exception calculating CRC: {ex}")
+                raise
+
+            fname = os.path.basename(file_name)
+            boot_info = f"file_name: {fname}\nversion: {version}\ncrc: 0x{self.crc:08x}\nlength: {self.adj_length}\ntarget: {target}\n"
+            print(f"Sending boot_image.dat:\n{boot_info}")
+
+            self.ftp = FTPClient()
+            try:
+                self.ftp.put("boot_image.dat", io.BytesIO(boot_info.encode()), len(boot_info))
+            except Exception as e:
+                print(f"Failed to upload boot_image.dat: {e}")
+                raise
+
+            print(f"Sending firmware image: {file_name}")
+            try:
+                with open(file_name, "br") as f:
+                    srec_len = os.fstat(f.fileno()).st_size
+                    self.ftp.put(fname, f, srec_len)
+            except FileNotFoundError:
+                print(f"Firmware file '{file_name}' not found.")
+                raise
+            except PermissionError:
+                print(f"Permission denied when accessing '{file_name}'.")
+                raise
+            except Exception as e:
+                print(f"Error uploading firmware image: {e}")
+                raise
+
+            print("File Upload completed.\nPlease reset the robot to apply the firmware changes.\n")
+        except Exception as e:
+            print(f"Bootloader error: {e}")
+            raise
+
+def usage():
+    print("Usage: bootloader <firmware.srec> <target> <version>\n\tfirmware.srec: filename of srec file to flash\n\ttarget: main_board | head_board | power_board | base_mtr_board\n\tversion: version string for firmware image\n")
+
+targets = ["main_board", "head_board", "power_board", "base_mtr_board"]
+
+if __name__ == "__main__":
+    try:
+        if len(sys.argv) < 4:
+            usage()
+            sys.exit(-1)
+
+        file_name = sys.argv[1]
+        target = sys.argv[2]
+        version = sys.argv[3]
+
+        if target not in targets:
+            print(f"Error: target must be one of: {', '.join(targets)}")
+            usage()
+            sys.exit(-2)
+
+        bl = Bootloader(file_name, target, version)
+        sys.exit(0)
+    except Exception as e:
+        print(f"Fatal error: {e}")
+        sys.exit(-3)
