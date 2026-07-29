@@ -6,6 +6,7 @@
                 <plugin>quori_hardware/QuoriHeadSystemHardware</plugin>
                 <param name="robot_ip_address">10.2.99.111</param>
                 <param name="ethernet_interface">eth0</param>
+                <param name="joint_mode">cyclic_position</param>
             </hardware>
             <joint name="neck_joint">
                 <command_interface name="position"/>
@@ -14,10 +15,10 @@
                 <state_interface name="position"/>
                 <state_interface name="velocity"/>
                 <param name="initial_position">0.0</param>
-                <param name="max_velocity">50.0</param>       
-                <param name="max_torque">6.0</param>
-                <param name="max_accel">1000.0</param>
-                <param name="transmission_ratio">785.0</param>
+                <param name="max_velocity">200.0</param>       
+                <param name="max_torque">8.0</param>
+                <param name="max_accel">5200.0</param>
+                <param name="transmission_ratio">785.4</param>
             </joint>
             <joint name="pan_joint">
                 <command_interface name="position"/>
@@ -26,9 +27,9 @@
                 <state_interface name="position"/>
                 <state_interface name="velocity"/>
                 <param name="initial_position">0.0</param>
-                <param name="max_velocity">200.0</param>
-                <param name="max_torque">5.0</param>
-                <param name="max_accel">500</param>
+                <param name="max_velocity">3.0</param>
+                <param name="max_torque">8.0</param>
+                <param name="max_accel">60</param>
                 <param name="transmission_ratio">1.0</param>
             </joint>
             <joint name="tilt_joint">
@@ -38,9 +39,9 @@
                 <state_interface name="position"/>
                 <state_interface name="velocity"/>
                 <param name="initial_position">0.0</param>
-                <param name="max_velocity">200.0</param>
-                <param name="max_torque">5.0</param>
-                <param name="max_accel">500</param>
+                <param name="max_velocity">3.0</param>
+                <param name="max_torque">8.0</param>
+                <param name="max_accel">20.0</param>
                 <param name="transmission_ratio">1.0</param>
             </joint>
         </ros2_control>

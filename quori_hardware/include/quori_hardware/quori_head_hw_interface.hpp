@@ -54,8 +54,15 @@ private:
 
   QuoriContext context;
 
+  enum JOINT_MODE {
+    JointModeUnknown = 0,
+    JointModeVelocity = 1,
+    JointModeCyclicPosition = 2
+  };
+
   std::string robot_ip_address="10.2.99.111";
   std::string ethernet_interface="eth0";
+  JOINT_MODE joint_mode = JointModeUnknown;
 
   // State
   double st_pos[3]={0.0,0.0,0.0};
@@ -64,10 +71,20 @@ private:
   double st_pos_latest[3]={0.0,0.0,0.0};
   double st_vel_latest[3]={0.0,0.0,0.0};
 
+  double cmd_pos_last[3] = { NAN, NAN, NAN };
+
+  rclcpp::Time last_time[3];
+  double target_pos_f[3] = {0.0, 0.0, 0.0};
+
+  const double tp_filt_coeff = 0.7;
+
   // Commands
   double cmd_pos[3]={0.0,0.0,0.0};
   double cmd_vel[3]={0.0,0.0,0.0};
   double cmd_accel[3]={0.0,0.0,0.0};
+  double cmd_ctl[3]={0.0,0.0,0.0};
+
+
 
   // Joint Parameters
   float initial_position[3] = { 0.0,0.0,0.0};

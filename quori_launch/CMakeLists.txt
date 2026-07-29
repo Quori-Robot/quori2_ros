@@ -23,7 +23,7 @@ install(DIRECTORY
     DESTINATION share/${PROJECT_NAME}
     )
 
-# Install config files
+# Install script files
 install(DIRECTORY 
     scripts
     DESTINATION share/${PROJECT_NAME}

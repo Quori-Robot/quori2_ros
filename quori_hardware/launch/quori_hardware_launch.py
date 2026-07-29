@@ -17,9 +17,11 @@ def generate_launch_description():
     args = [
         DeclareLaunchArgument(name= 'use_sim_time', default_value='false',  description='Use simulation (Gazebo) clock if true'),
         DeclareLaunchArgument('controller_type', default_value='xbox_one'), 
+        DeclareLaunchArgument('do_head_teleop', default_value='true', description='if true run the head teleop controller'), 
     ]
 
     use_sim_time = LaunchConfiguration('use_sim_time')
+    do_head_teleop = LaunchConfiguration('do_head_teleop')
 
     robot_controllers_config = PathJoinSubstitution(
         [
@@ -60,6 +62,14 @@ def generate_launch_description():
         condition=UnlessCondition(use_sim_time),
     )
 
+    joint_group_vel_ctrl_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["joint_group_velocity_controller", "--param-file", robot_controllers_config],
+        output="both",
+        condition=UnlessCondition(use_sim_time),
+    )
+
     neck_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
@@ -83,13 +93,40 @@ def generate_launch_description():
         output="both",
         condition=UnlessCondition(use_sim_time),
     )
+    
+    
+    neck_cyclic_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["neck_cyclic_pos_ctrl", "--param-file", robot_controllers_config],
+        output="both",
+        condition=UnlessCondition(use_sim_time),
+    )
+
+    pan_cyclic_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["pan_cyclic_pos_ctrl", "--param-file", robot_controllers_config],
+        output="both",
+        condition=UnlessCondition(use_sim_time),
+    )
+    
+    tilt_cyclic_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["tilt_cyclic_pos_ctrl", "--param-file", robot_controllers_config],
+        output="both",
+        condition=UnlessCondition(use_sim_time),
+    )
 
     head_teleop = Node(
         package="quori_hardware",
         executable="head_teleop.py",
-        remappings=[("/head_joint_pos_cmds","/joint_group_position_controller/commands")],
+        #remappings=[("/head_joint_pos_cmds","/joint_group_position_controller/commands")],
+        remappings=[("/head_joint_vel_cmds","/joint_group_velocity_controller/commands")],
         output="both",
         parameters=[parameters,joy_teleop_config_path],
+        condition=IfCondition(do_head_teleop),
     )
         # Delay start of joint_state_broadcaster after `robot_controller`
     # TODO(anyone): This is a workaround for flaky tests. Remove when fixed.
@@ -109,8 +146,13 @@ def generate_launch_description():
             #pan_controller_spawner,
             #tilt_controller_spawner,
             #neck_controller_spawner,
-            joint_group_pos_ctrl_spawner,
-            delay_joint_state_broadcaster_after_robot_controller_spawner,
+            pan_cyclic_controller_spawner,
+            tilt_cyclic_controller_spawner,
+            neck_cyclic_controller_spawner,
+            #joint_group_vel_ctrl_spawner,
+            #joint_group_pos_ctrl_spawner,
+            joint_state_broadcaster_spawner,
+            #delay_joint_state_broadcaster_after_robot_controller_spawner,
             head_teleop,
         ]
     )

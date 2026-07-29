@@ -5,7 +5,7 @@
 #include <limits>
 #include <memory>
 #include <vector>
-
+#include <algorithm>
 #include "quori_hardware/quori_head_hw_interface.hpp"
 
 
@@ -13,6 +13,19 @@
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
 
+
+// command interface values
+#define CP_CMD_STOP 0 // send stop command
+#define CP_CMD_CONT 1 // set cyclic position final velocity = velocity
+#define CP_CMD_ZERO 2 // set  cyclic position final velocity to 0
+#define PP_CMD_POS  3 // set profile position 
+#define PV_CMD_VEL  4 // set profile velocity 
+
+static std::string str_tolower(std::string s)
+{
+    std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c){ return std::tolower(c); } );
+    return s;
+}
 
 namespace quori_hardware {
 
@@ -26,6 +39,22 @@ hardware_interface::CallbackReturn QuoriHeadSystemHardware::on_init(const hardwa
 
   robot_ip_address=info_.hardware_parameters["robot_ip_address"];
   ethernet_interface=info_.hardware_parameters["ethernet_interface"];
+  std::string jmode = info_.hardware_parameters["joint_mode"];
+
+  if(str_tolower(jmode)=="cyclic_position") {
+      joint_mode = JOINT_MODE::JointModeCyclicPosition;
+  }
+  else if(str_tolower(jmode)=="velocity") {
+      joint_mode = JOINT_MODE::JointModeVelocity;
+  }
+  else {
+      RCLCPP_FATAL(
+        rclcpp::get_logger("QuoriHeadSystemHardware"),
+
+
+        "joint_mode parameter not found. This parameter is mandatory!!.");
+      return hardware_interface::CallbackReturn::ERROR;
+  }
 
   if(info_.joints.size() != 3) {
       RCLCPP_FATAL(
@@ -64,6 +93,7 @@ hardware_interface::CallbackReturn QuoriHeadSystemHardware::on_init(const hardwa
         joint.command_interfaces[0].name.c_str(), hardware_interface::HW_IF_VELOCITY);
       return hardware_interface::CallbackReturn::ERROR;
     }
+
     if (joint.command_interfaces[2].name != hardware_interface::HW_IF_ACCELERATION)
     {
       RCLCPP_FATAL(
@@ -171,14 +201,16 @@ hardware_interface::CallbackReturn QuoriHeadSystemHardware::on_configure(const r
         return hardware_interface::CallbackReturn::ERROR;
     }
     float pos[3] = { (float)cmd_pos[0], (float)cmd_pos[1], (float)cmd_pos[2]};
-    quori_send_head_mtr_cmd_packet(context,pos,max_vel,max_trq,max_accel,MTR_CMD_FLAGS::MTR_CMD_STOP);
+    MTR_CMD_FLAGS cmds[3] = {MTR_CMD_FLAGS::MTR_CMD_STOP,MTR_CMD_FLAGS::MTR_CMD_STOP,MTR_CMD_FLAGS::MTR_CMD_STOP};
+    quori_send_head_mtr_cmd_packet(context,pos,max_vel,max_trq,max_accel,cmds);
 
     return hardware_interface::CallbackReturn::SUCCESS;
 }
 
 hardware_interface::CallbackReturn QuoriHeadSystemHardware::on_cleanup(const rclcpp_lifecycle::State &  /*previous_state*/) {
   float pos[3] = { (float)cmd_pos[0], (float)cmd_pos[1], (float)cmd_pos[2]};
-  quori_send_head_mtr_cmd_packet(context,pos,max_vel,max_trq,max_accel,MTR_CMD_FLAGS::MTR_CMD_STOP);
+  MTR_CMD_FLAGS cmds[3] = {MTR_CMD_FLAGS::MTR_CMD_STOP,MTR_CMD_FLAGS::MTR_CMD_STOP,MTR_CMD_FLAGS::MTR_CMD_STOP};
+  quori_send_head_mtr_cmd_packet(context,pos,max_vel,max_trq,max_accel,cmds);
 
   quori_close(context);
   return hardware_interface::CallbackReturn::SUCCESS;
@@ -186,8 +218,8 @@ hardware_interface::CallbackReturn QuoriHeadSystemHardware::on_cleanup(const rcl
 
 hardware_interface::CallbackReturn QuoriHeadSystemHardware::on_shutdown(const rclcpp_lifecycle::State &  /*previous_state*/) {
   float pos[3] = { (float)cmd_pos[0], (float)cmd_pos[1], (float)cmd_pos[2]};
-  
-  quori_send_head_mtr_cmd_packet(context,pos,max_vel,max_trq,max_accel,MTR_CMD_FLAGS::MTR_CMD_STOP);
+  MTR_CMD_FLAGS cmds[3] = {MTR_CMD_FLAGS::MTR_CMD_STOP,MTR_CMD_FLAGS::MTR_CMD_STOP,MTR_CMD_FLAGS::MTR_CMD_STOP};
+  quori_send_head_mtr_cmd_packet(context,pos,max_vel,max_trq,max_accel,cmds);
 
   return hardware_interface::CallbackReturn::SUCCESS;
 }
@@ -217,6 +249,11 @@ std::vector<hardware_interface::CommandInterface> QuoriHeadSystemHardware::expor
       info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, (double*)&cmd_vel[i]));
     command_interfaces.emplace_back(hardware_interface::CommandInterface(
       info_.joints[i].name, hardware_interface::HW_IF_ACCELERATION, (double*)&cmd_accel[i]));
+
+    if (joint_mode == JOINT_MODE::JointModeCyclicPosition) {
+      command_interfaces.emplace_back(hardware_interface::CommandInterface(
+         info_.joints[i].name, "control", (double*)&cmd_ctl[i]));
+    }
   }
 
   return command_interfaces;
@@ -238,6 +275,8 @@ hardware_interface::CallbackReturn QuoriHeadSystemHardware::on_activate(
     cmd_pos[i] = NAN;
     cmd_vel[i] = NAN;
     cmd_accel[i] = NAN;
+
+    cmd_ctl[i]= CP_CMD_STOP;
   }
   
   RCLCPP_INFO(rclcpp::get_logger("QuoriHeadSystemHardware"), "Successfully activated!");
@@ -269,31 +308,112 @@ hardware_interface::return_type QuoriHeadSystemHardware::read(
 }
 
 hardware_interface::return_type QuoriHeadSystemHardware::write(
-  const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
+  const rclcpp::Time & time, const rclcpp::Duration & /*period*/)
 {
   RCLCPP_DEBUG(rclcpp::get_logger("QuoriHeadSystemHardware"), "Writing...");
 
+  (void)time;
+
+
+  if(std::isnan(cmd_ctl[0]) ||  std::isnan(cmd_ctl[1]) ||  std::isnan(cmd_ctl[2]) ) {
+    return hardware_interface::return_type::OK;
+  }
+  
   if( 
-      std::isnan(cmd_pos[0]) ||  std::isnan(cmd_pos[1]) ||  std::isnan(cmd_pos[2]) ||
-      //std::isnan(cmd_vel[0]) ||  std::isnan(cmd_vel[1]) ||  std::isnan(cmd_vel[2]) || 
+      //std::isnan(cmd_pos[0]) ||  std::isnan(cmd_pos[1]) ||  std::isnan(cmd_pos[2]) ||
+      std::isnan(cmd_vel[0]) ||  std::isnan(cmd_vel[1]) ||  std::isnan(cmd_vel[2]) || 
       std::isnan(st_vel[0])  ||  std::isnan(st_vel[1])  ||  std::isnan(st_vel[2])  ||  
       std::isnan(st_pos[0])  ||  std::isnan(st_pos[1])  ||  std::isnan(st_pos[2]) ) {
       return hardware_interface::return_type::OK;
   }
 
 
-  RCLCPP_DEBUG(rclcpp::get_logger("QuoriHeadSystemHardware"), "Writing Pos=%f, Writing Vel=%f",(float)cmd_pos[0], (float)cmd_vel[0]);
-  float pos[3] ={ (float)cmd_pos[0]* transmission_ratio[0], 
-                  (float)cmd_pos[1]* transmission_ratio[1],
-                  (float)cmd_pos[2]* transmission_ratio[2]};
-
-  float vel[3] = { (float)cmd_vel[0] * transmission_ratio[0], 
-                   (float)cmd_vel[1] * transmission_ratio[1],
-                   (float)cmd_vel[2] * transmission_ratio[2]
-                  };
-  float accel[3] = { (float)max_accel[0], (float)max_accel[1], (float)max_accel[2]};
+  if (joint_mode == JOINT_MODE::JointModeCyclicPosition) {
   
-  quori_send_head_mtr_cmd_packet(context,pos,vel,max_trq,accel,MTR_CMD_FLAGS::MTR_CMD_SET_POS);
+    float pos[3] = { 
+                     (float)cmd_pos[0] * transmission_ratio[0], 
+                     (float)cmd_pos[1] * transmission_ratio[1],
+                     (float)cmd_pos[2] * transmission_ratio[2]
+                   };
+ 
+    float vel[3] = { 
+                     (float)cmd_vel[0] * transmission_ratio[0], 
+                     (float)cmd_vel[1] * transmission_ratio[1],
+                     (float)cmd_vel[2] * transmission_ratio[2]
+                   };
+
+    float accel[3]; 
+    MTR_CMD_FLAGS cmds[3];
+
+    for(int j=0; j < 3; j++) {
+
+      if (isnanf(cmd_accel[j])) {
+          accel[j] = (float)max_accel[j] * transmission_ratio[j];
+      }
+      else {
+          accel[j] = (float)cmd_accel[j] * transmission_ratio[j];
+      }
+
+      switch((int)cmd_ctl[j]) {
+
+        case CP_CMD_CONT:
+          cmds[j] =MTR_CMD_FLAGS::MTR_CMD_SET_CYCLIC_POS;
+          if (std::isnan(cmd_pos[j])) {
+             return hardware_interface::return_type::OK;
+          }
+          break;
+
+        case CP_CMD_STOP:
+          cmds[j] =MTR_CMD_FLAGS::MTR_CMD_STOP;
+          break;
+
+        case CP_CMD_ZERO:
+          cmds[j] =MTR_CMD_FLAGS::MTR_CMD_SET_CYCLIC_POS_ZERO;
+          if (std::isnan(cmd_pos[j])) {
+             return hardware_interface::return_type::OK;
+          }
+          break;
+
+        case PP_CMD_POS:
+          cmds[j] =MTR_CMD_FLAGS::MTR_CMD_SET_POS;
+          if (std::isnan(cmd_pos[j])) {
+             return hardware_interface::return_type::OK;
+          }
+          break;
+
+        case PV_CMD_VEL:
+          cmds[j] =MTR_CMD_FLAGS::MTR_CMD_SET_VEL;
+          break;
+      }
+
+    }
+
+    quori_send_head_mtr_cmd_packet(context,pos,vel,max_trq,accel,cmds);
+
+    return hardware_interface::return_type::OK;
+  }
+
+  if (joint_mode == JOINT_MODE::JointModeVelocity) {
+  
+    float vel[3] = {
+                    (float)cmd_vel[0] * transmission_ratio[0], 
+                    (float)cmd_vel[1] * transmission_ratio[1],
+                    (float)cmd_vel[2] * transmission_ratio[2]
+                   };
+
+    float accel[3]; 
+
+    float pos[3] = {0.0, 0.0, 0.0};
+
+    for(int j=0; j < 3; j++) {
+      accel[j] =  (float)max_accel[j] * transmission_ratio[j];
+    }
+
+    MTR_CMD_FLAGS cmds[3] = {MTR_CMD_FLAGS::MTR_CMD_SET_VEL,MTR_CMD_FLAGS::MTR_CMD_SET_VEL,MTR_CMD_FLAGS::MTR_CMD_SET_VEL};
+    quori_send_head_mtr_cmd_packet(context,pos,vel,max_trq,accel,cmds);
+
+    return hardware_interface::return_type::OK;
+  }
 
   return hardware_interface::return_type::OK;
 }

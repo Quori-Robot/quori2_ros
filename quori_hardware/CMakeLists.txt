@@ -65,6 +65,7 @@ ament_python_install_package(${PROJECT_NAME})
 # Install Python executables
 install(PROGRAMS
   scripts/head_teleop.py
+  scripts/head_animation.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
